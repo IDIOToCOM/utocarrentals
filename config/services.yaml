@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.timezone: 'Asia/Manila'
+    # Twig global in config/packages/twig.yaml (login/register Google button)
+    app.show_google_sign_in_ui: false
 
 services:
     # default configuration for services in *this* file
