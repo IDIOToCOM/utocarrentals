@@ -1,0 +1,72 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}About — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.4">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_public.html.twig' %}
+
+<main class="lp-page-main">
+  <section class="lp-page-hero">
+    <div class="lp-container">
+      <p class="lp-kicker">About Uto</p>
+      <h1 class="lp-page-title">Making rentals simple and transparent</h1>
+      <p class="lp-page-lead">We focus on clear pricing, well-maintained vehicles, and support that respects your time—whether you’re traveling for work or leisure.</p>
+    </div>
+  </section>
+
+  <section class="lp-section lp-page-section" aria-labelledby="mission-heading">
+    <div class="lp-container">
+      <h2 class="lp-section-title" id="mission-heading">Our mission</h2>
+      <p class="lp-page-text">Uto exists to remove friction from vehicle rental: honest rates, straightforward booking, and reliable cars so you can focus on the road ahead.</p>
+    </div>
+  </section>
+
+  <section class="lp-section lp-team-section" id="team" aria-labelledby="team-heading">
+    <div class="lp-container">
+      <div class="text-center mb-4">
+        <p class="lp-kicker">Meet the team</p>
+        <h2 class="lp-section-title" id="team-heading">The people behind Uto</h2>
+        <p class="lp-section-lead">Names and roles—aligned with how we serve customers every day.</p>
+      </div>
+      <div class="lp-team-grid">
+        <article class="lp-team-card">
+          <img class="lp-team-avatar lp-team-photo" src="{{ asset('images/team-ceo.png') }}" alt="Niño Jhanzhel Spencer S. Samson">
+          <h3 class="lp-team-name">Niño Jhanzhel Spencer S. Samson</h3>
+          <p class="lp-team-role">Founder &amp; CEO</p>
+          <p class="lp-team-bio">Sets direction for product and partnerships.</p>
+        </article>
+        <article class="lp-team-card">
+          <img class="lp-team-avatar lp-team-photo" src="{{ asset('images/team-member-1.png') }}" alt="Head of Operations">
+          <h3 class="lp-team-name">Jordan Reyes</h3>
+          <p class="lp-team-role">Head of Operations</p>
+          <p class="lp-team-bio">Oversees fleet readiness and customer logistics.</p>
+        </article>
+        <article class="lp-team-card">
+          <img class="lp-team-avatar lp-team-photo" src="{{ asset('images/team-member-2.png') }}" alt="Customer Experience Lead">
+          <h3 class="lp-team-name">Sam Villanueva</h3>
+          <p class="lp-team-role">Customer Experience Lead</p>
+          <p class="lp-team-bio">Ensures support stays fast, friendly, and clear.</p>
+        </article>
+        <article class="lp-team-card">
+          <img class="lp-team-avatar lp-team-photo" src="{{ asset('images/team-member-4.png') }}" alt="Product and Technology Lead">
+          <h3 class="lp-team-name">Riley Santos</h3>
+          <p class="lp-team-role">Product &amp; Technology</p>
+          <p class="lp-team-bio">Builds the tools that power booking and accounts.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_public.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

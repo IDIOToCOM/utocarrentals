@@ -1,0 +1,68 @@
+{# Explicit field order: combined rental dates (Flatpickr) + times #}
+<div class="form-group mb-3">
+  {{ form_label(form.name) }}
+  {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+  {{ form_errors(form.name) }}
+</div>
+<div class="form-group mb-3">
+  {{ form_label(form.phone) }}
+  {{ form_widget(form.phone, {'attr': {'class': 'form-control', 'type': 'tel', 'inputmode': 'tel', 'autocomplete': 'tel'}}) }}
+  {{ form_errors(form.phone) }}
+</div>
+<div class="form-group mb-3">
+  {{ form_label(form.status) }}
+  {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+  {{ form_errors(form.status) }}
+</div>
+<div class="form-group mb-3">
+  {{ form_label(form.car) }}
+  {{ form_widget(form.car, {'attr': {'class': 'form-control'}}) }}
+  {{ form_errors(form.car) }}
+</div>
+<div class="form-group mb-3">
+  {{ form_label(form.pickupLocation) }}
+  {{ form_widget(form.pickupLocation, {'attr': {'class': 'form-control'}}) }}
+  {{ form_errors(form.pickupLocation) }}
+</div>
+<div class="form-group mb-3">
+  {{ form_label(form.dropoffLocation) }}
+  {{ form_widget(form.dropoffLocation, {'attr': {'class': 'form-control'}}) }}
+  {{ form_errors(form.dropoffLocation) }}
+</div>
+
+<div class="form-group mb-3">
+  <label for="adminRentalDateRange" class="form-label"><i class="fas fa-calendar-days me-2"></i>Rental period</label>
+  <input type="text"
+         class="form-control js-rental-range-picker"
+         id="adminRentalDateRange"
+         placeholder="Click to open calendar (pickup date, then return date)"
+         autocomplete="off"
+         inputmode="none"
+         data-fp-pickup-id="{{ form.pickupDate.vars.id }}"
+         data-fp-return-id="{{ form.returnDate.vars.id }}">
+  {{ form_errors(form.pickupDate) }}
+  {{ form_errors(form.returnDate) }}
+</div>
+<div class="d-none" aria-hidden="true">
+  {{ form_widget(form.pickupDate, {'attr': {'class': 'form-control'}}) }}
+  {{ form_widget(form.returnDate, {'attr': {'class': 'form-control'}}) }}
+</div>
+
+<div class="form-group mb-3">
+  {{ form_label(form.pickupTime) }}
+  <div class="input-group">
+    <span class="input-group-text"><i class="fas fa-clock" aria-hidden="true"></i></span>
+    {{ form_widget(form.pickupTime, {'attr': {'class': 'form-control js-flatpickr-time', 'placeholder': 'Select time (AM/PM, 30-min slots)', 'autocomplete': 'off'}}) }}
+  </div>
+  {% include 'booking/_time_preset_chips.html.twig' with { variant: 'admin', target_id: form.pickupTime.vars.id, aria_label: 'Quick pickup times' } %}
+  {{ form_errors(form.pickupTime) }}
+</div>
+<div class="form-group mb-3">
+  {{ form_label(form.returnTime) }}
+  <div class="input-group">
+    <span class="input-group-text"><i class="fas fa-clock" aria-hidden="true"></i></span>
+    {{ form_widget(form.returnTime, {'attr': {'class': 'form-control js-flatpickr-time', 'placeholder': 'Select time (AM/PM, 30-min slots)', 'autocomplete': 'off'}}) }}
+  </div>
+  {% include 'booking/_time_preset_chips.html.twig' with { variant: 'admin', target_id: form.returnTime.vars.id, aria_label: 'Quick return times' } %}
+  {{ form_errors(form.returnTime) }}
+</div>

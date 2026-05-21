@@ -1,0 +1,67 @@
+<style>.flatpickr-calendar.open { z-index: 3000 !important; }</style>
+{% include 'booking/_flatpickr_range_legend_script.html.twig' %}
+<script src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
+<script>
+(function () {
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function ymd(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+
+  function mountFlatpickr(rangeInput) {
+    var pickupId = rangeInput.getAttribute('data-fp-pickup-id');
+    var returnId = rangeInput.getAttribute('data-fp-return-id');
+    var pickupInput = pickupId ? document.getElementById(pickupId) : null;
+    var returnInput = returnId ? document.getElementById(returnId) : null;
+
+    if (!pickupInput || !returnInput) {
+      console.warn('Rental range: could not find pickup/return fields for', rangeInput.id || rangeInput.className);
+      return;
+    }
+    if (typeof window.flatpickr !== 'function') {
+      console.error('Flatpickr did not load. Check that vendor/flatpickr/flatpickr.min.js is reachable.');
+      return;
+    }
+
+    var useMinToday = rangeInput.getAttribute('data-fp-min-today') === '1';
+    var defaultDates = [];
+    if (pickupInput.value && returnInput.value) {
+      defaultDates = [pickupInput.value, returnInput.value];
+    }
+
+    window.flatpickr(rangeInput, {
+      mode: 'range',
+      dateFormat: 'Y-m-d',
+      altInput: true,
+      altFormat: 'M j, Y',
+      allowInput: false,
+      clickOpens: true,
+      appendTo: document.body,
+      showMonths: typeof window.matchMedia !== 'undefined' && window.matchMedia('(min-width: 768px)').matches ? 2 : 1,
+      minDate: useMinToday ? 'today' : undefined,
+      defaultDate: defaultDates.length === 2 ? defaultDates : undefined,
+      onOpen: typeof window.fpRangeLegendOnOpen === 'function' ? window.fpRangeLegendOnOpen : undefined,
+      onChange: function (selectedDates) {
+        if (selectedDates.length === 2) {
+          pickupInput.value = ymd(selectedDates[0]);
+          returnInput.value = ymd(selectedDates[1]);
+        } else if (selectedDates.length === 0) {
+          pickupInput.value = '';
+          returnInput.value = '';
+        }
+      }
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll('.js-rental-range-picker').forEach(mountFlatpickr);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+})();
+</script>
+{% include 'booking/_flatpickr_booking_time_script.html.twig' %}

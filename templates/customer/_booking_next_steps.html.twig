@@ -1,0 +1,37 @@
+{# booking: App\Entity\Booking #}
+{% set status = booking.status|default('Pending') %}
+<div class="lp-booking-next-steps" role="status">
+  <h3 class="lp-booking-next-steps__title"><i class="fas fa-circle-info" aria-hidden="true"></i> What happens next</h3>
+  {% if status == 'Pending' %}
+    <p class="lp-booking-next-steps__text">Your request is <strong>pending</strong>. Our team will review it and confirm within 24 hours. This page will update when your status changes.</p>
+    <ul class="lp-booking-next-steps__list">
+      <li>Keep your phone handy — we may contact you at <strong>{{ booking.phone|default('the number on your booking') }}</strong>.</li>
+      <li>You can <strong>edit</strong> or <strong>cancel</strong> this request until we confirm (or until 24 hours before pickup).</li>
+    </ul>
+  {% elseif status == 'Confirmed' %}
+    <p class="lp-booking-next-steps__text">Your rental is <strong>confirmed</strong>. Please arrive on time with a valid ID and any payment method we agreed on.</p>
+    <ul class="lp-booking-next-steps__list">
+      {% if booking.pickupDate and booking.pickupLocation %}
+        <li><strong>Pickup:</strong> {{ booking.pickupLocation }} on {{ booking.pickupDate|date('l, M j, Y') }}{% if booking.pickupTime %} at {{ booking.pickupTime|date('g:i A') }}{% endif %}.</li>
+      {% endif %}
+      {% if booking.returnDate and booking.dropoffLocation %}
+        <li><strong>Return:</strong> {{ booking.dropoffLocation }} on {{ booking.returnDate|date('l, M j, Y') }}{% if booking.returnTime %} at {{ booking.returnTime|date('g:i A') }}{% endif %}.</li>
+      {% endif %}
+      <li>Need changes? Use <strong>Edit</strong> or <strong>Cancel booking</strong> below, or see our <a href="{{ path('app_rental_help') }}">pickup & FAQ guide</a> before pickup.</li>
+    </ul>
+  {% elseif status == 'Cancelled' %}
+    <p class="lp-booking-next-steps__text">This booking was <strong>cancelled</strong>. You are not scheduled for this rental.</p>
+    <p class="lp-booking-next-steps__text mb-0">Browse our fleet when you are ready to book again.</p>
+    <div class="lp-booking-next-steps__actions">
+      <a href="{{ path('app_car_catalog') }}" class="lp-btn lp-btn-primary lp-btn-sm">Browse vehicles</a>
+    </div>
+  {% elseif status == 'Refunded' %}
+    <p class="lp-booking-next-steps__text">This booking was <strong>refunded</strong>. Any payment we received has been returned according to our policy.</p>
+    <p class="lp-booking-next-steps__text mb-0">Questions about your refund? Contact <a href="mailto:{{ uto_support_email() }}">{{ uto_support_email() }}</a> with booking <strong>#{{ booking.id }}</strong>.</p>
+    <div class="lp-booking-next-steps__actions">
+      <a href="{{ path('app_car_catalog') }}" class="lp-btn lp-btn-primary lp-btn-sm">Browse vehicles</a>
+    </div>
+  {% else %}
+    <p class="lp-booking-next-steps__text mb-0">Status: <strong>{{ status }}</strong>. Contact us if you have questions about this rental.</p>
+  {% endif %}
+</div>

@@ -1,0 +1,13 @@
+{# Requires data-price-per-day on #rentalPriceEstimate; updated by booking form JS. #}
+<div
+  id="rentalPriceEstimate"
+  class="lp-rental-price-estimate{% if hidden|default(false) %} d-none{% endif %}"
+  data-price-per-day="{{ price_per_day|default(0) }}"
+  aria-live="polite">
+  <div class="lp-rental-price-estimate__inner">
+    <p class="lp-rental-price-estimate__label">Estimated total</p>
+    <p class="lp-rental-price-estimate__amount" id="rentalPriceEstimateAmount">—</p>
+    <p class="lp-rental-price-estimate__breakdown" id="rentalPriceEstimateBreakdown"></p>
+    <p class="lp-rental-price-estimate__note">Final amount may be confirmed by our team. Same formula used for payment.</p>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+{# variant: admin | hero | customer ; target_id: HTML id of the time input ; aria_label: string ; row_label: optional visible heading (e.g. Pickup, Return) #}
+{% set presets = [
+  { h: 8, m: 0, label: '8:00 AM' },
+  { h: 8, m: 30, label: '8:30 AM' },
+  { h: 9, m: 0, label: '9:00 AM' },
+  { h: 9, m: 30, label: '9:30 AM' },
+  { h: 10, m: 0, label: '10:00 AM' },
+  { h: 12, m: 0, label: '12:00 PM' },
+  { h: 12, m: 30, label: '12:30 PM' },
+  { h: 15, m: 0, label: '3:00 PM' },
+  { h: 17, m: 0, label: '5:00 PM' },
+  { h: 17, m: 30, label: '5:30 PM' },
+  { h: 18, m: 0, label: '6:00 PM' },
+] %}
+<div class="time-preset-block">
+  {% if row_label is defined and row_label %}
+    <span class="time-preset-row__label" id="time-preset-label-{{ target_id }}">{{ row_label }}</span>
+  {% endif %}
+  <div class="time-preset-row time-preset-row--{{ variant }}"
+       role="group"
+       {% if row_label is defined and row_label %}
+         aria-labelledby="time-preset-label-{{ target_id }}"
+       {% else %}
+         aria-label="{{ aria_label }}"
+       {% endif %}
+       data-fp-for="{{ target_id }}">
+    {% for p in presets %}
+      <button type="button" class="time-preset-chip" data-h="{{ p.h }}" data-min="{{ p.m }}">{{ p.label }}</button>
+    {% endfor %}
+  </div>
+</div>

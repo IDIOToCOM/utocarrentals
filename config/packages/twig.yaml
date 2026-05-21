@@ -1,0 +1,8 @@
+twig:
+    file_name_pattern: '*.twig'
+    globals:
+        show_google_sign_in_ui: '%app.show_google_sign_in_ui%'
+
+when@test:
+    twig:
+        strict_variables: true

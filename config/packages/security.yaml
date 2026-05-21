@@ -1,0 +1,116 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        'App\Entity\Login':
+            algorithm: auto
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        # Username or email (matches website login + mobile JWT login)
+        app_user_provider:
+            id: App\Security\LoginUserProvider
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        login:
+            pattern: ^/api/login$
+            stateless: true
+            provider: app_user_provider
+            user_checker: App\Security\UserChecker
+            json_login:
+                check_path: /api/login
+                username_path: username
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            jwt: ~
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticators:
+                - App\Security\LoginAuthenticator
+                - App\Security\GoogleStaffAuthenticator
+            user_checker: App\Security\UserChecker
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                target: app_home
+                invalidate_session: true
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+                always_remember_me: false
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # Public marketing site
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/about$, roles: PUBLIC_ACCESS }
+        - { path: ^/contact$, roles: PUBLIC_ACCESS }
+        - { path: ^/help$, roles: PUBLIC_ACCESS }
+        # Customer vehicle browse + booking (sign-in required)
+        - { path: ^/cars, roles: ROLE_USER }
+        - { path: ^/submit/booking, roles: ROLE_USER }
+        - { path: ^/my/bookings, roles: ROLE_USER }
+        - { path: ^/notifications, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/account, roles: ROLE_USER }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/forgot-password, roles: PUBLIC_ACCESS }
+        - { path: ^/reset-password, roles: PUBLIC_ACCESS }
+        # Mobile JSON API — JWT for bookings; public catalog + health
+        - { path: ^/api/mobile/v1/bookings, roles: ROLE_USER }
+        - { path: ^/api/mobile/v1/notifications, roles: ROLE_USER }
+        - { path: ^/api/mobile/v1/health$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/v1/cars, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile, roles: PUBLIC_ACCESS }
+        # JWT token endpoint
+        - { path: ^/api/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/google$, roles: PUBLIC_ACCESS }
+        # OAuth connect endpoints
+        - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        # Public API registration + email verification
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/verify-email, roles: PUBLIC_ACCESS }
+        - { path: ^/api/resend-verification, roles: PUBLIC_ACCESS }
+        - { path: ^/api/verification-status, roles: PUBLIC_ACCESS }
+        - { path: ^/api/booking, roles: ROLE_USER }
+        - { path: ^/api/car, roles: ROLE_USER }
+        - { path: ^/api/payment, roles: ROLE_USER }
+        # Admin-only routes
+        - { path: ^/admin/activity-log, roles: ROLE_ADMIN }
+        - { path: ^/user, roles: ROLE_ADMIN }
+        # Staff dashboard + back-office (web UI): only admin or staff — not plain customers (ROLE_USER only)
+        - { path: ^/booking, roles: [ROLE_ADMIN, ROLE_STAFF] }
+        - { path: ^/car/inventory, roles: [ROLE_ADMIN, ROLE_STAFF] }
+        - { path: ^/payment, roles: [ROLE_ADMIN, ROLE_STAFF] }
+        - { path: ^/analytics, roles: [ROLE_ADMIN, ROLE_STAFF] }
+        - { path: ^/profile, roles: [ROLE_ADMIN, ROLE_STAFF] }
+        - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_STAFF] }
+        
+
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon

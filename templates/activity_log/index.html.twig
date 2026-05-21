@@ -1,0 +1,161 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activity Log{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/adminbooking.css') }}?v=3.1">
+  <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.0">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+  
+  {% include 'admin/_sidebar.html.twig' %}
+
+  <!-- ✅ Main Content -->
+  <main class="admin-content">
+    {% include 'admin/_topbar.html.twig' %}
+
+    <div class="container">
+      <h1 class="page-title">Activity Log</h1>
+
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Role</th>
+              <th>Action</th>
+              <th>Entity Type</th>
+              <th>Entity ID</th>
+              <th>Date/Time</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for log in logs %}
+            <tr>
+              <td>{{ log.id }}</td>
+              <td>{{ log.user ? log.user : 'N/A' }}</td>
+              <td>{% if log.role %}<span class="badge bg-secondary">{{ log.role }}</span>{% else %}N/A{% endif %}</td>
+              <td>
+                {% if log.action == 'LOGIN' %}
+                  <span class="badge bg-success">LOGIN</span>
+                {% elseif log.action == 'LOGOUT' %}
+                  <span class="badge bg-warning">LOGOUT</span>
+                {% elseif log.action == 'CREATE' %}
+                  <span class="badge bg-info">CREATE</span>
+                {% elseif log.action == 'UPDATE' %}
+                  <span class="badge bg-primary">UPDATE</span>
+                {% elseif log.action == 'DELETE' %}
+                  <span class="badge bg-danger">DELETE</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ log.action }}</span>
+                {% endif %}
+              </td>
+              <td>{{ log.entityType ? log.entityType : 'N/A' }}</td>
+              <td>{{ log.entityId ? log.entityId : 'N/A' }}</td>
+              <td>
+                {% if log.dateTime %}
+                  {# Display the time as-is, using the default timezone set in Kernel #}
+                  {{ log.dateTime|date('Y-m-d g:i:s A') }}
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td>-</td>
+              <td style="text-align:center; padding:2rem;">No activity logs found</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ✅ Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  // Sidebar toggle
+  $('#sidebarToggle').on('click', function() {
+    $('.admin-sidebar').toggleClass('collapsed');
+    $('.admin-content').toggleClass('expanded');
+  });
+
+  // DataTables init
+  var table = $('.table').DataTable({
+    ordering: true,
+    order: [[6, 'desc']], // Sort by Date/Time descending
+    paging: true,
+    searching: true,
+    pageLength: 25,
+    language: {
+      emptyTable: "No activity logs found"
+    }
+  });
+});
+
+// Logout confirmation dialog
+document.getElementById('logout-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'logout-overlay';
+    
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.className = 'logout-modal';
+    
+    modal.innerHTML = `
+        <h3>Logout Confirmation</h3>
+        <p>Are you sure you want to logout?</p>
+        <div class="logout-buttons">
+            <button id="confirm-yes">Yes</button>
+            <button id="confirm-no">No</button>
+        </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Handle Yes button
+    document.getElementById('confirm-yes').addEventListener('click', function() {
+        window.location.href = '{{ path('app_logout') }}';
+    });
+    
+    // Handle No button - remove modal
+    document.getElementById('confirm-no').addEventListener('click', function() {
+        overlay.classList.add('fade-out');
+        modal.classList.add('slide-down');
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 200);
+    });
+    
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            document.getElementById('confirm-no').click();
+        }
+    });
+});
+</script>
+{% endblock %}
+

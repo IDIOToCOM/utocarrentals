@@ -1,0 +1,11 @@
+{# booking: App\Entity\Booking, labeled: bool (default true) #}
+{% set status = booking.status|default('Pending') %}
+{% set labeled = labeled is defined ? labeled : true %}
+{% if labeled %}
+  <span class="lp-status-chip lp-status-chip--booking">
+    <span class="lp-status-chip__label">Booking</span>
+    <span class="lp-booking-status lp-booking-status--{{ status|lower }}">{{ status }}</span>
+  </span>
+{% else %}
+  <span class="lp-booking-status lp-booking-status--{{ status|lower }}">{{ status }}</span>
+{% endif %}

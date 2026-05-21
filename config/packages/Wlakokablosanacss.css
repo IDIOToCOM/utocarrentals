@@ -1,0 +1,245 @@
+/* Import Google Fonts for modern typography */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Global Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: #3A3A3A;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* ---------------- NAVBAR ---------------- */
+.navbar-uto {
+    background: linear-gradient(135deg, #0B3041 0%, #1a3a4a 100%);
+    padding: 1rem 0;
+    box-shadow: 0 4px 20px rgba(11, 48, 65, 0.3);
+    transition: all 0.3s ease;
+}
+
+.navbar-uto .navbar-brand.uto-logo {
+    color: #ffffff;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.navbar-uto .navbar-brand:hover {
+    color: #5A5A5A; /* Lighter gray hover instead of gold */
+}
+
+.navbar-uto .nav-link {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-left: 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.navbar-uto .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #5A5A5A;
+    transition: width 0.3s ease;
+}
+
+.navbar-uto .nav-link:hover::after,
+.navbar-uto .nav-link.active::after {
+    width: 100%;
+}
+
+.navbar-uto .nav-link:hover,
+.navbar-uto .nav-link.active {
+    color: #5A5A5A; /* Lighter gray for active/hover */
+}
+
+/* Mobile hamburger toggler */
+.navbar-uto .navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+}
+
+.navbar-uto .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    filter: none; /* Custom white icon */
+}
+
+/* ---------------- HERO SECTION ---------------- */
+.hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0B3041 0%, #3A3A3A 50%, #0B3041 100%);
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); /* Subtle pattern for texture */
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.hero-title {
+    color: #ffffff;
+    font-size: 3.5rem;
+    font-weight: 700;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 3rem;
+    animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------------- BOOKING CARD ---------------- */
+.booking-card {
+    background: rgba(58, 58, 58, 0.95); /* #3A3A3A with transparency */
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 3rem;
+    color: #ffffff;
+    box-shadow: 0 20px 40px rgba(11, 48, 65, 0.4);
+    max-width: 900px;
+    border: 1px solid rgba(11, 48, 65, 0.2);
+    position: relative;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.booking-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0B3041, #3A3A3A);
+    border-radius: 20px 20px 0 0;
+}
+
+/* Labels */
+.booking-card .form-label {
+    font-weight: 500;
+    color: #ffffff;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Inputs */
+.booking-card .form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.booking-card .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.booking-card .form-control:focus {
+    border-color: #0B3041;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    box-shadow: 0 0 0 0.2rem rgba(11, 48, 65, 0.25);
+    outline: none;
+}
+
+/* Button */
+.btn-uto {
+    background: linear-gradient(135deg, #0B3041 0%, #3A3A3A 100%);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 1rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(11, 48, 65, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-uto:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(11, 48, 65, 0.4);
+    background: linear-gradient(135deg, #3A3A3A 0%, #0B3041 100%);
+    color: #ffffff;
+}
+
+.btn-uto:active {
+    transform: translateY(0);
+}
+
+/* ---------------- FOOTER ---------------- */
+footer {
+    background-color: #3A3A3A;
+    color: #ffffff;
+    border-top: 1px solid #0B3041;
+}
+
+footer small {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .booking-card {
+        padding: 2rem 1.5rem;
+        margin: 0 1rem;
+    }
+    
+    .navbar-uto .nav-link {
+        margin-left: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .hero {
+        min-height: 100vh;
+        padding-top: 80px; /* Account for fixed navbar */
+    }
+}
+
+/* Ensure container is fluid on large screens */
+.container {
+    max-width: 1200px;
+}

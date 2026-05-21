@@ -1,0 +1,269 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard - Uto Mobility{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/adminpanel.css') }}?v=3.4">
+    <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+    <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.0">
+{% endblock %}
+
+{% block body %}
+<!-- Animated Background -->
+<div class="bg-decoration">
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+</div>
+
+<div class="admin-layout">
+
+    {% include 'admin/_sidebar.html.twig' %}
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-content">
+        <!-- Top Bar with Toggle Button -->
+        {% include 'admin/_topbar.html.twig' %}
+
+        <div class="admin-container">
+            <!-- Header Section -->
+            <header class="admin-header">
+                <div class="admin-logo"></div>
+                <h1 class="admin-title">Uto Admin Panel</h1>
+                <p class="admin-subtitle">Manage your fleet, bookings, and customers efficiently</p>
+            </header>
+
+        <!-- Quick Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-car"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value" id="totalCars">--</span>
+                    <span class="stat-label">Total Cars</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value" id="activeBookings">--</span>
+                    <span class="stat-label">Active Bookings</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value" id="totalUsers">--</span>
+                    <span class="stat-label">Total Users</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Cards Grid -->
+        <div class="cards-grid">
+            <!-- Car Inventory Card -->
+            <div class="admin-card cars">
+                <div class="card-header-badge">
+                    <span class="badge-dot"></span>
+                    <span>Active</span>
+                </div>
+                <div class="icon-wrapper">
+                    <i class="fas fa-car admin-icon"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Car Inventory</h3>
+                    <p>Manage your vehicle fleet, add new cars, update availability, and track maintenance schedules.</p>
+                    <a href="{{ path('app_car_inventory_index') }}" class="btn-action">
+                        <span>Manage Cars</span>
+                        <span class="btn-icon">→</span>
+                    </a>
+                </div>
+                <div class="card-glow"></div>
+            </div>
+
+            <!-- Bookings Card -->
+            <div class="admin-card bookings">
+                <div class="card-header-badge">
+                    <span class="badge-dot"></span>
+                    <span>Live</span>
+                </div>
+                <div class="icon-wrapper">
+                    <i class="fas fa-calendar-alt admin-icon"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Bookings</h3>
+                    <p>View and manage all customer reservations, approve requests, and handle cancellations efficiently.</p>
+                    <a href="{{ path('app_booking_index') }}" class="btn-action">
+                        <span>Manage Bookings</span>
+                        <span class="btn-icon">→</span>
+                    </a>
+                </div>
+                <div class="card-glow"></div>
+            </div>
+
+            <!-- Users Card -->
+            {% if is_granted('ROLE_ADMIN') %}
+            <div class="admin-card users">
+                <div class="card-header-badge">
+                    <span class="badge-dot"></span>
+                    <span>Monitored</span>
+                </div>
+                <div class="icon-wrapper">
+                    <i class="fas fa-users admin-icon"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Users</h3>
+                    <p>Manage customer accounts, view user activity, handle permissions, and analyze user behavior.</p>
+                    <a href="{{ path('app_user_index') }}" class="btn-action">
+                        <span>Manage Users</span>
+                        <span class="btn-icon">→</span>
+                    </a>
+                </div>
+                <div class="card-glow"></div>
+            </div>
+            {% endif %}
+
+            <!-- Activity Log Card -->
+            {% if is_granted('ROLE_ADMIN') %}
+            <div class="admin-card activity-log">
+                <div class="card-header-badge">
+                    <span class="badge-dot"></span>
+                    <span>Tracked</span>
+                </div>
+                <div class="icon-wrapper">
+                    <i class="fas fa-clipboard-list admin-icon"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Activity Log</h3>
+                    <p>View comprehensive system activity logs, track user actions, monitor login/logout events, and audit system changes.</p>
+                    <a href="{{ path('app_activity_log_index') }}" class="btn-action">
+                        <span>View Logs</span>
+                        <span class="btn-icon">→</span>
+                    </a>
+                </div>
+                <div class="card-glow"></div>
+            </div>
+            {% endif %}
+
+            <!-- Payments Card -->
+            <div class="admin-card payments">
+                <div class="card-header-badge">
+                    <span class="badge-dot"></span>
+                    <span>Active</span>
+                </div>
+                <div class="icon-wrapper">
+                    <i class="fas fa-credit-card admin-icon"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Payments</h3>
+                    <p>Manage payment records, track transactions, view payment status, and handle payment-related operations.</p>
+                    <a href="{{ path('app_payment_index') }}" class="btn-action">
+                        <span>Manage Payments</span>
+                        <span class="btn-icon">→</span>
+                    </a>
+                </div>
+                <div class="card-glow"></div>
+            </div>
+
+            <!-- Analytics Card -->
+            <div class="admin-card analytics">
+                <div class="card-header-badge">
+                    <span class="badge-dot"></span>
+                    <span>Insights</span>
+                </div>
+                <div class="icon-wrapper">
+                    <i class="fas fa-chart-pie admin-icon"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Analytics</h3>
+                    <p>Analyze car type distribution, track most rented vehicles, and view monthly rental trends with interactive charts.</p>
+                    <a href="{{ path('app_analytics') }}" class="btn-action">
+                        <span>View Analytics</span>
+                        <span class="btn-icon">→</span>
+                    </a>
+                </div>
+                <div class="card-glow"></div>
+            </div>
+        </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        // Sidebar toggle functionality
+        $(document).ready(function() {
+            $('#sidebarToggle').on('click', function() {
+                $('.admin-sidebar').toggleClass('collapsed');
+                $('.admin-content').toggleClass('expanded');
+            });
+        });
+
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current);
+                }
+            }, 20);
+        }
+
+        animateCounter(document.getElementById('totalCars'), {{ totalCars }});
+        animateCounter(document.getElementById('activeBookings'), {{ activeBookings }});
+        animateCounter(document.getElementById('totalUsers'), {{ totalUsers }});
+
+        // Logout confirmation dialog
+        document.getElementById('logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'logout-overlay';
+            
+            // Create modal dialog
+            const modal = document.createElement('div');
+            modal.className = 'logout-modal';
+            
+            modal.innerHTML = `
+                <h3>Logout Confirmation</h3>
+                <p>Are you sure you want to logout?</p>
+                <div class="logout-buttons">
+                    <button id="confirm-yes">Yes</button>
+                    <button id="confirm-no">No</button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Handle Yes button
+            document.getElementById('confirm-yes').addEventListener('click', function() {
+                window.location.href = '{{ path('app_logout') }}';
+            });
+            
+            // Handle No button - remove modal
+            document.getElementById('confirm-no').addEventListener('click', function() {
+                overlay.classList.add('fade-out');
+                modal.classList.add('slide-down');
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                }, 200);
+            });
+            
+            // Close on overlay click
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    document.getElementById('confirm-no').click();
+                }
+            });
+        });
+    </script>
+{% endblock %}

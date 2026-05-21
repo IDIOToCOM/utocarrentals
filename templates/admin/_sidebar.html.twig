@@ -1,0 +1,19 @@
+{% set route = app.request.attributes.get('_route') ?? '' %}
+<aside class="admin-sidebar">
+  <div class="sidebar-header">
+    <h2>Uto</h2>
+  </div>
+  <ul class="sidebar-menu">
+    <li><a href="{{ path('app_admin') }}" class="{% if route == 'app_admin' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+    <li><a href="{{ path('app_car_inventory_index') }}" class="{% if route starts with 'app_car_inventory' %}active{% endif %}"><i class="fas fa-car"></i> Car Inventory</a></li>
+    <li><a href="{{ path('app_booking_index') }}" class="{% if route starts with 'app_booking' %}active{% endif %}"><i class="fas fa-calendar-alt"></i> Bookings</a></li>
+    <li><a href="{{ path('app_payment_index') }}" class="{% if route starts with 'app_payment' %}active{% endif %}"><i class="fas fa-credit-card"></i> Payments</a></li>
+    {% if is_granted('ROLE_ADMIN') %}
+    <li><a href="{{ path('app_user_index') }}" class="{% if route starts with 'app_user' %}active{% endif %}"><i class="fas fa-users"></i> Users</a></li>
+    <li><a href="{{ path('app_activity_log_index') }}" class="{% if route starts with 'app_activity_log' %}active{% endif %}"><i class="fas fa-clipboard-list"></i> Activity Log</a></li>
+    {% endif %}
+    {% include 'admin/_sidebar_notifications.html.twig' %}
+    <li><a href="{{ path('app_analytics') }}" class="{% if route == 'app_analytics' %}active{% endif %}"><i class="fas fa-chart-pie"></i> Analytics</a></li>
+    <li><a href="#" id="logout-btn" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</aside>

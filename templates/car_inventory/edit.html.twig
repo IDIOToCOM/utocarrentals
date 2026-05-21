@@ -1,0 +1,196 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Car Inventory{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/car_inventory.css') }}?v=3.0">
+    <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.3">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<!-- Top Bar -->
+{% include 'admin/_topbar_minimal.html.twig' %}
+
+<div class="container">
+  <!-- Page Title -->
+  <h1 class="page-title">Edit Car Inventory</h1>
+
+  {% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+  {% for message in app.flashes('warning') %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+  {% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+
+  <!-- Form Card -->
+  <div class="uto-card">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+
+      {% include 'car_inventory/_car_form_fields.html.twig' with {
+        form: form,
+        car_image_url: car_image_url|default(null),
+        has_uploaded_photo: has_uploaded_photo|default(false)
+      } %}
+
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{{ path('app_car_inventory_index') }}" class="btn btn-outline-secondary">← Back to List</a>
+        <button type="submit" class="btn btn-success">✔ Update</button>
+      </div>
+    {{ form_end(form) }}
+
+    {% if has_uploaded_photo|default(false) %}
+    <div class="car-photo-remove-bar mt-3 pt-3">
+      {% include 'car_inventory/_remove_photo_form.html.twig' with {
+        car_inventory: car_inventory,
+        has_uploaded_photo: true,
+        redirect: 'edit'
+      } %}
+    </div>
+    {% endif %}
+
+    <!-- Delete button -->
+    <div class="mt-3 text-end">
+      {{ include('car_inventory/_delete_form.html.twig', { has_bookings: car_has_bookings|default(false) }) }}
+    </div>
+  </div>
+</div>
+
+{% include 'car_inventory/_delete_blocked_modal_template.html.twig' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  $(document).on('click', '.delete-btn', function(e) {
+    e.preventDefault();
+    const form = $(this).closest('.delete-form');
+    if (form.attr('data-has-bookings') === '1') {
+      if (typeof window.utoShowCarDeleteBlockedModal === 'function') {
+        window.utoShowCarDeleteBlockedModal();
+      }
+      return;
+    }
+    const overlay = $('<div>').addClass('delete-confirm-overlay warning-overlay');
+    const modal = $('<div>').addClass('warning-modal');
+    modal.html(`
+      <h3>⚠️ Confirm Deletion</h3>
+      <p>Are you sure you want to delete this car? This action cannot be undone.</p>
+      <div class="warning-buttons">
+        <button type="button" id="confirm-yes-del" class="btn-danger">Yes, Delete</button>
+        <button type="button" id="confirm-no-del">Cancel</button>
+      </div>`);
+    overlay.append(modal);
+    $('body').append(overlay);
+    overlay.find('#confirm-yes-del').on('click', function() {
+      overlay.remove();
+      form.off('submit').submit();
+    });
+    overlay.find('#confirm-no-del').on('click', function() { overlay.remove(); });
+    overlay.on('click', function(ev) { if (ev.target === overlay[0]) overlay.find('#confirm-no-del').click(); });
+  });
+
+  const form = document.querySelector('form');
+  
+  if (!form) {
+    return;
+  }
+  
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Validate all required fields
+    const brandInput = document.querySelector('[name*="[Brand]"]');
+    const modelInput = document.querySelector('[name*="[Model]"]');
+    const typeInput = document.querySelector('[name*="[Type]"]');
+    const priceInput = document.querySelector('[name*="[PricePerDay]"]');
+    const statusInput = document.querySelector('[name*="[Status]"]');
+    
+    const missingFields = [];
+    
+    if (!brandInput || !brandInput.value.trim()) {
+      missingFields.push('Brand');
+    }
+    if (!modelInput || !modelInput.value.trim()) {
+      missingFields.push('Model');
+    }
+    if (!typeInput || !typeInput.value || typeInput.value === '') {
+      missingFields.push('Type');
+    }
+    if (!priceInput || !priceInput.value.trim()) {
+      missingFields.push('Price Per Day');
+    }
+    if (!statusInput || !statusInput.value || statusInput.value === '') {
+      missingFields.push('Status');
+    }
+    
+    if (missingFields.length > 0) {
+      const fieldList = missingFields.join(', ');
+      showWarningModal('Please fill in all required fields: ' + fieldList);
+      return false;
+    }
+    
+    // If all fields are filled, submit the form
+    form.submit();
+  });
+  
+  function showWarningModal(message) {
+    // Remove any existing modals first
+    const existingModal = document.querySelector('.warning-overlay');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'warning-overlay';
+    
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.className = 'warning-modal';
+    
+    modal.innerHTML = `
+      <h3>⚠️ Validation Warning</h3>
+      <p>${message}</p>
+      <div class="warning-buttons">
+        <button id="warning-ok">OK</button>
+      </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Handle OK button
+    document.getElementById('warning-ok').addEventListener('click', function() {
+      overlay.classList.add('fade-out');
+      modal.classList.add('slide-down');
+      setTimeout(function() {
+        overlay.remove();
+        location.reload();
+      }, 200);
+    });
+    
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        document.getElementById('warning-ok').click();
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

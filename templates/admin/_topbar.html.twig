@@ -1,0 +1,15 @@
+<nav class="navbar navbar-expand-lg uto-topbar">
+  <div class="container-fluid d-flex align-items-center justify-content-between">
+    <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
+    <div class="topbar-center">
+      <span class="topbar-title">{{ admin_topbar_title|default('Admin Panel') }}</span>
+    </div>
+    <div class="topbar-right d-flex align-items-center gap-2">
+      {% include 'notification/_bell.html.twig' %}
+      <a href="{{ path('app_profile') }}" class="profile-link">
+        <i class="fas fa-user-circle"></i>
+        <span>{{ app.user.username }}</span>
+      </a>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,26 @@
+{# Shared support contact block — email + demo phone #}
+<div class="lp-support-contact">
+  <h2 class="lp-support-contact__title">Contact us</h2>
+  <p class="lp-support-contact__lead">Questions about a booking, pickup, or payment? Reach our team during business hours (Mon–Sat, 8:00 AM – 6:00 PM).</p>
+  <ul class="lp-support-contact__list">
+    <li>
+      <i class="fas fa-envelope" aria-hidden="true"></i>
+      <span>
+        <strong>Email</strong><br>
+        <a href="mailto:{{ uto_support_email() }}">{{ uto_support_email() }}</a>
+      </span>
+    </li>
+    <li>
+      <i class="fas fa-phone" aria-hidden="true"></i>
+      <span>
+        <strong>Phone</strong><br>
+        <a href="tel:{{ uto_support_phone_tel() }}">{{ uto_support_phone() }}</a>
+      </span>
+    </li>
+  </ul>
+  {% if show_contact_link|default(false) %}
+    <p class="lp-support-contact__extra mb-0">
+      <a class="lp-btn lp-btn-ghost lp-btn-sm" href="{{ path('app_contact') }}">Send a message</a>
+    </p>
+  {% endif %}
+</div>

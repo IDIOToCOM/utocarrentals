@@ -1,0 +1,37 @@
+{# car, reviewSummary (optional), rentalEstimate, bookQuery #}
+{% set bookQuery = bookQuery|default({ car: car.id }) %}
+<aside class="lp-vehicle-book-card" aria-labelledby="vehicle-book-heading">
+  <h2 id="vehicle-book-heading" class="visually-hidden">Reserve this vehicle</h2>
+  <div class="lp-vehicle-book-card__price">
+    {% include 'customer/_rental_price_display.html.twig' with {
+      pricePerDay: car.pricePerDay,
+      rentalEstimate: rentalEstimate|default(null),
+      layout: 'book',
+    } %}
+    {% if reviewSummary is defined and reviewSummary.hasReviews %}
+      <p class="lp-vehicle-book-card__reviews">
+        <i class="fas fa-star" aria-hidden="true"></i>
+        {{ reviewSummary.averageRating|number_format(1) }} · {{ reviewSummary.reviewCount }} review{{ reviewSummary.reviewCount == 1 ? '' : 's' }}
+      </p>
+    {% endif %}
+  </div>
+  <p class="lp-vehicle-book-card__note">
+    {% if rentalEstimate %}
+      Total uses calendar days (pickup through return) × daily rate.
+    {% else %}
+      Total at checkout = rental days × daily rate.
+    {% endif %}
+  </p>
+  <a class="lp-btn lp-btn-primary lp-btn-lg lp-vehicle-book-card__cta" href="{{ path('app_submit_booking', bookQuery) }}">
+    <i class="fas fa-calendar-check" aria-hidden="true"></i>
+    {% if rentalEstimate %}
+      Book · ₱{{ rentalEstimate.total|number_format(0, '.', ',') }}
+    {% else %}
+      Book this vehicle
+    {% endif %}
+  </a>
+  <div class="lp-vehicle-book-card__links">
+    <a class="lp-btn lp-btn-ghost lp-btn-sm" href="{{ path('app_car_compare') }}"><i class="fas fa-scale-balanced" aria-hidden="true"></i> Compare</a>
+    <a class="lp-btn lp-btn-ghost lp-btn-sm" href="{{ path('app_my_favorites') }}"><i class="fas fa-heart" aria-hidden="true"></i> Saved</a>
+  </div>
+</aside>

@@ -1,0 +1,171 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}My bookings — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.6">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=2.6">
+  <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.4">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-booking-main lp-catalog-main" id="main-content">
+  {% include 'customer/_customer_page_hero.html.twig' with {
+    kicker: 'Your account',
+    title: 'My bookings',
+    lead: 'View rentals, pay balances, or cancel eligible bookings yourself (Pending/Confirmed, 24+ hours before pickup).',
+    actions: [
+      {
+        href: path('app_car_catalog'),
+        label: 'Browse vehicles',
+        icon: 'fas fa-car',
+        class: 'lp-btn-primary',
+      },
+    ],
+  } %}
+
+  <section class="lp-section lp-page-section">
+    <div class="lp-container">
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('info') %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      {% if bookings is empty %}
+        <div class="lp-booking-card lp-my-bookings-empty">
+          <p class="mb-3">You have no bookings yet.</p>
+          <a class="lp-btn lp-btn-primary" href="{{ path('app_car_catalog') }}">Find a vehicle</a>
+        </div>
+      {% else %}
+        {% include 'customer/_booking_cancel_policy.html.twig' with {
+          customerRules: customerRules,
+          variant: 'banner',
+        } %}
+
+        {% if payableCount > 0 %}
+          <div class="lp-bulk-pay" id="bulk-pay-panel">
+            <h2 class="lp-bulk-pay__title"><i class="fas fa-layer-group" aria-hidden="true"></i> Pay multiple bookings</h2>
+            <p class="lp-bulk-pay__lead">Check the bookings below, confirm each amount, then pay all selected in one step.</p>
+            <form id="bulk-pay-form" method="post" action="{{ path('app_my_bookings_pay_bulk') }}" class="lp-bulk-pay__form">
+              <input type="hidden" name="_token" value="{{ csrf_token('my_bookings_pay_bulk') }}">
+              <div class="lp-bulk-pay__toolbar">
+                <button type="button" class="lp-btn lp-btn-ghost lp-btn-sm" id="bulk-pay-select-all">Select all unpaid ({{ payableCount }})</button>
+                <button type="button" class="lp-btn lp-btn-ghost lp-btn-sm" id="bulk-pay-clear-all">Clear selection</button>
+                <p class="lp-bulk-pay__total" id="bulk-pay-total" aria-live="polite">Selected total: <strong>₱0</strong></p>
+                <button type="submit" class="lp-btn lp-btn-primary" id="bulk-pay-submit" disabled>Pay selected</button>
+              </div>
+            </form>
+          </div>
+        {% endif %}
+
+        <div class="lp-my-bookings-list">
+          {% for booking in bookings %}
+            {% set car = booking.car %}
+            {% set payment = paymentsByBooking[booking.id]|default(null) %}
+            {% set canPay = payment and customerRules.canCustomerPay(booking, payment.status) %}
+            <article class="lp-my-booking-card{% if canPay %} lp-my-booking-card--payable{% endif %}">
+              <div class="lp-my-booking-card__head">
+                <h2 class="lp-my-booking-card__title">
+                  <a href="{{ path('app_my_booking_show', { id: booking.id }) }}" class="lp-my-booking-card__title-link">
+                    {% if car %}{{ car.brand }} {{ car.model }}{% else %}Booking #{{ booking.id }}{% endif %}
+                  </a>
+                </h2>
+                <span class="lp-my-booking-card__id">#{{ booking.id }}</span>
+              </div>
+              <div class="lp-my-booking-card__status-row">
+                {% include 'customer/_booking_status_badge.html.twig' with { booking: booking } %}
+                {% if payment %}
+                  {% include 'customer/_payment_status_badge.html.twig' with { payment: payment } %}
+                  <span class="lp-booking-status-hint">Due ₱{{ payment.amountDue|number_format(0, '.', ',') }}</span>
+                {% endif %}
+              </div>
+
+              {% if canPay %}
+                <div class="lp-my-booking-card__pay-block">
+                  <div class="lp-my-booking-card__pay-select">
+                    <label class="lp-my-booking-card__pay-check">
+                      <input type="checkbox" class="bulk-pay-check" name="pay_booking[]" value="{{ booking.id }}" form="bulk-pay-form" data-amount-input="bulk-amount-{{ booking.id }}">
+                      <span>Include in bulk payment</span>
+                    </label>
+                    <input type="number" id="bulk-amount-{{ booking.id }}" name="amount[{{ booking.id }}]" form="bulk-pay-form" class="lp-my-booking-card__bulk-amount bulk-pay-amount" min="1" step="1" value="{{ payment.amountDue }}" aria-label="Bulk pay amount for booking #{{ booking.id }}">
+                  </div>
+                  <div class="lp-my-booking-card__pay-single">
+                    <p class="lp-my-booking-card__pay-heading"><i class="fas fa-wallet" aria-hidden="true"></i> Pay this booking</p>
+                    {% include 'customer/_my_booking_pay_inline.html.twig' with { booking: booking, payment: payment, redirectTo: 'list' } %}
+                  </div>
+                </div>
+              {% elseif payment and payment.isPaid %}
+                <p class="lp-my-booking-card__paid-note"><i class="fas fa-circle-check" aria-hidden="true"></i> Paid ₱{{ payment.amountPaid|number_format(0, '.', ',') }}</p>
+              {% endif %}
+
+              {% if car %}{% include 'customer/_car_specs.html.twig' with { car: car } %}{% endif %}
+              <dl class="lp-my-booking-card__meta">
+                <div><dt>Pickup</dt><dd>{% if booking.pickupDate %}{{ booking.pickupDate|date('M j, Y') }}{% if booking.pickupTime %} · {{ booking.pickupTime|date('g:i A') }}{% endif %}{% else %}—{% endif %}</dd></div>
+                <div><dt>Return</dt><dd>{% if booking.returnDate %}{{ booking.returnDate|date('M j, Y') }}{% if booking.returnTime %} · {{ booking.returnTime|date('g:i A') }}{% endif %}{% else %}—{% endif %}</dd></div>
+              </dl>
+              <div class="lp-my-booking-card__actions">
+                <a class="lp-btn lp-btn-ghost lp-btn-sm" href="{{ path('app_my_booking_show', { id: booking.id }) }}"><i class="fas fa-eye" aria-hidden="true"></i> View details</a>
+                {% if customerRules.canCustomerEdit(booking) %}
+                  <a class="lp-btn lp-btn-ghost" href="{{ path('app_my_booking_edit', { id: booking.id }) }}"><i class="fas fa-pen" aria-hidden="true"></i> Edit</a>
+                {% endif %}
+                {% include 'customer/_my_booking_cancel_action.html.twig' with {
+                  booking: booking,
+                  customerRules: customerRules,
+                  layout: 'card',
+                } %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+  <script>
+    (function () {
+      var bulkForm = document.getElementById('bulk-pay-form');
+      if (!bulkForm) return;
+      var checks = document.querySelectorAll('.bulk-pay-check');
+      var totalEl = document.getElementById('bulk-pay-total');
+      var submitBtn = document.getElementById('bulk-pay-submit');
+      function updateBulkTotal() {
+        var total = 0, count = 0;
+        checks.forEach(function (cb) {
+          if (!cb.checked) return;
+          count++;
+          var input = document.getElementById(cb.getAttribute('data-amount-input'));
+          total += parseInt(input && input.value ? input.value : '0', 10) || 0;
+        });
+        if (totalEl) totalEl.innerHTML = 'Selected total: <strong>₱' + total.toLocaleString('en-PH') + '</strong>' + (count ? ' · ' + count + ' booking' + (count === 1 ? '' : 's') : '');
+        if (submitBtn) { submitBtn.disabled = count === 0; submitBtn.textContent = count ? 'Pay selected (' + count + ')' : 'Pay selected'; }
+      }
+      checks.forEach(function (cb) { cb.addEventListener('change', updateBulkTotal); });
+      document.querySelectorAll('.bulk-pay-amount').forEach(function (i) { i.addEventListener('input', updateBulkTotal); });
+      var sel = document.getElementById('bulk-pay-select-all');
+      var clr = document.getElementById('bulk-pay-clear-all');
+      if (sel) sel.addEventListener('click', function () { checks.forEach(function (c) { c.checked = true; }); updateBulkTotal(); });
+      if (clr) clr.addEventListener('click', function () { checks.forEach(function (c) { c.checked = false; }); updateBulkTotal(); });
+      bulkForm.addEventListener('submit', function (e) {
+        var any = false;
+        checks.forEach(function (c) { if (c.checked) any = true; });
+        if (!any) { e.preventDefault(); window.alert('Select at least one booking to pay.'); }
+      });
+      updateBulkTotal();
+    })();
+  </script>
+{% endblock %}

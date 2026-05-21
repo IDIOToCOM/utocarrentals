@@ -1,0 +1,153 @@
+{% extends 'car_inventory/_admin_layout.html.twig' %}
+
+{% block title %}Car #{{ car_inventory.id }}{% endblock %}
+
+{% block car_inventory_inner %}
+  <h1 class="page-title">Car Inventory Details</h1>
+
+  {% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+
+  <div class="table-container">
+    <table class="table">
+      <tbody>
+        <tr>
+          <th style="width: 200px;">ID</th>
+          <td>{{ car_inventory.id }}</td>
+        </tr>
+        <tr>
+          <th>Brand</th>
+          <td>{{ car_inventory.Brand }}</td>
+        </tr>
+        <tr>
+          <th>Model</th>
+          <td>{{ car_inventory.Model }}</td>
+        </tr>
+        <tr>
+          <th>Type</th>
+          <td>{{ car_inventory.Type }}</td>
+        </tr>
+        <tr>
+          <th>Description</th>
+          <td>{{ car_inventory.description|default('—')|nl2br }}</td>
+        </tr>
+        <tr>
+          <th>Transmission</th>
+          <td>{{ car_inventory.transmission|default('—') }}</td>
+        </tr>
+        <tr>
+          <th>Passenger capacity</th>
+          <td>{{ car_inventory.passengerSeats|default('—') }}</td>
+        </tr>
+        <tr>
+          <th>Price per Day</th>
+          <td>₱{{ car_inventory.pricePerDay }}</td>
+        </tr>
+        <tr>
+          <th>Customer rating</th>
+          <td>
+            {% if review_summary.hasReviews %}
+              {{ review_summary.averageRating|number_format(1) }} / 5 ({{ review_summary.reviewCount }} review{{ review_summary.reviewCount == 1 ? '' : 's' }})
+            {% else %}
+              No reviews yet
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td>
+            {% if car_inventory.Status == 'Available' %}
+              <span class="badge bg-success">Available</span>
+            {% elseif car_inventory.Status == 'Out of service' %}
+              <span class="badge bg-secondary">Out of service</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">{{ car_inventory.Status }}</span>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    {% if customer_reviews is not empty %}
+      <h2 class="h5 mt-4 mb-3">Customer reviews (read-only)</h2>
+      <div class="table-container">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Renter</th>
+              <th>Rating</th>
+              <th>Comment</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for review in customer_reviews %}
+              <tr>
+                <td>{{ review.authorDisplayName }}</td>
+                <td>{{ review.rating }} / 5</td>
+                <td>{{ review.comment|default('—') }}</td>
+                <td>{{ review.createdAt|date('M j, Y') }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+
+    {% set canEdit = false %}
+    {% if is_granted('ROLE_ADMIN') %}
+      {% set canEdit = true %}
+    {% elseif car_inventory.createdBy and app.user %}
+      {% if car_inventory.createdBy.id == app.user.id %}
+        {% set canEdit = true %}
+      {% endif %}
+    {% endif %}
+
+    <div class="d-flex flex-wrap gap-2 mt-4 align-items-center">
+      <a href="{{ path('app_car_inventory_index') }}" class="btn btn-outline-secondary">← Back to List</a>
+      {% if canEdit %}
+        <a href="{{ path('app_car_inventory_edit', {'id': car_inventory.id}) }}" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</a>
+        {{ include('car_inventory/_delete_form.html.twig', { has_bookings: car_has_bookings }) }}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block car_inventory_scripts %}
+{% include 'car_inventory/_delete_blocked_modal_template.html.twig' %}
+<script>
+$(function() {
+  $(document).on('click', '.delete-btn', function(e) {
+    e.preventDefault();
+    const form = $(this).closest('.delete-form');
+    if (form.attr('data-has-bookings') === '1') {
+      if (typeof window.utoShowCarDeleteBlockedModal === 'function') {
+        window.utoShowCarDeleteBlockedModal();
+      }
+      return;
+    }
+    const overlay = $('<div>').addClass('delete-confirm-overlay warning-overlay');
+    const modal = $('<div>').addClass('warning-modal');
+    modal.html(`
+      <h3>⚠️ Confirm Deletion</h3>
+      <p>Are you sure you want to delete this car? This action cannot be undone.</p>
+      <div class="warning-buttons">
+        <button type="button" id="confirm-yes" class="btn-danger">Yes, Delete</button>
+        <button type="button" id="confirm-no">Cancel</button>
+      </div>`);
+    overlay.append(modal);
+    $('body').append(overlay);
+    overlay.find('#confirm-yes').on('click', function() {
+      overlay.remove();
+      form.off('submit').submit();
+    });
+    overlay.find('#confirm-no').on('click', function() { overlay.remove(); });
+    overlay.on('click', function(ev) { if (ev.target === overlay[0]) overlay.find('#confirm-no').click(); });
+  });
+});
+</script>
+{% endblock %}

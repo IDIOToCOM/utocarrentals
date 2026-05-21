@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/adminpanel.css') }}?v=3.4">
+  <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/user.css') }}?v=3.5">
+  <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.0">
+{% endblock %}
+
+{% block body %}
+<!-- Match dashboard shell -->
+<div class="bg-decoration">
+  <div class="bg-circle"></div>
+  <div class="bg-circle"></div>
+  <div class="bg-circle"></div>
+</div>
+
+<div class="admin-layout">
+  
+  {% include 'admin/_sidebar.html.twig' %}
+
+  <!-- Main Content -->
+  <main class="admin-content">
+    {% include 'admin/_topbar.html.twig' %}
+
+    <div class="admin-container">
+      <h1 class="page-title">My Profile</h1>
+
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>Success!</strong> {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>Error!</strong> {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+
+      <div class="table-container">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="profile-info">
+              <h2>{{ user.username }}</h2>
+              <div class="profile-roles">
+                {% for role in user.roles %}
+                  {% if role != 'ROLE_USER' %}
+                    <span class="badge bg-primary">{{ role|replace({'ROLE_': ''}) }}</span>
+                  {% endif %}
+                {% endfor %}
+                {% if user.roles|length == 1 or (user.roles|length == 2 and 'ROLE_USER' in user.roles) %}
+                  <span class="badge bg-secondary">USER</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <div class="profile-details">
+            <div class="detail-item">
+              <div class="detail-label">
+                <i class="fas fa-user"></i>
+                <span>Username</span>
+              </div>
+              <div class="detail-value">{{ user.username }}</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">
+                <i class="fas fa-id-badge"></i>
+                <span>User ID</span>
+              </div>
+              <div class="detail-value">#{{ user.id }}</div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="detail-label">
+                <i class="fas fa-shield-alt"></i>
+                <span>Roles</span>
+              </div>
+              <div class="detail-value">
+                {% for role in user.roles %}
+                  {% if role != 'ROLE_USER' %}
+                    <span class="badge bg-primary">{{ role|replace({'ROLE_': ''}) }}</span>
+                  {% endif %}
+                {% endfor %}
+                {% if user.roles|length == 1 or (user.roles|length == 2 and 'ROLE_USER' in user.roles) %}
+                  <span class="badge bg-secondary">USER</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <div class="profile-actions" style="padding: 1.5rem; border-top: 1px solid #e0e0e0; margin-top: 1rem;">
+            <a href="{{ path('app_profile_change_password') }}" class="btn btn-primary">
+              <i class="fas fa-key"></i> Change Password
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function() {
+  // Sidebar toggle
+  $('#sidebarToggle').on('click', function() {
+    $('.admin-sidebar').toggleClass('collapsed');
+    $('.admin-content').toggleClass('expanded');
+  });
+
+  // Logout confirmation dialog
+  $('#logout-btn').on('click', function(e) {
+    e.preventDefault();
+    
+    $('.logout-overlay').remove();
+    
+    const overlay = $('<div>').addClass('logout-overlay');
+    const modal = $('<div>').addClass('logout-modal').html(`
+      <h3>Logout Confirmation</h3>
+      <p>Are you sure you want to logout?</p>
+      <div class="logout-buttons">
+        <button id="confirm-yes">Yes</button>
+        <button id="confirm-no">No</button>
+      </div>
+    `);
+    
+    overlay.append(modal);
+    $('body').append(overlay);
+    
+    overlay.find('#confirm-yes').on('click', function() {
+      window.location.href = '{{ path('app_logout') }}';
+    });
+    
+    overlay.find('#confirm-no').on('click', function() {
+      overlay.addClass('fade-out');
+      modal.addClass('slide-down');
+      setTimeout(function() {
+        overlay.remove();
+      }, 200);
+    });
+    
+    overlay.on('click', function(e) {
+      if (e.target === overlay[0]) {
+        overlay.find('#confirm-no').click();
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
+

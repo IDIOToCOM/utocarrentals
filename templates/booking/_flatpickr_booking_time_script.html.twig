@@ -1,0 +1,199 @@
+<script>
+(function () {
+  var THIRTY_MIN_MS = 30 * 60 * 1000;
+
+  function roundToThirtyMinutes(d) {
+    if (!d || !(d instanceof Date)) return null;
+    var copy = new Date(d.getTime());
+    var totalMins = copy.getHours() * 60 + copy.getMinutes();
+    var rounded = Math.round(totalMins / 30) * 30;
+    if (rounded >= 24 * 60) {
+      rounded = 23 * 60 + 30;
+    }
+    copy.setHours(Math.floor(rounded / 60), rounded % 60, 0, 0);
+    return copy;
+  }
+
+  function parseTimeToDate(str) {
+    if (!str || typeof str !== 'string') return null;
+    str = str.trim();
+    var m12 = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM|am|pm)/i);
+    if (m12) {
+      var h = parseInt(m12[1], 10);
+      var min = parseInt(m12[2], 10);
+      var ap = m12[3].toUpperCase();
+      if (ap === 'PM' && h < 12) h += 12;
+      if (ap === 'AM' && h === 12) h = 0;
+      if (h > 23 || min > 59) return null;
+      return new Date(2000, 0, 1, h, min, 0, 0);
+    }
+    var m = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?/);
+    if (!m) return null;
+    var h24 = parseInt(m[1], 10);
+    var mi = parseInt(m[2], 10);
+    if (h24 > 23 || mi > 59) return null;
+    return new Date(2000, 0, 1, h24, mi, 0, 0);
+  }
+
+  function mountTimeInput(input) {
+    if (!input || input._flatpickr) {
+      return;
+    }
+    if (typeof window.flatpickr !== 'function') {
+      return;
+    }
+
+    var initial = parseTimeToDate(input.value);
+    if (initial) {
+      initial = roundToThirtyMinutes(initial);
+    }
+
+    try {
+      window.flatpickr(input, {
+        enableTime: true,
+        noCalendar: true,
+        // Hidden 24h for Symfony; visible field shows 12-hour AM/PM (30-min steps only).
+        dateFormat: 'H:i',
+        altInput: true,
+        altFormat: 'h:i K',
+        time_24hr: false,
+        minuteIncrement: 30,
+        allowInput: false,
+        clickOpens: true,
+        appendTo: document.body,
+        disableMobile: true,
+        defaultDate: initial || undefined,
+        onChange: function (selectedDates) {
+          if (selectedDates.length && selectedDates[0]) {
+            var rounded = roundToThirtyMinutes(selectedDates[0]);
+            if (rounded && (rounded.getMinutes() !== selectedDates[0].getMinutes() || rounded.getHours() !== selectedDates[0].getHours())) {
+              this.setDate(rounded, true);
+            }
+          }
+        },
+        onReady: function (selectedDates, dateStr, instance) {
+          if (!initial && !input.value) {
+            instance.clear();
+          }
+        },
+      });
+    } catch (e) {
+      return;
+    }
+  }
+
+  function initTimePickers() {
+    document.querySelectorAll('input.js-flatpickr-time').forEach(mountTimeInput);
+  }
+
+  function pad2(n) {
+    return (n < 10 ? '0' : '') + n;
+  }
+
+  function dateTo24hHm(d) {
+    return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+
+  /**
+   * With altInput, getElementById(id) can hit the visible alt field, which does not
+   * carry _flatpickr. Always resolve the real instance from the same .form-group.
+   */
+  function resolveFlatpickrForPresetRow(row, targetId) {
+    var grp = row.closest('.form-group');
+    if (grp) {
+      var inputs = grp.querySelectorAll('input');
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i]._flatpickr) {
+          return { input: inputs[i], fp: inputs[i]._flatpickr };
+        }
+      }
+    }
+    if (targetId) {
+      var el = document.getElementById(targetId);
+      if (el && el._flatpickr) {
+        return { input: el, fp: el._flatpickr };
+      }
+      var all = document.querySelectorAll('input.js-flatpickr-time');
+      for (var j = 0; j < all.length; j++) {
+        if (all[j].id === targetId && all[j]._flatpickr) {
+          return { input: all[j], fp: all[j]._flatpickr };
+        }
+      }
+    }
+    return null;
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.time-preset-chip');
+    if (!btn || !btn.closest('.time-preset-row')) return;
+    if (btn.disabled || btn.classList.contains('is-disabled')) return;
+    e.preventDefault();
+    var row = btn.closest('.time-preset-row');
+    var targetId = row.getAttribute('data-fp-for');
+    var h = btn.getAttribute('data-h');
+    var min = btn.getAttribute('data-min');
+    var d = null;
+    if (h !== null && min !== null && h !== '') {
+      d = new Date(2000, 0, 1, parseInt(h, 10), parseInt(min, 10), 0, 0);
+    }
+    var tLegacy = btn.getAttribute('data-time');
+    if (!d && tLegacy) d = parseTimeToDate(tLegacy.length === 5 ? tLegacy + ':00' : tLegacy);
+
+    var resolved = resolveFlatpickrForPresetRow(row, targetId);
+    if ((!resolved || !resolved.fp) && targetId) {
+      initTimePickers();
+      resolved = resolveFlatpickrForPresetRow(row, targetId);
+    }
+    var fp = resolved ? resolved.fp : null;
+    var input = resolved ? resolved.input : null;
+
+    if (fp && d) {
+      // Prefer Date object; fall back to H:i string (some Flatpickr builds handle these differently with altInput).
+      fp.setDate(d, true);
+      if (!fp.selectedDates || fp.selectedDates.length === 0) {
+        fp.setDate(dateTo24hHm(d), true);
+      }
+      if (fp.redraw) {
+        fp.redraw();
+      }
+    } else if (input && tLegacy) {
+      input.value = tLegacy.length === 5 ? tLegacy : (tLegacy.split(':').slice(0, 2).join(':'));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
+  window.UtoBookingTimeRules = {
+    MIN_RENTAL_MS: THIRTY_MIN_MS,
+    isThirtyMinuteSlot: function (d) {
+      return d instanceof Date && d.getMinutes() % 30 === 0 && d.getSeconds() === 0;
+    },
+    scheduleErrors: function (pickupDt, returnDt, now) {
+      var errors = [];
+      now = now || new Date();
+      if (!pickupDt || !returnDt) {
+        errors.push('Please enter valid pickup and return times.');
+        return errors;
+      }
+      if (!this.isThirtyMinuteSlot(pickupDt) || !this.isThirtyMinuteSlot(returnDt)) {
+        errors.push('Times must be in 30-minute steps (e.g. 09:00 or 09:30).');
+      }
+      if (pickupDt <= now) {
+        errors.push('Pickup cannot be in the past. Choose a later date or time.');
+      }
+      if (returnDt <= now) {
+        errors.push('Return cannot be in the past. Choose a later date or time.');
+      }
+      if (returnDt.getTime() - pickupDt.getTime() < this.MIN_RENTAL_MS) {
+        errors.push('Rental must be at least 30 minutes.');
+      }
+      return errors;
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTimePickers);
+  } else {
+    initTimePickers();
+  }
+})();
+</script>

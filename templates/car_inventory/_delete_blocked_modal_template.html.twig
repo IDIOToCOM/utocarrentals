@@ -1,0 +1,59 @@
+{# Reusable markup for JS — include once per page that uses showCarDeleteBlockedModal() #}
+<script type="text/template" id="tpl-car-delete-blocked">
+<div class="warning-modal warning-modal--blocked">
+  <div class="delete-blocked-icon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+      <path d="M6 18 L18 6"/>
+    </svg>
+  </div>
+  <h3 class="delete-blocked-title">Cannot delete this car</h3>
+  <p class="delete-blocked-text">This vehicle has active bookings and cannot be removed from inventory.</p>
+  <p class="delete-blocked-hint">Cancel or finish those bookings first, then try again.</p>
+  <div class="warning-buttons warning-buttons--blocked">
+    <button type="button" class="btn-delete-blocked-ok">Got it</button>
+  </div>
+</div>
+</script>
+<script>
+(function () {
+  function closeCarDeleteBlockedOverlay(overlay) {
+    var modal = overlay.querySelector('.warning-modal');
+    overlay.classList.add('fade-out');
+    if (modal) {
+      modal.classList.add('slide-down');
+    }
+    setTimeout(function () {
+      overlay.remove();
+    }, 200);
+  }
+
+  window.utoShowCarDeleteBlockedModal = function () {
+    document.querySelectorAll('.delete-blocked-overlay').forEach(function (el) {
+      el.remove();
+    });
+    var tpl = document.getElementById('tpl-car-delete-blocked');
+    if (!tpl) {
+      return;
+    }
+    var overlay = document.createElement('div');
+    overlay.className = 'delete-confirm-overlay warning-overlay delete-blocked-overlay';
+    overlay.innerHTML = tpl.innerHTML.trim();
+    document.body.appendChild(overlay);
+    var btn = overlay.querySelector('.btn-delete-blocked-ok');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        closeCarDeleteBlockedOverlay(overlay);
+      });
+    }
+    overlay.addEventListener('click', function (ev) {
+      if (ev.target === overlay) {
+        closeCarDeleteBlockedOverlay(overlay);
+      }
+    });
+  };
+})();
+</script>

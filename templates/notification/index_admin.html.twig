@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/notifications.css') }}?v=1.0">
+  <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.0">
+{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+  {% include 'booking/_sidebar.html.twig' %}
+  <main class="admin-content">
+    {% include 'admin/_topbar.html.twig' with { admin_topbar_title: 'Notifications' } %}
+
+    <div class="container py-4">
+      {% if unreadCount > 0 %}
+        <form method="post"
+              action="{{ path('app_notifications_read_all') }}"
+              class="mb-3 js-notif-mark-all-read"
+              data-notif-context="page">
+          <input type="hidden" name="_token" value="{{ csrf_token('notifications_read_all') }}">
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Mark all as read</button>
+        </form>
+      {% endif %}
+      {% include 'notification/_list.html.twig' %}
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+{% endblock %}

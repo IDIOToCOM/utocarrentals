@@ -1,0 +1,311 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/user.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.0">
+{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+  
+  {% include 'admin/_sidebar.html.twig' %}
+
+  <!-- Main Content -->
+  <main class="admin-content">
+    {% include 'admin/_topbar.html.twig' %}
+
+    <div class="container">
+      <h1 class="page-title">Analytics</h1>
+
+      <div class="analytics-grid">
+        <!-- Car Types Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fas fa-car"></i> Car Types Distribution</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="carTypesChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Most Rented Cars Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fas fa-star"></i> Most Rented Cars</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="rentedCarsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Monthly Rentals Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fas fa-calendar"></i> Monthly Rental Distribution</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="monthlyChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function() {
+  // Sidebar toggle
+  $('#sidebarToggle').on('click', function() {
+    $('.admin-sidebar').toggleClass('collapsed');
+    $('.admin-content').toggleClass('expanded');
+  });
+
+  // Logout confirmation dialog
+  $('#logout-btn').on('click', function(e) {
+    e.preventDefault();
+    
+    $('.logout-overlay').remove();
+    
+    const overlay = $('<div>').addClass('logout-overlay');
+    const modal = $('<div>').addClass('logout-modal').html(`
+      <h3>Logout Confirmation</h3>
+      <p>Are you sure you want to logout?</p>
+      <div class="logout-buttons">
+        <button id="confirm-yes">Yes</button>
+        <button id="confirm-no">No</button>
+      </div>
+    `);
+    
+    overlay.append(modal);
+    $('body').append(overlay);
+    
+    overlay.find('#confirm-yes').on('click', function() {
+      window.location.href = '{{ path('app_logout') }}';
+    });
+    
+    overlay.find('#confirm-no').on('click', function() {
+      overlay.addClass('fade-out');
+      modal.addClass('slide-down');
+      setTimeout(function() {
+        overlay.remove();
+      }, 200);
+    });
+    
+    overlay.on('click', function(e) {
+      if (e.target === overlay[0]) {
+        overlay.find('#confirm-no').click();
+      }
+    });
+  });
+
+  // Chart colors - distinct palette
+  const colors = [
+    '#0B3041',  // Dark Blue
+    '#ef4444',  // Red
+    '#10b981',  // Green
+    '#f59e0b',  // Orange
+    '#3b82f6',  // Blue
+    '#8b5cf6',  // Purple
+    '#ec4899',  // Pink
+    '#14b8a6',  // Teal
+    '#f97316',  // Orange Red
+    '#06b6d4',  // Cyan
+    '#84cc16',  // Lime
+    '#eab308'   // Yellow
+  ];
+
+  // Car Types Chart
+  const carTypesData = {{ carTypesData|json_encode|raw }};
+  const carTypesLabels = Object.keys(carTypesData);
+  const carTypesValues = Object.values(carTypesData);
+  const carTypesTotal = carTypesValues.reduce((a, b) => a + b, 0);
+
+  // Specific colors for car types to ensure distinct colors
+  const carTypeColors = {
+    'SUV': '#ef4444',        // Red
+    'Sports Car': '#3b82f6', // Blue
+    'Sedan': '#10b981',      // Green
+    'Hatchback': '#f59e0b',  // Orange
+    'Truck': '#8b5cf6'       // Purple
+  };
+
+  const carTypesBgColors = carTypesLabels.map(label => carTypeColors[label] || colors[carTypesLabels.indexOf(label)]);
+
+  new Chart(document.getElementById('carTypesChart'), {
+    type: 'pie',
+    data: {
+      labels: carTypesLabels,
+      datasets: [{
+        data: carTypesValues,
+        backgroundColor: carTypesBgColors,
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 15,
+            font: {
+              size: 12
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.label || '';
+              const value = context.parsed;
+              const percentage = carTypesTotal > 0 ? ((value / carTypesTotal) * 100).toFixed(1) : 0;
+              if (label) {
+                label += ': ';
+              }
+              label += value + ' car(s) (' + percentage + '%)';
+              return label;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Most Rented Cars Chart
+  const rentedCarsData = {{ rentedCarsData|json_encode|raw }};
+  const rentedCarsLabels = Object.keys(rentedCarsData);
+  const rentedCarsValues = Object.values(rentedCarsData);
+
+  // Only show cars with rentals > 0
+  const filteredRentedCars = {};
+  rentedCarsLabels.forEach((label, index) => {
+    if (rentedCarsValues[index] > 0) {
+      filteredRentedCars[label] = rentedCarsValues[index];
+    }
+  });
+
+  if (Object.keys(filteredRentedCars).length > 0) {
+    const rentedCarsTotal = Object.values(filteredRentedCars).reduce((a, b) => a + b, 0);
+    const rentedCarsBgColors = Object.keys(filteredRentedCars).map((label, index) => colors[index % colors.length]);
+
+    new Chart(document.getElementById('rentedCarsChart'), {
+      type: 'pie',
+      data: {
+        labels: Object.keys(filteredRentedCars),
+        datasets: [{
+          data: Object.values(filteredRentedCars),
+          backgroundColor: rentedCarsBgColors,
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              font: {
+                size: 11
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.label || '';
+                const value = context.parsed;
+                const percentage = rentedCarsTotal > 0 ? ((value / rentedCarsTotal) * 100).toFixed(1) : 0;
+                if (label) {
+                  label += ': ';
+                }
+                label += value + ' rental(s) (' + percentage + '%)';
+                return label;
+              }
+            }
+          }
+        }
+      }
+    });
+  } else {
+    document.getElementById('rentedCarsChart').parentElement.innerHTML = '<p class="text-center" style="padding: 2rem; color: #6b7280;">No rental data available</p>';
+  }
+
+  // Monthly Rental Chart
+  const monthlyData = {{ monthlyData|json_encode|raw }};
+  const monthlyLabels = Object.keys(monthlyData);
+  const monthlyValues = Object.values(monthlyData);
+  const monthlyTotal = monthlyValues.reduce((a, b) => a + b, 0);
+
+  // Distinct colors for each month
+  const monthlyColors = [
+    '#0B3041',  // January - Dark Blue
+    '#ef4444',  // February - Red
+    '#10b981',  // March - Green
+    '#f59e0b',  // April - Orange
+    '#3b82f6',  // May - Blue
+    '#8b5cf6',  // June - Purple
+    '#ec4899',  // July - Pink
+    '#14b8a6',  // August - Teal
+    '#f97316',  // September - Orange Red
+    '#06b6d4',  // October - Cyan
+    '#84cc16',  // November - Lime
+    '#eab308'   // December - Yellow
+  ];
+
+  new Chart(document.getElementById('monthlyChart'), {
+    type: 'pie',
+    data: {
+      labels: monthlyLabels,
+      datasets: [{
+        data: monthlyValues,
+        backgroundColor: monthlyColors,
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 15,
+            font: {
+              size: 11
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let label = context.label || '';
+              const value = context.parsed;
+              const percentage = monthlyTotal > 0 ? ((value / monthlyTotal) * 100).toFixed(1) : 0;
+              if (label) {
+                label += ': ';
+              }
+              label += value + ' rental(s) (' + percentage + '%)';
+              return label;
+            }
+          }
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}
+

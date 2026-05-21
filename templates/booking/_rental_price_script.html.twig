@@ -1,0 +1,32 @@
+<script>
+  window.UtoRentalPrice = {
+    countDaysFromDates: function (start, end) {
+      if (!start || !end) return null;
+      var ms = end.getTime() - start.getTime();
+      return Math.max(1, Math.round(ms / 86400000) + 1);
+    },
+    countDaysFromYmd: function (pickupYmd, returnYmd) {
+      if (!pickupYmd || !returnYmd) return null;
+      var p = pickupYmd.split('-').map(Number);
+      var r = returnYmd.split('-').map(Number);
+      if (p.length !== 3 || r.length !== 3 || p.some(isNaN) || r.some(isNaN)) return null;
+      return this.countDaysFromDates(
+        new Date(p[0], p[1] - 1, p[2]),
+        new Date(r[0], r[1] - 1, r[2])
+      );
+    },
+    estimateTotal: function (days, pricePerDay) {
+      var rate = Math.max(0, parseInt(pricePerDay, 10) || 0);
+      var d = Math.max(1, parseInt(days, 10) || 1);
+      return d * rate;
+    },
+    formatPeso: function (amount) {
+      return '₱' + Math.round(amount).toLocaleString('en-PH');
+    },
+    breakdownText: function (days, pricePerDay, total) {
+      var rate = Math.round(parseInt(pricePerDay, 10) || 0).toLocaleString('en-PH');
+      var dayLabel = days === 1 ? 'day' : 'days';
+      return days + ' ' + dayLabel + ' × ₱' + rate + ' / day = ' + this.formatPeso(total);
+    }
+  };
+</script>

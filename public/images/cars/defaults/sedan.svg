@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Sedan">
+  <rect width="640" height="400" fill="#efefef"/>
+  <ellipse cx="320" cy="320" rx="210" ry="26" fill="rgba(0,0,0,0.09)"/>
+  <path fill="#171717" d="M140 262h360l-32-68c-10-22-32-38-58-38H230c-26 0-48 16-58 38l-32 68zm40-82c0-20 16-36 36-36h168c20 0 36 16 36 36v10H180v-10zm-20 92a38 38 0 1 1 0-76 38 38 0 0 1 0 76zm240 0a38 38 0 1 1 0-76 38 38 0 0 1 0 76z"/>
+</svg>

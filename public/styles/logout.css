@@ -1,0 +1,311 @@
+/* Logout Modal Styles */
+
+/* Modal Overlay */
+.logout-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.logout-overlay.fade-out {
+    animation: fadeOut 0.2s ease;
+}
+
+/* Modal Dialog */
+.logout-modal {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+.logout-modal.slide-down {
+    animation: slideDown 0.2s ease;
+}
+
+.logout-modal h3 {
+    margin: 0 0 1rem 0;
+    color: #ffffff;
+    font-size: 1.5rem;
+}
+
+.logout-modal p {
+    margin: 0 0 2rem 0;
+    color: #8b92a7;
+    font-size: 1rem;
+}
+
+.logout-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Logout Buttons */
+.logout-btn-yes,
+#confirm-yes {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.logout-btn-yes:hover,
+#confirm-yes:hover {
+    background: #c82333 !important;
+}
+
+.logout-btn-no,
+#confirm-no {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.logout-btn-no:hover,
+#confirm-no:hover {
+    background: #5a6268 !important;
+}
+
+/* Logout Modal Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(20px); opacity: 0; }
+}
+
+/* Warning Modal Styles (similar to logout modal) */
+.warning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.warning-overlay.fade-out {
+    animation: fadeOut 0.2s ease;
+}
+
+.warning-modal {
+    background: #1a1d2e;
+    border: 1px solid #2a2d3e;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+.warning-modal.slide-down {
+    animation: slideDown 0.2s ease;
+}
+
+.warning-modal h3 {
+    margin: 0 0 1rem 0;
+    color: #f59e0b;
+    font-size: 1.5rem;
+}
+
+.warning-modal p {
+    margin: 0 0 2rem 0;
+    color: #8b92a7;
+    font-size: 1rem;
+}
+
+.warning-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+#warning-ok {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+#warning-ok:hover {
+    background: #d97706 !important;
+}
+
+/* Delete Confirmation Buttons (matching logout modal style) */
+#confirm-yes-delete,
+.delete-confirm-yes {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+#confirm-yes-delete:hover,
+.delete-confirm-yes:hover {
+    background: #c82333 !important;
+}
+
+#confirm-no-delete,
+.delete-confirm-no {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+#confirm-no-delete:hover,
+.delete-confirm-no:hover {
+    background: #5a6268 !important;
+}
+
+/* Blocked car delete — has active bookings (Option 2) */
+.warning-modal--blocked {
+    max-width: 420px;
+    padding: 1.75rem 1.5rem 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    background: linear-gradient(165deg, #22263c 0%, #1a1d2e 55%, #171a28 100%);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+        0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.delete-blocked-icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, rgba(251, 191, 36, 0.22) 0%, rgba(245, 158, 11, 0.08) 55%, transparent 70%);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.delete-blocked-title {
+    margin: 0 0 0.75rem 0 !important;
+    color: #fde68a !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+
+.delete-blocked-text {
+    margin: 0 0 0.5rem 0 !important;
+    color: #e2e8f0 !important;
+    font-size: 0.98rem !important;
+    line-height: 1.5;
+}
+
+.delete-blocked-hint {
+    margin: 0 0 1.5rem 0 !important;
+    color: #94a3b8 !important;
+    font-size: 0.875rem !important;
+    line-height: 1.45;
+}
+
+.warning-buttons--blocked {
+    display: block;
+    width: 100%;
+}
+
+.btn-delete-blocked-ok {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1.25rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: linear-gradient(180deg, #4f46e5 0%, #4338ca 100%);
+    box-shadow:
+        0 4px 14px rgba(79, 70, 229, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.btn-delete-blocked-ok:hover {
+    filter: brightness(1.06);
+    box-shadow:
+        0 6px 22px rgba(79, 70, 229, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    transform: translateY(-1px);
+}
+
+.btn-delete-blocked-ok:active {
+    transform: translateY(0);
+    filter: brightness(0.98);
+}
+
+.btn-delete-blocked-ok:focus {
+    outline: none;
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.45),
+        0 4px 14px rgba(79, 70, 229, 0.4);
+}
+

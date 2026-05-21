@@ -1,0 +1,181 @@
+/* Logout Modal Styles */
+
+/* Modal Overlay */
+.logout-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.logout-overlay.fade-out {
+    animation: fadeOut 0.2s ease;
+}
+
+/* Modal Dialog */
+.logout-modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+.logout-modal.slide-down {
+    animation: slideDown 0.2s ease;
+}
+
+.logout-modal h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.logout-modal p {
+    margin: 0 0 2rem 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+.logout-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Logout Buttons */
+.logout-btn-yes,
+#confirm-yes {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.logout-btn-yes:hover,
+#confirm-yes:hover {
+    background: #c82333 !important;
+}
+
+.logout-btn-no,
+#confirm-no {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.logout-btn-no:hover,
+#confirm-no:hover {
+    background: #5a6268 !important;
+}
+
+/* Logout Modal Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(20px); opacity: 0; }
+}
+
+/* Warning Modal Styles (similar to logout modal) */
+.warning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.warning-overlay.fade-out {
+    animation: fadeOut 0.2s ease;
+}
+
+.warning-modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+}
+
+.warning-modal.slide-down {
+    animation: slideDown 0.2s ease;
+}
+
+.warning-modal h3 {
+    margin: 0 0 1rem 0;
+    color: #f59e0b;
+    font-size: 1.5rem;
+}
+
+.warning-modal p {
+    margin: 0 0 2rem 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+.warning-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+#warning-ok {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+#warning-ok:hover {
+    background: #d97706 !important;
+}
+

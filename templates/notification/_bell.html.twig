@@ -1,0 +1,55 @@
+{# In-app notification bell — include in customer or staff header #}
+{% set unread = notification_unread_count() %}
+{% set recent = notification_recent(6) %}
+<div class="lp-notif" id="lpNotif">
+  <button type="button"
+          class="lp-notif__trigger"
+          id="lpNotifTrigger"
+          aria-label="Notifications{% if unread > 0 %} ({{ unread }} unread){% endif %}"
+          aria-expanded="false"
+          aria-controls="lpNotifPanel">
+    <i class="fas fa-bell" aria-hidden="true"></i>
+    {% if unread > 0 %}
+      <span class="lp-notif__badge">{{ unread > 99 ? '99+' : unread }}</span>
+    {% endif %}
+  </button>
+  <div class="lp-notif__panel" id="lpNotifPanel" role="region" aria-label="Recent notifications" hidden>
+    <div class="lp-notif__panel-head">
+      <span class="lp-notif__panel-title">Notifications</span>
+      {% if unread > 0 %}
+        <form method="post"
+              action="{{ path('app_notifications_read_all') }}"
+              class="lp-notif__mark-all-form js-notif-mark-all-read"
+              data-notif-context="dropdown">
+          <input type="hidden" name="_token" value="{{ csrf_token('notifications_read_all') }}">
+          <button type="submit" class="lp-notif__mark-all">Mark all read</button>
+        </form>
+      {% endif %}
+    </div>
+    {% if recent is empty %}
+      <p class="lp-notif__empty">No notifications yet.</p>
+    {% else %}
+      <ul class="lp-notif__list">
+        {% for n in recent %}
+          {% set link = notification_url(n) %}
+          <li class="lp-notif__item{% if not n.read %} lp-notif__item--unread{% endif %}">
+            {% if link %}
+              <a href="{{ link }}" class="lp-notif__link">
+                <span class="lp-notif__item-title">{{ n.title }}</span>
+                <span class="lp-notif__item-body">{{ n.body|length > 100 ? n.body|slice(0, 100) ~ '…' : n.body }}</span>
+                <time class="lp-notif__item-time" datetime="{{ n.createdAt|date('c') }}">{{ n.createdAt|date('M j, g:i A') }}</time>
+              </a>
+            {% else %}
+              <div class="lp-notif__link">
+                <span class="lp-notif__item-title">{{ n.title }}</span>
+                <span class="lp-notif__item-body">{{ n.body|length > 100 ? n.body|slice(0, 100) ~ '…' : n.body }}</span>
+                <time class="lp-notif__item-time" datetime="{{ n.createdAt|date('c') }}">{{ n.createdAt|date('M j, g:i A') }}</time>
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <a href="{{ path('app_notifications') }}" class="lp-notif__view-all">View all notifications</a>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+{# reviews: list of CarReview #}
+{% if reviews is not empty %}
+  <section class="lp-car-reviews" aria-labelledby="car-reviews-heading">
+    <h3 id="car-reviews-heading" class="lp-car-reviews__title">Renter reviews</h3>
+    <ul class="lp-car-reviews__list">
+      {% for review in reviews %}
+        <li class="lp-car-review">
+          <header class="lp-car-review__head">
+            <span class="lp-car-review__author">{{ review.authorDisplayName }}</span>
+            <span class="lp-car-review__stars" aria-label="{{ review.rating }} out of 5 stars">
+              {% for i in 1..5 %}
+                <i class="{% if i <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+              {% endfor %}
+            </span>
+            <time class="lp-car-review__date" datetime="{{ review.createdAt|date('c') }}">{{ review.createdAt|date('M j, Y') }}</time>
+          </header>
+          {% if review.comment %}
+            <p class="lp-car-review__comment">{{ review.comment }}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}

@@ -1,0 +1,34 @@
+{# notifications: list<AppNotification>, notification_links: array<int, string|null> #}
+{% if notifications is empty %}
+  <div class="lp-notif-page__empty">
+    <p class="mb-0">You have no notifications yet. Updates about bookings will appear here.</p>
+  </div>
+{% else %}
+  <ul class="lp-notif-page__list">
+    {% for n in notifications %}
+      {% set link = notification_links[n.id]|default(null) %}
+      <li class="lp-notif-page__item{% if not n.read %} lp-notif-page__item--unread{% endif %}">
+        <div class="lp-notif-page__item-inner">
+          <div class="lp-notif-page__content">
+            <h2 class="lp-notif-page__title">{{ n.title }}</h2>
+            <p class="lp-notif-page__body">{{ n.body }}</p>
+            <time class="lp-notif-page__time" datetime="{{ n.createdAt|date('c') }}">{{ n.createdAt|date('F j, Y g:i A') }}</time>
+          </div>
+          <div class="lp-notif-page__actions">
+            {% if link %}
+              <a href="{{ link }}" class="lp-btn lp-btn-primary lp-btn-sm">Open</a>
+            {% endif %}
+            {% if not n.read %}
+              <form method="post" action="{{ path('app_notification_read', { id: n.id }) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('notification_read_' ~ n.id) }}">
+                <button type="submit" class="lp-btn lp-btn-ghost lp-btn-sm">Mark read</button>
+              </form>
+            {% else %}
+              <span class="lp-notif-page__read-label">Read</span>
+            {% endif %}
+          </div>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

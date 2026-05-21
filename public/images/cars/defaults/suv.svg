@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="SUV">
+  <rect width="640" height="400" fill="#ececec"/>
+  <ellipse cx="320" cy="318" rx="230" ry="30" fill="rgba(0,0,0,0.1)"/>
+  <path fill="#141414" d="M96 258h448l-40-96c-14-28-42-46-76-46H212c-34 0-62 18-76 46l-40 96zm56-100c0-24 20-44 44-44h244c24 0 44 20 44 44v12H152v-12zm-28 104a44 44 0 1 1 0-88 44 44 0 0 1 0 88zm336 0a44 44 0 1 1 0-88 44 44 0 0 1 0 88z"/>
+  <path fill="#525252" d="M200 168h240v28H200z" opacity="0.5"/>
+</svg>

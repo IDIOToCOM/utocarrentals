@@ -1,0 +1,119 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}{{ car.brand }} {{ car.model }} — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.5">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.5">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-catalog-main lp-catalog-main--has-mobile-book" id="main-content">
+  <section class="lp-page-hero lp-page-hero--compact">
+    <div class="lp-container">
+      <nav class="lp-breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ path('app_car_catalog') }}">Vehicles</a>
+        <span class="lp-breadcrumb__sep" aria-hidden="true">/</span>
+        {% if car.type %}
+          <a href="{{ path('app_car_catalog', { type: car.type }) }}">{{ car.type }}</a>
+          <span class="lp-breadcrumb__sep" aria-hidden="true">/</span>
+        {% endif %}
+        <span aria-current="page">{{ car.brand }} {{ car.model }}</span>
+      </nav>
+    </div>
+  </section>
+
+  <section class="lp-section lp-page-section">
+    <div class="lp-container">
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      <div class="lp-vehicle-layout">
+        <div class="lp-vehicle-layout__primary">
+          <article class="lp-vehicle-detail">
+            <div class="lp-vehicle-detail__gallery">
+              <div class="lp-vehicle-detail__media">
+                <img src="{{ asset(imageUrl) }}" alt="{{ car.brand }} {{ car.model }} — {{ car.type }}" width="1200" height="675" loading="eager" decoding="async">
+                <span class="lp-car-card__badge lp-car-card__badge--available">{{ car.status }}</span>
+                {% if car.type %}<span class="lp-vehicle-detail__type">{{ car.type }}</span>{% endif %}
+                <div class="lp-vehicle-detail__save">
+                  {% include 'customer/_car_browse_actions.html.twig' with {
+                    car: car,
+                    favoriteCarIds: favoriteCarIds|default([]),
+                    compareCarIds: compareCarIds|default([]),
+                    maxCompare: maxCompare|default(4),
+                    redirectPath: path('app_car_show', { id: car.id }),
+                  } %}
+                </div>
+              </div>
+            </div>
+
+            <div class="lp-vehicle-detail__content">
+              <header class="lp-vehicle-detail__header">
+                <h1 class="lp-vehicle-detail__name">{{ car.brand }} {{ car.model }}</h1>
+                {% include 'customer/_car_specs.html.twig' with { car: car, layout: 'chips' } %}
+                {% include 'customer/_car_trust.html.twig' with { reviewSummary: reviewSummary } %}
+              </header>
+
+              <section class="lp-vehicle-detail__pricing lp-vehicle-detail__pricing--in-flow" aria-labelledby="vehicle-price-heading">
+                <h2 id="vehicle-price-heading" class="visually-hidden">Pricing</h2>
+                <div class="lp-vehicle-detail__price-box">
+                  {% include 'customer/_rental_price_display.html.twig' with {
+                    pricePerDay: car.pricePerDay,
+                    rentalEstimate: rentalEstimate|default(null),
+                    layout: 'detail',
+                  } %}
+                </div>
+              </section>
+
+              {% if car.description %}
+                <section class="lp-vehicle-detail__section" aria-labelledby="vehicle-desc-heading">
+                  <h3 id="vehicle-desc-heading" class="lp-vehicle-detail__section-title">About this vehicle</h3>
+                  <div class="lp-vehicle-detail__description">{{ car.description|nl2br }}</div>
+                </section>
+              {% endif %}
+
+              {% include 'customer/_car_review_form.html.twig' with {
+                car: car,
+                userReview: userReview,
+                canSubmitReview: canSubmitReview|default(false),
+              } %}
+
+              {% include 'customer/_car_reviews_list.html.twig' with { reviews: reviews|default([]) } %}
+            </div>
+          </article>
+        </div>
+
+        {% set bookQuery = { car: car.id }|merge(availabilityParams|default({})) %}
+        {% include 'customer/_vehicle_book_card.html.twig' with {
+          car: car,
+          reviewSummary: reviewSummary,
+          rentalEstimate: rentalEstimate|default(null),
+          bookQuery: bookQuery,
+        } %}
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include 'customer/_mobile_book_bar.html.twig' with {
+  car: car,
+  rentalEstimate: rentalEstimate|default(null),
+  bookQuery: bookQuery|default({ car: car.id }),
+} %}
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

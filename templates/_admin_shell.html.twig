@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/user.css') }}?v=3.2">
+  <link rel="stylesheet" href="{{ asset('styles/car_inventory.css') }}?v=3.2">
+  <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.3">
+{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+  {% block admin_shell_sidebar %}{% endblock %}
+  <main class="admin-content">
+    {% include 'admin/_topbar.html.twig' %}
+
+    <div class="container">
+      {% block admin_shell_inner %}{% endblock %}
+    </div>
+  </main>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+  document.querySelector('.admin-sidebar')?.classList.toggle('collapsed');
+  document.querySelector('.admin-content')?.classList.toggle('expanded');
+});
+
+document.getElementById('logout-btn')?.addEventListener('click', function(e) {
+  e.preventDefault();
+  const overlay = document.createElement('div');
+  overlay.className = 'logout-overlay';
+  const modal = document.createElement('div');
+  modal.className = 'logout-modal';
+  modal.innerHTML = `
+    <h3>Logout Confirmation</h3>
+    <p>Are you sure you want to logout?</p>
+    <div class="logout-buttons">
+      <button type="button" id="logout-confirm-yes">Yes</button>
+      <button type="button" id="logout-confirm-no">No</button>
+    </div>`;
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  document.getElementById('logout-confirm-yes').addEventListener('click', function() {
+    window.location.href = '{{ path('app_logout') }}';
+  });
+  document.getElementById('logout-confirm-no').addEventListener('click', function() {
+    overlay.classList.add('fade-out');
+    modal.classList.add('slide-down');
+    setTimeout(function() { overlay.remove(); }, 200);
+  });
+  overlay.addEventListener('click', function(ev) {
+    if (ev.target === overlay) document.getElementById('logout-confirm-no').click();
+  });
+});
+</script>
+{% block admin_shell_scripts %}{% endblock %}
+{% endblock %}

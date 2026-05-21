@@ -1,0 +1,88 @@
+.lp-account-layout {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 42rem;
+}
+
+.lp-account-card {
+  background: #fff;
+  border: 1px solid var(--uto-border, #e5e7eb);
+  border-radius: var(--uto-radius, 12px);
+  padding: 1.35rem 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.lp-account-card--narrow {
+  max-width: 28rem;
+}
+
+.lp-account-card__title {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lp-account-card__text {
+  margin: 0 0 1rem;
+  color: var(--uto-muted, #6b7280);
+  font-size: 0.95rem;
+}
+
+.lp-account-meta {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+  padding: 0 0 1.25rem;
+  border-bottom: 1px solid var(--uto-border, #e5e7eb);
+}
+
+.lp-account-meta dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--uto-muted, #6b7280);
+  margin: 0;
+}
+
+.lp-account-meta dd {
+  margin: 0.15rem 0 0;
+  font-weight: 600;
+}
+
+.lp-account-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.lp-account-badge--ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.lp-account-form__submit {
+  margin-top: 0.35rem;
+}
+
+.lp-account-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.lp-booking-alert--success {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}

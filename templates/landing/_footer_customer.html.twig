@@ -1,0 +1,21 @@
+<footer class="lp-footer">
+  <div class="lp-container">
+    <div class="lp-footer-grid lp-footer-grid--compact">
+      <div>
+        <p class="lp-footer-contact-inline mb-0">
+          <a href="mailto:{{ uto_support_email() }}">{{ uto_support_email() }}</a>
+          · <a href="tel:{{ uto_support_phone_tel() }}">{{ uto_support_phone() }}</a>
+        </p>
+      </div>
+      <div>
+        <ul class="lp-footer-links-inline">
+          <li><a href="{{ path('app_rental_help') }}">Help & FAQ</a></li>
+          <li><a href="{{ path('app_car_catalog') }}">Vehicles</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lp-footer-bottom">
+      © {{ 'now'|date('Y') }} UTO. All rights reserved.
+    </div>
+  </div>
+</footer>

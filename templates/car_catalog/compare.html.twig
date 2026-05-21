@@ -1,0 +1,159 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}Compare vehicles — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.4">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-catalog-main" id="main-content">
+  {% set compare_actions = [
+    {
+      href: path('app_car_catalog'),
+      label: 'Add vehicles',
+      icon: 'fas fa-car',
+      class: 'lp-btn-primary',
+    },
+    {
+      href: path('app_my_favorites'),
+      label: 'Saved' ~ (catalog_favorite_count() > 0 ? ' (' ~ catalog_favorite_count() ~ ')' : ''),
+      icon: 'fas fa-heart',
+      class: 'lp-btn-ghost',
+    },
+  ] %}
+  {% include 'customer/_customer_page_hero.html.twig' with {
+    kicker: 'Side by side',
+    title: 'Compare vehicles',
+    lead: 'Compare up to ' ~ maxCompare ~ ' rentals at once. Add vehicles from the catalog with Compare on each card.',
+    actions: compare_actions,
+  } %}
+
+  <section class="lp-section lp-page-section lp-catalog-results">
+    <div class="lp-container">
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('info') %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      {% if catalogItems|length > 0 %}
+        <form method="post" action="{{ path('app_car_compare_clear') }}" class="lp-customer-hero__toolbar-form mb-4">
+          <input type="hidden" name="_token" value="{{ csrf_token('car_compare_clear') }}">
+          <button type="submit" class="lp-btn lp-btn-ghost lp-btn-sm">
+            <i class="fas fa-trash-can" aria-hidden="true"></i> Clear compare list
+          </button>
+        </form>
+      {% endif %}
+
+      {% if catalogItems is empty %}
+        <div class="lp-catalog-empty">
+          <h2>Nothing to compare yet</h2>
+          <p>Select <strong>Compare</strong> on up to {{ maxCompare }} vehicles in the catalog.</p>
+          <a class="lp-btn lp-btn-primary" href="{{ path('app_car_catalog') }}">Browse vehicles</a>
+        </div>
+      {% else %}
+        <div class="lp-compare-table-wrap" role="region" aria-label="Vehicle comparison">
+          <table class="lp-compare-table">
+            <thead>
+              <tr>
+                <th scope="col" class="lp-compare-table__label-col"></th>
+                {% for item in catalogItems %}
+                  {% set car = item.car %}
+                  <th scope="col" class="lp-compare-table__car-col">
+                    <div class="lp-compare-table__car-head">
+                      <img src="{{ asset(item.imageUrl) }}" alt="" width="120" height="75" loading="lazy" decoding="async" class="lp-compare-table__thumb">
+                      <a href="{{ path('app_car_show', { id: car.id }) }}" class="lp-compare-table__car-name">{{ car.brand }} {{ car.model }}</a>
+                      <form method="post" action="{{ path('app_car_compare_toggle', { id: car.id }) }}" class="lp-compare-table__remove">
+                        <input type="hidden" name="_token" value="{{ csrf_token('car_compare_' ~ car.id) }}">
+                        <input type="hidden" name="_redirect" value="{{ path('app_car_compare') }}">
+                        <button type="submit" class="lp-btn lp-btn-ghost lp-btn-sm">Remove</button>
+                      </form>
+                    </div>
+                  </th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Type</th>
+                {% for item in catalogItems %}
+                  <td>{{ item.car.type|default('—') }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th scope="row">Rating</th>
+                {% for item in catalogItems %}
+                  <td>
+                    {% if item.reviewSummary.averageRating is not null %}
+                      <strong>{{ item.reviewSummary.averageRating|number_format(1) }}</strong> / 5
+                      {% if item.reviewSummary.reviewCount %}<span class="text-muted small">({{ item.reviewSummary.reviewCount }})</span>{% endif %}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th scope="row">Price / day</th>
+                {% for item in catalogItems %}
+                  <td><strong>₱{{ item.car.pricePerDay|number_format(0, '.', ',') }}</strong></td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th scope="row">From (1 day)</th>
+                {% for item in catalogItems %}
+                  <td>₱{{ rental_min_total(item.car.pricePerDay)|number_format(0, '.', ',') }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th scope="row">Transmission</th>
+                {% for item in catalogItems %}
+                  <td>{{ item.car.transmission|default('—') }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th scope="row">Seats</th>
+                {% for item in catalogItems %}
+                  <td>{{ item.car.passengerSeats ? item.car.passengerSeats ~ ' seats' : '—' }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th scope="row">Status</th>
+                {% for item in catalogItems %}
+                  <td>{{ item.car.status }}</td>
+                {% endfor %}
+              </tr>
+              <tr class="lp-compare-table__actions-row">
+                <th scope="row">Book</th>
+                {% for item in catalogItems %}
+                  <td>
+                    <a class="lp-btn lp-btn-primary lp-btn-sm" href="{{ path('app_submit_booking', { car: item.car.id }) }}">Book</a>
+                    <a class="lp-btn lp-btn-ghost lp-btn-sm" href="{{ path('app_car_show', { id: item.car.id }) }}">Details</a>
+                  </td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New User{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/adminbooking.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.1">
+{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+  
+  {% include 'admin/_sidebar.html.twig' %}
+
+  <!-- ✅ Main Content -->
+  <main class="admin-content">
+    {% include 'admin/_topbar.html.twig' %}
+
+    <div class="container">
+      <h1 class="page-title">Create New User</h1>
+
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+
+      <div class="table-container">
+        <div class="card">
+          <div class="card-body">
+            {{ form_start(form) }}
+              <div class="mb-3">
+                {{ form_label(form.username, 'Username', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.username) }}
+              </div>
+              <div class="mb-3">
+                {{ form_label(form.plainPassword, 'Password', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.plainPassword) }}
+              </div>
+              <div class="mb-3">
+                {{ form_label(form.roles, 'Roles', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.roles) }}
+                {{ form_errors(form.roles) }}
+                <small class="form-text text-muted">Select one or more roles.</small>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Create User</button>
+                <a href="{{ path('app_user_index') }}" class="btn btn-secondary">Cancel</a>
+              </div>
+            {{ form_end(form) }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ✅ Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  $('#sidebarToggle').on('click', function() {
+    $('.admin-sidebar').toggleClass('collapsed');
+    $('.admin-content').toggleClass('expanded');
+  });
+  
+  // Form validation
+  const form = $('form');
+  if (form.length > 0) {
+    form.on('submit', function(e) {
+      e.preventDefault();
+      
+      // Validate all required fields
+      const usernameInput = $('[name*="[username]"]');
+      const passwordInput = $('[name*="[plainPassword]"]');
+      
+      const missingFields = [];
+      
+      if (!usernameInput.val() || usernameInput.val().trim() === '') {
+        missingFields.push('Username');
+      }
+      if (!passwordInput.val() || passwordInput.val().trim() === '') {
+        missingFields.push('Password');
+      }
+      
+      if (missingFields.length > 0) {
+        const fieldList = missingFields.join(', ');
+        showWarningModal('Please fill in all required fields: ' + fieldList);
+        return false;
+      }
+      
+      // If all fields are filled, submit the form
+      form.off('submit');
+      form.submit();
+    });
+  }
+  
+  function showWarningModal(message) {
+    // Remove any existing modals first
+    $('.warning-overlay').remove();
+    
+    // Create modal overlay
+    const overlay = $('<div>').addClass('warning-overlay');
+    
+    // Create modal dialog
+    const modal = $('<div>').addClass('warning-modal');
+    
+    modal.html(`
+      <h3>⚠️ Validation Warning</h3>
+      <p>${message}</p>
+      <div class="warning-buttons">
+        <button id="warning-ok">OK</button>
+      </div>
+    `);
+    
+    overlay.append(modal);
+    $('body').append(overlay);
+    
+    // Handle OK button
+    $('#warning-ok').on('click', function() {
+      overlay.addClass('fade-out');
+      modal.addClass('slide-down');
+      setTimeout(function() {
+        overlay.remove();
+        location.reload();
+      }, 200);
+    });
+    
+    // Close on overlay click
+    overlay.on('click', function(e) {
+      if (e.target === overlay[0]) {
+        $('#warning-ok').click();
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

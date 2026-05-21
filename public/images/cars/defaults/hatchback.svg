@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Hatchback">
+  <rect width="640" height="400" fill="#f0f0f0"/>
+  <ellipse cx="320" cy="318" rx="200" ry="26" fill="rgba(0,0,0,0.09)"/>
+  <path fill="#1c1c1c" d="M150 260h340l-30-70c-12-24-34-42-60-42H240c-26 0-48 18-60 42l-30 70zm36-86c0-20 16-36 36-36h152c20 0 36 16 36 36v10H186v-10zm-18 90a36 36 0 1 1 0-72 36 36 0 0 1 0 72zm220 0a36 36 0 1 1 0-72 36 36 0 0 1 0 72z"/>
+  <path fill="#444" d="M400 198h48v44h-48z" opacity="0.4"/>
+</svg>

@@ -1,0 +1,174 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}Booking #{{ booking.id }} — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=2.6">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-booking-main" id="main-content">
+  <section class="lp-page-hero">
+    <div class="lp-container">
+      <p class="lp-kicker">My bookings</p>
+      <h1 class="lp-page-title">
+        {% if car %}
+          {{ car.brand }} {{ car.model }}
+        {% else %}
+          Booking #{{ booking.id }}
+        {% endif %}
+      </h1>
+      <p class="lp-page-lead">
+        <span class="lp-booking-detail-ref">#{{ booking.id }}</span>
+        · Submitted {{ booking.pickupDate ? 'for ' ~ booking.pickupDate|date('M j, Y') : '' }}
+      </p>
+      <p class="mt-2 mb-0">
+        <a href="{{ path('app_my_bookings') }}" class="lp-btn lp-btn-ghost lp-btn-sm"><i class="fas fa-arrow-left" aria-hidden="true"></i> All bookings</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="lp-section lp-page-section">
+    <div class="lp-container">
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('info') %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      <article class="lp-booking-detail">
+        <div class="lp-booking-detail__hero">
+          {% if car and imageUrl %}
+            <div class="lp-booking-detail__media">
+              <img
+                src="{{ asset(imageUrl) }}"
+                alt="{{ car.brand }} {{ car.model }}"
+                width="640"
+                height="400"
+                loading="lazy"
+                decoding="async">
+            </div>
+          {% endif %}
+          <div class="lp-booking-detail__summary">
+            <div class="lp-booking-detail__status-row">
+              {% include 'customer/_booking_status_badge.html.twig' with { booking: booking } %}
+              {% if payment is defined and payment %}
+                {% include 'customer/_payment_status_badge.html.twig' with { payment: payment } %}
+              {% endif %}
+            </div>
+
+            {% if car %}
+              <h2 class="lp-booking-detail__vehicle">{{ car.brand }} {{ car.model }}</h2>
+              {% include 'customer/_car_specs.html.twig' with { car: car } %}
+              {% if pricePerDay %}
+                <p class="lp-booking-detail__rate">₱{{ pricePerDay|number_format(0, '.', ',') }} <small>/ day</small></p>
+              {% endif %}
+            {% else %}
+              <p class="text-muted mb-0">No vehicle is linked to this booking.</p>
+            {% endif %}
+
+            {% if estimatedTotal is not null and rentalDays is not null and pricePerDay %}
+              <div class="lp-booking-detail__estimate">
+                <p class="lp-booking-detail__estimate-label">Estimated total</p>
+                <p class="lp-booking-detail__estimate-amount">₱{{ estimatedTotal|number_format(0, '.', ',') }}</p>
+                <p class="lp-booking-detail__estimate-breakdown">{{ rentalDays }} {{ rentalDays == 1 ? 'day' : 'days' }} × ₱{{ pricePerDay|number_format(0, '.', ',') }} / day</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        {% include 'customer/_booking_next_steps.html.twig' with { booking: booking } %}
+
+        {% if payment is defined %}
+          {% include 'customer/_booking_payment_panel.html.twig' with {
+            booking: booking,
+            payment: payment,
+            canPay: canPay|default(false),
+          } %}
+        {% endif %}
+
+        <div class="lp-booking-detail__grid">
+          <section class="lp-booking-detail__panel" aria-labelledby="schedule-heading">
+            <h3 id="schedule-heading" class="lp-booking-detail__panel-title"><i class="fas fa-calendar-days" aria-hidden="true"></i> Schedule</h3>
+            <dl class="lp-booking-detail__dl">
+              <div>
+                <dt>Pickup</dt>
+                <dd>
+                  {% if booking.pickupDate %}
+                    {{ booking.pickupDate|date('l, M j, Y') }}
+                    {% if booking.pickupTime %}<br>{{ booking.pickupTime|date('g:i A') }}{% endif %}
+                  {% else %}—{% endif %}
+                </dd>
+              </div>
+              <div>
+                <dt>Pickup location</dt>
+                <dd>{{ booking.pickupLocation|default('—') }}</dd>
+              </div>
+              <div>
+                <dt>Return</dt>
+                <dd>
+                  {% if booking.returnDate %}
+                    {{ booking.returnDate|date('l, M j, Y') }}
+                    {% if booking.returnTime %}<br>{{ booking.returnTime|date('g:i A') }}{% endif %}
+                  {% else %}—{% endif %}
+                </dd>
+              </div>
+              <div>
+                <dt>Return location</dt>
+                <dd>{{ booking.dropoffLocation|default('—') }}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="lp-booking-detail__panel" aria-labelledby="contact-heading">
+            <h3 id="contact-heading" class="lp-booking-detail__panel-title"><i class="fas fa-user" aria-hidden="true"></i> Your details</h3>
+            <dl class="lp-booking-detail__dl">
+              <div>
+                <dt>Name</dt>
+                <dd>{{ booking.name|default('—') }}</dd>
+              </div>
+              <div>
+                <dt>Phone</dt>
+                <dd>{{ booking.phone|default('—') }}</dd>
+              </div>
+            </dl>
+          </section>
+        </div>
+
+        <div class="lp-booking-detail__actions">
+          {% if car and canEdit|default(false) %}
+            <a class="lp-btn lp-btn-primary" href="{{ path('app_my_booking_edit', { id: booking.id }) }}"><i class="fas fa-pen" aria-hidden="true"></i> Edit booking</a>
+          {% endif %}
+          {% if car %}
+            <a class="lp-btn lp-btn-ghost" href="{{ path('app_submit_booking', { car: car.id }) }}"><i class="fas fa-car" aria-hidden="true"></i> Book this vehicle again</a>
+          {% endif %}
+          <a class="lp-btn lp-btn-ghost" href="{{ path('app_my_bookings') }}">Back to list</a>
+        </div>
+
+        {% if booking.status != 'Cancelled' and booking.status != 'Refunded' %}
+          {% include 'customer/_my_booking_cancel_action.html.twig' with {
+            booking: booking,
+            customerRules: customerRules,
+            layout: 'detail',
+          } %}
+        {% endif %}
+      </article>
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

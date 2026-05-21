@@ -1,0 +1,40 @@
+{# customerRules: App\Service\BookingCustomerRules, variant: 'banner'|'compact'|'inline' #}
+{% set variant = variant|default('compact') %}
+{% set hours = customerRules.getHoursBeforePickupToModify() %}
+{% set helpUrl = path('app_rental_help') ~ '#faq-cancel' %}
+
+{% if variant == 'banner' %}
+  <aside class="lp-cancel-policy lp-cancel-policy--banner" aria-labelledby="cancel-policy-heading">
+    <h2 id="cancel-policy-heading" class="lp-cancel-policy__title">
+      <i class="fas fa-ban" aria-hidden="true"></i> Self-service cancellation
+    </h2>
+    <ul class="lp-cancel-policy__list">
+      <li>Use <strong>Cancel booking</strong> on a reservation—you are not deleting it; status becomes <strong>Cancelled</strong> and stays in <strong>My bookings</strong>.</li>
+      <li>Available while status is <strong>Pending</strong> or <strong>Confirmed</strong>.</li>
+      <li>Pickup must be more than <strong>{{ hours }} hours</strong> away (same rule as editing).</li>
+      <li>If you already paid, the payment is marked <strong>Refunded</strong> when you cancel—our team may follow up.</li>
+      <li>Inside the {{ hours }}-hour window or after pickup, <a href="{{ path('app_contact') }}">contact us</a> instead.</li>
+    </ul>
+    <p class="lp-cancel-policy__footer mb-0">
+      <a href="{{ helpUrl }}">Read the full policy in Help &amp; FAQ</a>
+    </p>
+  </aside>
+{% elseif variant == 'inline' %}
+  <p class="lp-cancel-policy lp-cancel-policy--inline mb-0">
+    <i class="fas fa-circle-info" aria-hidden="true"></i>
+    Cancel while <strong>Pending</strong> or <strong>Confirmed</strong> and pickup is {{ hours }}+ hours away.
+    <a href="{{ helpUrl }}">Policy</a>
+  </p>
+{% else %}
+  <div class="lp-cancel-policy lp-cancel-policy--compact">
+    <p class="lp-cancel-policy__lead"><strong>When you can cancel online</strong></p>
+    <ul class="lp-cancel-policy__list lp-cancel-policy__list--compact">
+      <li>Status is <strong>Pending</strong> or <strong>Confirmed</strong></li>
+      <li>Pickup is more than <strong>{{ hours }} hours</strong> away</li>
+      <li>Booking stays listed as <strong>Cancelled</strong> (not removed)</li>
+    </ul>
+    <p class="lp-cancel-policy__footer mb-0">
+      <a href="{{ helpUrl }}">Help &amp; FAQ</a>
+    </p>
+  </div>
+{% endif %}

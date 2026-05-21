@@ -1,0 +1,12 @@
+<nav class="navbar navbar-expand-lg uto-topbar">
+  <div class="container-fluid d-flex align-items-center justify-content-between">
+    <a class="navbar-brand fw-bold text-white" href="{{ path('app_admin') }}">Uto</a>
+    <div class="topbar-right d-flex align-items-center gap-2">
+      {% include 'notification/_bell.html.twig' %}
+      <a href="{{ path('app_profile') }}" class="profile-link">
+        <i class="fas fa-user-circle"></i>
+        <span>{{ app.user.username }}</span>
+      </a>
+    </div>
+  </div>
+</nav>

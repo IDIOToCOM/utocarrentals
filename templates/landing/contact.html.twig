@@ -1,0 +1,93 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}Contact — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.5">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_public.html.twig' %}
+
+<main class="lp-page-main">
+  <section class="lp-page-hero">
+    <div class="lp-container">
+      <p class="lp-kicker">Contact</p>
+      <h1 class="lp-page-title">We’d love to hear from you</h1>
+      <p class="lp-page-lead">Send us a message through the form below. Name, email, and message are required. After you submit, you’ll see a confirmation here and inside the form.</p>
+    </div>
+  </section>
+
+  <section class="lp-section lp-page-section" aria-labelledby="form-heading">
+    <div class="lp-container lp-contact-layout">
+      <div class="lp-contact-aside">
+        <h2 class="lp-section-title text-start" id="form-heading">Get in touch</h2>
+        <p class="lp-page-text">Questions about plans, partnerships, or support—use the secure Google form. Please fill in every field; each one is required before you can send your message.</p>
+        {% include 'landing/_support_contact_card.html.twig' %}
+        <p class="lp-page-text mt-3 mb-0"><a href="{{ path('app_rental_help') }}">FAQ & pickup / return guide</a> — meeting point, ID requirements, fuel policy.</p>
+      </div>
+      <div class="lp-contact-form-wrap">
+        {% if contactFormEmbedUrl %}
+          <div class="lp-google-form-panel" data-contact-form-panel>
+            <div id="contactFormSuccess" class="lp-contact-success" hidden role="alert" tabindex="-1">
+              <span class="lp-contact-success-icon" aria-hidden="true"><i class="fas fa-circle-check"></i></span>
+              <div>
+                <strong class="lp-contact-success-title">Thank you! Your message has been sent successfully.</strong>
+                <p class="lp-contact-success-text">We have received your submission. You can also confirm on the thank-you screen inside the form.</p>
+              </div>
+            </div>
+            <div class="lp-form-embed">
+              <iframe
+                id="contactFormIframe"
+                title="Contact form — Name, Email, Message"
+                src="{{ contactFormEmbedUrl }}"
+                allowfullscreen
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <p class="lp-form-note" role="note">
+              <i class="fas fa-info-circle lp-form-note-icon" aria-hidden="true"></i>
+              Tip: set Name, Email, and Message as <strong>required</strong> in your Google Form settings so users cannot submit incomplete messages.
+            </p>
+          </div>
+        {% else %}
+          <div class="lp-form-placeholder">
+            <p><strong>Contact form not configured yet.</strong></p>
+            <p>Add your Google Forms (or Brevo) embed URL to <code>CONTACT_FORM_EMBED_URL</code> in <code>.env</code>, for example:</p>
+            <pre class="lp-code-sample">CONTACT_FORM_EMBED_URL="https://docs.google.com/forms/d/e/YOUR_ID/viewform?embedded=true"</pre>
+            <p class="mb-0">Until then, reach us at <a href="mailto:{{ uto_support_email() }}">{{ uto_support_email() }}</a> or <a href="tel:{{ uto_support_phone_tel() }}">{{ uto_support_phone() }}</a>.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_public.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+  {% if contactFormEmbedUrl %}
+  <script>
+  (function () {
+    var iframe = document.getElementById('contactFormIframe');
+    var banner = document.getElementById('contactFormSuccess');
+    if (!iframe || !banner) return;
+    var loadCount = 0;
+    iframe.addEventListener('load', function () {
+      loadCount += 1;
+      if (loadCount >= 2) {
+        banner.hidden = false;
+        banner.focus();
+        try {
+          banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (e) { /* ignore */ }
+      }
+    });
+  })();
+  </script>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+<script>
+(function (w) {
+  w.fpRangeLegendOnOpen = function (selectedDates, dateStr, instance) {
+    var c = instance.calendarContainer;
+    if (!c) return;
+    var bar = c.querySelector('.flatpickr-range-labels');
+    if (bar) return;
+    bar = document.createElement('div');
+    bar.className = 'flatpickr-range-labels';
+    bar.setAttribute('role', 'status');
+    bar.innerHTML =
+      '<div class="fp-range-legend-row">'
+      + '<span class="fp-legend-pickup"><span class="fp-legend-mark fp-mark-pickup" aria-hidden="true">1</span>Pickup date</span>'
+      + '<span class="fp-legend-arrow" aria-hidden="true">→</span>'
+      + '<span class="fp-legend-return"><span class="fp-legend-mark fp-mark-return" aria-hidden="true">2</span>Return date</span>'
+      + '</div>'
+      + '<div class="fp-range-legend-hint">Tap <strong>pickup</strong> on the calendar first, then <strong>return</strong>. Days in between appear highlighted.</div>';
+    c.insertBefore(bar, c.firstChild);
+  };
+})(window);
+</script>

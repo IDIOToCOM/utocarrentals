@@ -1,0 +1,81 @@
+{% extends 'landing/base.html.twig' %}
+{% import 'customer/_uto_form_field.html.twig' as uto %}
+
+{% block title %}My account — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=1.7">
+  <link rel="stylesheet" href="{{ asset('styles/uto-form-fields.css') }}?v=1.0">
+  <link rel="stylesheet" href="{{ asset('styles/customer-account.css') }}?v=1.1">
+  <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.4">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-account-main lp-catalog-main" id="main-content">
+  {% include 'customer/_customer_page_hero.html.twig' with {
+    kicker: 'Account',
+    title: 'Settings',
+    lead: 'Update your contact details and password. Name and phone prefill when you book a vehicle.',
+    actions: [
+      {
+        href: path('app_car_catalog'),
+        label: 'Browse vehicles',
+        icon: 'fas fa-car',
+        class: 'lp-btn-ghost',
+      },
+    ],
+  } %}
+
+  <section class="lp-section lp-page-section">
+    <div class="lp-container lp-account-layout">
+      {% for message in app.flashes('success') %}
+        <div class="lp-booking-alert lp-booking-alert--success" role="status">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="lp-booking-alert lp-booking-alert--error" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('info') %}
+        <div class="lp-booking-alert lp-booking-alert--success" role="status">{{ message }}</div>
+      {% endfor %}
+
+      <div class="lp-account-card">
+        <h2 class="lp-account-card__title"><i class="fas fa-user" aria-hidden="true"></i> Profile</h2>
+        <dl class="lp-account-meta">
+          <div>
+            <dt>Username</dt>
+            <dd>{{ user.username }}</dd>
+          </div>
+          <div>
+            <dt>Email verified</dt>
+            <dd>{% if user.isVerified %}<span class="lp-account-badge lp-account-badge--ok">Yes</span>{% else %}<span class="lp-account-badge">Pending</span>{% endif %}</dd>
+          </div>
+        </dl>
+
+        {{ form_start(accountForm, { attr: { class: 'lp-account-form', novalidate: 'novalidate' } }) }}
+          {{ uto.render(accountForm.displayName, { icon: 'fa-user', placeholder: 'Name used on bookings' }) }}
+          {{ uto.render(accountForm.email, { icon: 'fa-envelope', placeholder: 'you@example.com' }) }}
+          {{ uto.render(accountForm.phone, { icon: 'fa-phone', placeholder: 'e.g. 0917 123 4567' }) }}
+          <button type="submit" class="lp-btn lp-btn-primary lp-account-form__submit">Save changes</button>
+        {{ form_end(accountForm) }}
+      </div>
+
+      <div class="lp-account-card">
+        <h2 class="lp-account-card__title"><i class="fas fa-lock" aria-hidden="true"></i> Security</h2>
+        <p class="lp-account-card__text">Update your password while signed in.</p>
+        <a href="{{ path('app_customer_account_change_password') }}" class="lp-btn lp-btn-primary">Change password</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

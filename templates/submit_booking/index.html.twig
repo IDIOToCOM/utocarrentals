@@ -1,0 +1,723 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}{{ is_edit_mode|default(false) ? 'Edit booking' : 'Book a rental' }} — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.4">
+  <link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}">
+  {% include 'booking/_flatpickr_range_legend_styles.html.twig' %}
+  {% include 'booking/_flatpickr_booking_time_styles.html.twig' %}
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-booking-main lp-catalog-main" id="main-content">
+  {% include 'customer/_customer_page_hero.html.twig' with {
+    kicker: is_edit_mode|default(false) ? 'My bookings' : 'Customer booking',
+    title: is_edit_mode|default(false) ? 'Edit your booking' : 'Book your rental',
+    lead: is_edit_mode|default(false)
+      ? 'Update your rental details below. The vehicle cannot be changed here.'
+      : 'Choose your dates, pickup and return details—we will take it from there.',
+    actions: is_edit_mode|default(false) ? [
+      {
+        href: path('app_my_bookings'),
+        label: 'Back to bookings',
+        icon: 'fas fa-arrow-left',
+        class: 'lp-btn-ghost',
+      },
+    ] : [],
+  } %}
+
+  <section class="lp-section lp-page-section" aria-labelledby="booking-form-heading">
+    <div class="lp-container">
+      <h2 id="booking-form-heading" class="visually-hidden">Reservation details</h2>
+
+      {% set showSuccess = bookingSubmitted|default(false) %}
+
+      {% if showSuccess %}
+        <div class="lp-booking-success-panel" id="booking-success" role="status" tabindex="-1">
+          <span class="lp-booking-success-icon" aria-hidden="true"><i class="fas fa-circle-check"></i></span>
+          <div>
+            <h2 class="lp-booking-success-title">Booking submitted</h2>
+            <p class="lp-booking-success-text mb-0">
+              {% for message in app.flashes('success') %}
+                {{ message }}
+              {% else %}
+                Your rental request was received. We will confirm your reservation soon.
+              {% endfor %}
+            </p>
+            <a href="{{ path('app_car_catalog') }}" class="lp-btn lp-btn-ghost mt-3">Browse more vehicles</a>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if availability_error is defined and availability_error %}
+        <div class="lp-booking-alert lp-booking-alert--error lp-booking-alert--availability" role="alert">
+          <strong>Vehicle not available</strong>
+          <p class="mb-0 mt-2">{{ availability_error }}</p>
+        </div>
+      {% endif %}
+
+      {% if errors is defined and errors|length > 0 %}
+        <div class="lp-booking-alert lp-booking-alert--error" role="alert">
+          <strong>Please fix the following:</strong>
+          <ul class="mb-0 mt-2">
+            {% for error in errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% set schedule_prefill = schedule_prefill|default({}) %}
+
+      {% if is_edit_mode|default(false) and booking is defined %}
+        {% set pickup_prefill = (old is defined and old.pickupDate is defined) ? old.pickupDate : booking.pickupDate|date('Y-m-d') %}
+        {% set return_prefill = (old is defined and old.returnDate is defined) ? old.returnDate : booking.returnDate|date('Y-m-d') %}
+        {% set pickup_time_prefill = (old is defined and old.pickupTime is defined) ? old.pickupTime : (booking.pickupTime ? booking.pickupTime|date('g:i A') : '') %}
+        {% set return_time_prefill = (old is defined and old.returnTime is defined) ? old.returnTime : (booking.returnTime ? booking.returnTime|date('g:i A') : '') %}
+        {% set name_prefill = (old is defined and old.name is defined) ? old.name : booking.name %}
+        {% set phone_prefill = (old is defined and old.phone is defined) ? old.phone : booking.phone %}
+        {% set pickup_loc_prefill = (old is defined and old.pickupLocation is defined) ? old.pickupLocation : booking.pickupLocation %}
+        {% set dropoff_loc_prefill = (old is defined and old.dropoffLocation is defined) ? old.dropoffLocation : booking.dropoffLocation %}
+      {% else %}
+        {% set pickup_prefill = (old is defined and old.pickupDate is defined) ? old.pickupDate : (schedule_prefill.pickupDate|default('')) %}
+        {% set return_prefill = (old is defined and old.returnDate is defined) ? old.returnDate : (schedule_prefill.returnDate|default('')) %}
+        {% set pickup_time_prefill = (old is defined and old.pickupTime is defined) ? old.pickupTime : (schedule_prefill.pickupTime|default('')) %}
+        {% set return_time_prefill = (old is defined and old.returnTime is defined) ? old.returnTime : (schedule_prefill.returnTime|default('')) %}
+        {% set name_prefill = (old is defined and old.name is defined) ? old.name : (account_defaults.name|default('')) %}
+        {% set phone_prefill = (old is defined and old.phone is defined) ? old.phone : (account_defaults.phone|default('')) %}
+        {% set pickup_loc_prefill = (old is defined and old.pickupLocation is defined) ? old.pickupLocation : '' %}
+        {% set dropoff_loc_prefill = (old is defined and old.dropoffLocation is defined) ? old.dropoffLocation : '' %}
+      {% endif %}
+
+      {% if not showSuccess|default(false) %}
+      <div class="lp-booking-card">
+        <form id="booking-form" class="lp-booking-form"
+              action="{{ is_edit_mode|default(false) ? path('app_my_booking_edit', { id: booking.id }) : path('app_submit_booking_save') }}"
+              method="POST" novalidate>
+          {% if is_edit_mode|default(false) %}
+            <input type="hidden" name="_token" value="{{ csrf_token('my_booking_edit_' ~ booking.id) }}">
+          {% endif %}
+          {% set car_id = old.carId|default(selected_car.id|default('')) %}
+          {% if car_id %}
+            <input type="hidden" name="carId" id="carIdHidden" value="{{ car_id }}">
+          {% endif %}
+          {% if selected_car is defined and selected_car %}
+            <div class="lp-booking-selected-vehicle" role="status">
+              <span class="lp-booking-selected-vehicle__icon" aria-hidden="true"><i class="fas fa-car"></i></span>
+              <div>
+                <p class="lp-booking-selected-vehicle__label">Selected vehicle</p>
+                <p class="lp-booking-selected-vehicle__name">{{ selected_car.brand }} {{ selected_car.model }}</p>
+                {% include 'customer/_car_specs.html.twig' with { car: selected_car } %}
+                <p class="lp-booking-selected-vehicle__price">₱{{ selected_car.pricePerDay|number_format(0, '.', ',') }} <small>/ day</small></p>
+              </div>
+              {% if not is_edit_mode|default(false) %}
+                <a href="{{ path('app_car_catalog') }}" class="lp-booking-selected-vehicle__change">Change vehicle</a>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div class="row g-3 text-start mb-1">
+            <div class="col-md-6">
+              <label for="customerName" class="form-label">Your name</label>
+              <div class="lp-booking-input-wrap">
+                <span class="lp-booking-input-icon" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <input type="text"
+                       name="name"
+                       id="customerName"
+                       class="form-control"
+                       placeholder="Full name"
+                       autocomplete="name"
+                       value="{{ name_prefill|default('') }}"
+                       required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="customerPhone" class="form-label">Phone number</label>
+              <div class="lp-booking-input-wrap">
+                <span class="lp-booking-input-icon" aria-hidden="true"><i class="fas fa-phone"></i></span>
+                <input type="tel"
+                       name="phone"
+                       id="customerPhone"
+                       class="form-control"
+                       placeholder="e.g. 0917 123 4567"
+                       autocomplete="tel"
+                       inputmode="tel"
+                       value="{{ phone_prefill|default('') }}"
+                       required>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 text-start">
+            <div class="col-12">
+              <label for="rentalDateRange" class="form-label">Rental period</label>
+              <div class="lp-booking-input-wrap">
+                <span class="lp-booking-input-icon" aria-hidden="true"><i class="fas fa-calendar-days"></i></span>
+                <input type="text"
+                       class="form-control"
+                       id="rentalDateRange"
+                       placeholder="Tap calendar — first day pickup, second day return"
+                       autocomplete="off"
+                       inputmode="none"
+                       data-pickup-prefill="{{ pickup_prefill }}"
+                       data-return-prefill="{{ return_prefill }}"
+                       data-car-id="{{ car_id }}"
+                       data-availability-url="{{ car_id ? path('app_submit_booking_car_availability', { carId: car_id }) : '' }}"
+                       data-check-conflict-url="{{ path('app_submit_booking_check_conflict') }}"
+                       data-exclude-booking-id="{{ is_edit_mode|default(false) ? booking.id : '' }}"
+                       required>
+              </div>
+              <input type="hidden" name="pickupDate" id="pickupDateHidden" value="{{ pickup_prefill }}">
+              <input type="hidden" name="returnDate" id="returnDateHidden" value="{{ return_prefill }}">
+              <small class="lp-booking-hint{% if not car_id %} d-none{% endif %}" id="carAvailabilityHint">
+                Gray dates are unavailable for this vehicle. The return day of a rental can still be used as your pickup.
+              </small>
+              <small class="lp-booking-hint d-none" id="rentalDurationHint" aria-live="polite"></small>
+          {% if selected_car is defined and selected_car %}
+            {% include 'customer/_rental_price_estimate.html.twig' with {
+              price_per_day: selected_car.pricePerDay,
+              hidden: false
+            } %}
+          {% endif %}
+            </div>
+          </div>
+
+          <div class="row g-4 mt-1">
+            <div class="col-lg-6">
+              <div class="lp-booking-panel">
+                <h3 class="lp-booking-panel-title"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Pickup details</h3>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="pickupLocation" class="form-label">Pickup location</label>
+                    <div class="lp-booking-input-wrap">
+                      <span class="lp-booking-input-icon" aria-hidden="true"><i class="fas fa-location-dot"></i></span>
+                      <input type="text" name="pickupLocation" id="pickupLocation" class="form-control" placeholder="City, address, or POI" value="{{ pickup_loc_prefill|default('') }}" required>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label for="pickupTime" class="form-label">Pickup time</label>
+                    <div class="lp-booking-input-wrap">
+                      <span class="lp-booking-input-icon" aria-hidden="true"><i class="fas fa-clock"></i></span>
+                      <input type="text" name="pickupTime" id="pickupTime" class="form-control js-flatpickr-time" placeholder="Select time (AM/PM, 30-min slots)" autocomplete="off" inputmode="none" value="{{ pickup_time_prefill|default('') }}" required>
+                    </div>
+                    {% include 'booking/_time_preset_chips.html.twig' with { variant: 'customer', target_id: 'pickupTime', aria_label: 'Quick pickup times' } %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="lp-booking-panel">
+                <h3 class="lp-booking-panel-title"><i class="fas fa-flag-checkered" aria-hidden="true"></i> Return details</h3>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="dropoffLocation" class="form-label">Drop-off location</label>
+                    <div class="lp-booking-input-wrap">
+                      <span class="lp-booking-input-icon" aria-hidden="true"><i class="fas fa-location-dot"></i></span>
+                      <input type="text" name="dropoffLocation" id="dropoffLocation" class="form-control" placeholder="City, address, or POI" value="{{ dropoff_loc_prefill|default('') }}" required>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label for="returnTime" class="form-label">Return time</label>
+                    <div class="lp-booking-input-wrap">
+                      <span class="lp-booking-input-icon" aria-hidden="true"><i class="fas fa-clock"></i></span>
+                      <input type="text" name="returnTime" id="returnTime" class="form-control js-flatpickr-time" placeholder="Select time (AM/PM, 30-min slots)" autocomplete="off" inputmode="none" value="{{ return_time_prefill|default('') }}" required>
+                    </div>
+                    {% include 'booking/_time_preset_chips.html.twig' with { variant: 'customer', target_id: 'returnTime', aria_label: 'Quick return times' } %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lp-booking-submit">
+            <p class="lp-booking-submit-estimate d-none" id="rentalPriceSubmitHint" aria-live="polite"></p>
+            <button type="submit" class="lp-btn lp-btn-primary lp-btn-lg">
+              <i class="fas fa-{{ is_edit_mode|default(false) ? 'check' : 'paper-plane' }}" aria-hidden="true"></i>
+              {{ is_edit_mode|default(false) ? 'Save changes' : 'Submit booking' }}
+            </button>
+            {% if not app.user and not is_edit_mode|default(false) %}
+              <p class="lp-booking-hint mt-3 mb-0">Have an account? <a href="{{ path('app_login') }}">Sign in</a> for faster checkout later.</p>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+  {% include 'booking/_flatpickr_range_legend_script.html.twig' %}
+  <script src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
+  {% include 'booking/_flatpickr_booking_time_script.html.twig' %}
+  {% include 'booking/_rental_price_script.html.twig' %}
+  <script>
+    (function () {
+      function boot() {
+        var rangeInput = document.getElementById('rentalDateRange');
+        var pickupHidden = document.getElementById('pickupDateHidden');
+        var returnHidden = document.getElementById('returnDateHidden');
+        var hint = document.getElementById('rentalDurationHint');
+        var form = document.getElementById('booking-form');
+        if (!rangeInput || !pickupHidden || !returnHidden || !form) return;
+        if (typeof window.flatpickr !== 'function') {
+          console.error('Flatpickr missing: open /vendor/flatpickr/flatpickr.min.js in the browser to verify it loads.');
+          return;
+        }
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+        function ymd(d) {
+          return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+        }
+
+        var priceEstimateEl = document.getElementById('rentalPriceEstimate');
+        var priceAmountEl = document.getElementById('rentalPriceEstimateAmount');
+        var priceBreakdownEl = document.getElementById('rentalPriceEstimateBreakdown');
+        var priceSubmitHint = document.getElementById('rentalPriceSubmitHint');
+        var pricePerDay = priceEstimateEl
+          ? parseInt(priceEstimateEl.getAttribute('data-price-per-day'), 10) || 0
+          : 0;
+
+        function updatePriceEstimate(start, end) {
+          if (!window.UtoRentalPrice || !priceEstimateEl || !priceAmountEl || !priceBreakdownEl) return;
+          if (!start || !end) {
+            priceAmountEl.textContent = '—';
+            priceBreakdownEl.textContent = '';
+            if (priceSubmitHint) priceSubmitHint.classList.add('d-none');
+            return;
+          }
+          var days = window.UtoRentalPrice.countDaysFromDates(start, end);
+          var total = window.UtoRentalPrice.estimateTotal(days, pricePerDay);
+          priceAmountEl.textContent = window.UtoRentalPrice.formatPeso(total);
+          priceBreakdownEl.textContent = window.UtoRentalPrice.breakdownText(days, pricePerDay, total);
+          if (priceSubmitHint) {
+            priceSubmitHint.textContent = 'Estimated total: ' + window.UtoRentalPrice.formatPeso(total) + ' (' + days + (days === 1 ? ' day' : ' days') + ')';
+            priceSubmitHint.classList.remove('d-none');
+          }
+        }
+
+        function updateHint(start, end) {
+          if (!start || !end) {
+            if (hint) hint.classList.add('d-none');
+            updatePriceEstimate(null, null);
+            return;
+          }
+          var days = window.UtoRentalPrice
+            ? window.UtoRentalPrice.countDaysFromDates(start, end)
+            : Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+          if (hint) {
+            hint.textContent = days === 1 ? '1 day rental' : days + ' days rental';
+            hint.classList.remove('d-none');
+          }
+          updatePriceEstimate(start, end);
+        }
+
+        var carId = rangeInput.getAttribute('data-car-id') || '';
+        var availabilityUrl = rangeInput.getAttribute('data-availability-url') || '';
+        var checkConflictUrl = rangeInput.getAttribute('data-check-conflict-url') || '';
+        var carIdHidden = document.getElementById('carIdHidden');
+        var blockedPickupDates = new Set();
+        var bookedRanges = [];
+        var fp = null;
+
+        /** True if any day the car is out during [pickupY, returnY) is already booked. */
+        function rentalIncludesBlockedDay(pickupY, returnY) {
+          var parts = pickupY.split('-').map(Number);
+          var d = new Date(parts[0], parts[1] - 1, parts[2]);
+          var endParts = returnY.split('-').map(Number);
+          var end = new Date(endParts[0], endParts[1] - 1, endParts[2]);
+          while (d < end) {
+            if (blockedPickupDates.has(ymd(d))) {
+              return true;
+            }
+            d.setDate(d.getDate() + 1);
+          }
+          return false;
+        }
+
+        function isDateDisabled(date, selectedDates) {
+          var today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (date < today) {
+            return true;
+          }
+          if (!carId || bookedRanges.length === 0) {
+            return false;
+          }
+          var y = ymd(date);
+          if (!selectedDates || selectedDates.length === 0) {
+            return blockedPickupDates.has(y);
+          }
+          if (selectedDates.length === 1) {
+            var pickup = selectedDates[0];
+            pickup.setHours(0, 0, 0, 0);
+            var d = new Date(date.getTime());
+            d.setHours(0, 0, 0, 0);
+            if (d < pickup) {
+              return true;
+            }
+            return rentalIncludesBlockedDay(ymd(pickup), y);
+          }
+          return blockedPickupDates.has(y);
+        }
+
+        function loadAvailability(callback) {
+          if (!availabilityUrl) {
+            callback();
+            return;
+          }
+          fetch(availabilityUrl, { headers: { Accept: 'application/json' } })
+            .then(function (res) { return res.ok ? res.json() : { blockedDates: [], bookedRanges: [] }; })
+            .then(function (data) {
+              blockedPickupDates = new Set(data.blockedDates || []);
+              bookedRanges = data.bookedRanges || [];
+              callback();
+            })
+            .catch(function () { callback(); });
+        }
+
+        var prePickup = rangeInput.getAttribute('data-pickup-prefill') || '';
+        var preReturn = rangeInput.getAttribute('data-return-prefill') || '';
+        var defaultDate;
+        if (prePickup && preReturn) {
+          defaultDate = [prePickup, preReturn];
+          pickupHidden.value = prePickup;
+          returnHidden.value = preReturn;
+        } else {
+          var start = new Date();
+          start.setDate(start.getDate() + 1);
+          start.setHours(0, 0, 0, 0);
+          var end = new Date(start);
+          end.setDate(end.getDate() + 2);
+          defaultDate = [start, end];
+          pickupHidden.value = ymd(start);
+          returnHidden.value = ymd(end);
+        }
+
+        function initFlatpickr() {
+          if (fp) {
+            fp.destroy();
+          }
+          fp = window.flatpickr(rangeInput, {
+            mode: 'range',
+            minDate: 'today',
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'M j, Y',
+            allowInput: false,
+            clickOpens: true,
+            appendTo: document.body,
+            showMonths: typeof window.matchMedia !== 'undefined' && window.matchMedia('(min-width: 768px)').matches ? 2 : 1,
+            defaultDate: defaultDate,
+            disable: [function (date) {
+              return isDateDisabled(date, fp ? fp.selectedDates : []);
+            }],
+            onOpen: function (selectedDates, dateStr, instance) {
+              if (typeof window.fpRangeLegendOnOpen === 'function') {
+                window.fpRangeLegendOnOpen(selectedDates, dateStr, instance);
+              }
+              if (carId && bookedRanges.length > 0) {
+                var hintEl = instance.calendarContainer && instance.calendarContainer.querySelector('.flatpickr-range-labels .fp-range-legend-hint');
+                if (hintEl) {
+                  hintEl.innerHTML = 'Tap <strong>pickup</strong> first, then <strong>return</strong>. <span class="fp-legend-unavailable">Gray</span> days are already booked; the return day of a rental stays available.';
+                }
+              }
+            },
+            onChange: function (selectedDates) {
+              if (selectedDates.length === 1) {
+                fp.redraw();
+              }
+              if (selectedDates.length === 2) {
+                var pY = ymd(selectedDates[0]);
+                var rY = ymd(selectedDates[1]);
+                if (carId && rentalIncludesBlockedDay(pY, rY)) {
+                  showAvailabilityError('One or more days in that period are already booked for this vehicle. Pick different dates, or choose another vehicle.');
+                  fp.clear();
+                  pickupHidden.value = '';
+                  returnHidden.value = '';
+                  if (hint) hint.classList.add('d-none');
+                  updatePriceEstimate(null, null);
+                  return;
+                }
+                pickupHidden.value = pY;
+                returnHidden.value = rY;
+                updateHint(selectedDates[0], selectedDates[1]);
+              } else if (selectedDates.length === 0) {
+                pickupHidden.value = '';
+                returnHidden.value = '';
+                if (hint) hint.classList.add('d-none');
+                updatePriceEstimate(null, null);
+              }
+              if (typeof updateTimePresetAvailability === 'function') {
+                updateTimePresetAvailability();
+              }
+            }
+          });
+
+          if (prePickup && preReturn) {
+            var d1 = fp.parseDate(prePickup, 'Y-m-d');
+            var d2 = fp.parseDate(preReturn, 'Y-m-d');
+            if (d1 && d2) updateHint(d1, d2);
+          } else if (defaultDate.length === 2 && defaultDate[0] instanceof Date && defaultDate[1] instanceof Date) {
+            updateHint(defaultDate[0], defaultDate[1]);
+          }
+        }
+
+        loadAvailability(initFlatpickr);
+
+        function parseTimeToHm(timeStr) {
+          if (!timeStr || typeof timeStr !== 'string') return null;
+          timeStr = timeStr.trim();
+          var m12 = timeStr.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)/i);
+          if (m12) {
+            var h = parseInt(m12[1], 10);
+            var min = parseInt(m12[2], 10);
+            var ap = m12[3].toUpperCase();
+            if (ap === 'PM' && h < 12) h += 12;
+            if (ap === 'AM' && h === 12) h = 0;
+            return { h: h, min: min };
+          }
+          var m24 = timeStr.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+          if (!m24) return null;
+          return { h: parseInt(m24[1], 10), min: parseInt(m24[2], 10) };
+        }
+
+        function syncFlatpickrTime24(input) {
+          if (!input || !input._flatpickr || !input._flatpickr.selectedDates.length) return;
+          var d = input._flatpickr.selectedDates[0];
+          input.value = pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+
+        function getTimeHmFromInput(input) {
+          if (!input) return null;
+          if (input._flatpickr && input._flatpickr.selectedDates.length) {
+            var d = input._flatpickr.selectedDates[0];
+            return { h: d.getHours(), min: d.getMinutes() };
+          }
+          return parseTimeToHm(input.value);
+        }
+
+        function combineDateTime(ymd, inputOrTimeStr) {
+          if (!ymd) return null;
+          var parts = ymd.split('-').map(function (n) { return parseInt(n, 10); });
+          if (parts.length !== 3 || parts.some(isNaN)) return null;
+          var hm = null;
+          if (inputOrTimeStr && inputOrTimeStr.nodeType === 1) {
+            hm = getTimeHmFromInput(inputOrTimeStr);
+          } else {
+            hm = parseTimeToHm(inputOrTimeStr);
+          }
+          if (!hm) return null;
+          return new Date(parts[0], parts[1] - 1, parts[2], hm.h, hm.min, 0, 0);
+        }
+
+        function isBlank(value) {
+          return value === null || value === undefined || String(value).trim() === '';
+        }
+
+        var AVAILABILITY_MSG = 'This vehicle is already booked for part of your selected dates. Please choose different dates or pick another vehicle from our catalog.';
+
+        function showAlert(title, messages, extraClass) {
+          var list = Array.isArray(messages) ? messages : [messages];
+          var box = document.getElementById('booking-client-error');
+          if (!box) {
+            box = document.createElement('div');
+            box.id = 'booking-client-error';
+            box.setAttribute('role', 'alert');
+            form.parentNode.insertBefore(box, form);
+          }
+          box.className = 'lp-booking-alert lp-booking-alert--error' + (extraClass ? ' ' + extraClass : '');
+          if (list.length === 1) {
+            box.innerHTML = '<strong>' + String(title).replace(/</g, '&lt;') + '</strong><p class="mb-0 mt-2">'
+              + String(list[0]).replace(/</g, '&lt;') + '</p>';
+          } else {
+            box.innerHTML = '<strong>' + String(title).replace(/</g, '&lt;') + '</strong><ul class="mb-0 mt-2"><li>'
+              + list.map(function (m) { return String(m).replace(/</g, '&lt;'); }).join('</li><li>')
+              + '</li></ul>';
+          }
+          box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showFormError(messages) {
+          showAlert('Please complete the form', messages, '');
+        }
+
+        function showAvailabilityError(message) {
+          showAlert('Vehicle not available', message || AVAILABILITY_MSG, 'lp-booking-alert--availability');
+        }
+
+        function clearClientError() {
+          var box = document.getElementById('booking-client-error');
+          if (box) box.remove();
+        }
+
+        function updateTimePresetAvailability() {
+          var pickupYmd = pickupHidden.value;
+          var todayYmd = ymd(new Date());
+          document.querySelectorAll('.time-preset-row[data-fp-for="pickupTime"] .time-preset-chip').forEach(function (chip) {
+            var h = chip.getAttribute('data-h');
+            var min = chip.getAttribute('data-min');
+            if (h === null || min === null) return;
+            var disabled = false;
+            if (pickupYmd === todayYmd) {
+              var parts = pickupYmd.split('-').map(Number);
+              var slot = new Date(parts[0], parts[1] - 1, parts[2], parseInt(h, 10), parseInt(min, 10), 0, 0);
+              disabled = slot.getTime() <= Date.now();
+            }
+            chip.disabled = disabled;
+            chip.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+            chip.classList.toggle('is-disabled', disabled);
+          });
+        }
+
+        updateTimePresetAvailability();
+
+        function submitForm() {
+          form.removeEventListener('submit', submitHandler);
+          if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+          } else {
+            form.submit();
+          }
+        }
+
+        function submitHandler(e) {
+          e.preventDefault();
+          clearClientError();
+          var missing = [];
+          var nameInput = document.getElementById('customerName');
+          var phoneInput = document.getElementById('customerPhone');
+          var pickupLoc = document.getElementById('pickupLocation');
+          var dropoffLoc = document.getElementById('dropoffLocation');
+          var pickupInput = document.getElementById('pickupTime');
+          var returnInput = document.getElementById('returnTime');
+
+          if (isBlank(nameInput && nameInput.value)) {
+            missing.push('Enter your name.');
+          }
+          if (isBlank(phoneInput && phoneInput.value)) {
+            missing.push('Enter your phone number.');
+          } else {
+            var phoneDigits = (phoneInput.value || '').replace(/\D/g, '');
+            if (phoneDigits.length < 10) {
+              missing.push('Enter a valid phone number (at least 10 digits).');
+            }
+          }
+          if (isBlank(pickupLoc && pickupLoc.value)) {
+            missing.push('Enter a pickup location.');
+          }
+          if (isBlank(dropoffLoc && dropoffLoc.value)) {
+            missing.push('Enter a drop-off location.');
+          }
+          if (isBlank(pickupHidden.value) || isBlank(returnHidden.value)) {
+            missing.push('Select a rental period (pickup and return dates).');
+          }
+          syncFlatpickrTime24(pickupInput);
+          syncFlatpickrTime24(returnInput);
+          if (!getTimeHmFromInput(pickupInput)) {
+            missing.push('Select a pickup time.');
+          }
+          if (!getTimeHmFromInput(returnInput)) {
+            missing.push('Select a return time.');
+          }
+
+          if (missing.length > 0) {
+            showFormError(missing);
+            if (isBlank(nameInput && nameInput.value)) {
+              nameInput.focus();
+            } else if (isBlank(phoneInput && phoneInput.value)) {
+              phoneInput.focus();
+            } else if (isBlank(pickupHidden.value) || isBlank(returnHidden.value)) {
+              fp.open();
+            } else if (isBlank(pickupLoc && pickupLoc.value)) {
+              pickupLoc.focus();
+            } else if (!getTimeHmFromInput(pickupInput) && pickupInput) {
+              pickupInput._flatpickr ? pickupInput._flatpickr.open() : pickupInput.focus();
+            }
+            return;
+          }
+
+          var pickupDt = combineDateTime(pickupHidden.value, pickupInput);
+          var returnDt = combineDateTime(returnHidden.value, returnInput);
+          var now = new Date();
+          var scheduleErrors = [];
+          if (window.UtoBookingTimeRules && typeof window.UtoBookingTimeRules.scheduleErrors === 'function') {
+            scheduleErrors = window.UtoBookingTimeRules.scheduleErrors(pickupDt, returnDt, now);
+          } else if (!pickupDt || !returnDt) {
+            scheduleErrors.push('Please enter valid pickup and return times.');
+          } else {
+            if (returnDt < pickupDt) {
+              scheduleErrors.push('Return must be after pickup.');
+            }
+          }
+          if (scheduleErrors.length > 0) {
+            showFormError(scheduleErrors);
+            return;
+          }
+
+          var activeCarId = (carIdHidden && carIdHidden.value) ? carIdHidden.value : carId;
+
+          if (!activeCarId || !checkConflictUrl) {
+            submitForm();
+            return;
+          }
+
+          fetch(checkConflictUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              carId: activeCarId,
+              pickupDate: pickupHidden.value,
+              returnDate: returnHidden.value,
+              pickupTime: pickupInput.value,
+              returnTime: returnInput.value,
+              excludeBookingId: rangeInput.getAttribute('data-exclude-booking-id') || null
+            })
+          })
+            .then(function (res) {
+              if (!res.ok) {
+                throw new Error('check_failed');
+              }
+              return res.json();
+            })
+            .then(function (data) {
+              if (data.hasConflict) {
+                showAvailabilityError(data.message || AVAILABILITY_MSG);
+                return;
+              }
+              submitForm();
+            })
+            .catch(function () {
+              showFormError(['We could not verify availability. Please try again in a moment.']);
+            });
+        }
+
+        form.addEventListener('submit', submitHandler);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+      } else {
+        boot();
+      }
+
+      var successPanel = document.getElementById('booking-success');
+      if (successPanel) {
+        successPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        successPanel.focus({ preventScroll: true });
+      }
+    })();
+  </script>
+{% endblock %}

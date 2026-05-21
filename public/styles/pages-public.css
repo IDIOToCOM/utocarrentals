@@ -1,0 +1,532 @@
+/* About & Contact — tokens align with landing.css / login (uto-*) */
+
+:root {
+  --uto-navy: #0a0a0a;
+  --uto-cyan: #6b7280;
+  --uto-text: #0a0a0a;
+  --uto-text-body: #374151;
+  --uto-muted: #6b7280;
+  --uto-border: #e5e7eb;
+  --uto-border-soft: rgba(0, 0, 0, 0.08);
+  --uto-input-bg: #f9fafb;
+  --uto-radius: 12px;
+  --uto-radius-lg: 20px;
+  --uto-shadow: 0 16px 48px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.lp-page-main {
+  min-height: 50vh;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+.lp-page-hero {
+  padding: clamp(2.5rem, 6vw, 4rem) 0 2rem;
+  border-bottom: 1px solid var(--uto-border-soft);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(0, 0, 0, 0.02) 50%,
+    transparent 100%
+  );
+}
+
+.lp-page-title {
+  font-family: inherit;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
+  color: var(--uto-text);
+}
+
+.lp-page-lead {
+  font-size: 1.0625rem;
+  color: var(--uto-muted);
+  line-height: 1.65;
+  max-width: 640px;
+  margin: 0;
+}
+
+.lp-page-section {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.lp-page-text {
+  color: var(--uto-text-body);
+  line-height: 1.7;
+  max-width: 720px;
+  margin: 0;
+}
+
+/* Meet the team */
+.lp-team-section {
+  background: var(--uto-input-bg);
+  border-block: 1px solid var(--uto-border);
+}
+
+.lp-team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.lp-team-card {
+  background: #fff;
+  border: 1px solid var(--uto-border-soft);
+  border-radius: var(--uto-radius-lg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lp-team-card:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: var(--uto-shadow);
+}
+
+.lp-team-avatar {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 1rem;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--uto-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.lp-team-photo {
+  object-fit: cover;
+  display: block;
+  object-position: center top;
+}
+
+.lp-team-avatar--blank {
+  border: 2px dashed rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.lp-team-name {
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: var(--uto-text);
+}
+
+.lp-team-role {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--uto-navy);
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+}
+
+.lp-team-bio {
+  font-size: 0.9rem;
+  color: var(--uto-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Contact */
+.lp-contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.lp-contact-aside .lp-section-title {
+  margin-bottom: 0.75rem;
+}
+
+.lp-contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+
+.lp-contact-list li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  color: var(--uto-text-body);
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.lp-contact-list a {
+  color: var(--uto-navy);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.lp-contact-list a:hover {
+  color: var(--uto-cyan);
+  text-decoration: underline;
+}
+
+.lp-contact-form-wrap {
+  background: #fff;
+  border: 1px solid var(--uto-border-soft);
+  border-radius: var(--uto-radius-lg);
+  box-shadow: var(--uto-shadow);
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* Google Form embed — full width, readable height, matches Uto card radius */
+.lp-google-form-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lp-contact-success {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1.15rem;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.07) 100%);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--uto-radius);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  font-family: inherit;
+}
+
+.lp-contact-success[hidden] {
+  display: none !important;
+}
+
+.lp-contact-success:not([hidden]) {
+  display: flex;
+}
+
+.lp-contact-success-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--uto-radius);
+  background: linear-gradient(135deg, #0a0a0a 0%, #525252 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.lp-contact-success-title {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--uto-text);
+  margin: 0 0 0.35rem;
+}
+
+.lp-contact-success-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--uto-muted);
+  line-height: 1.5;
+}
+
+.lp-form-embed {
+  min-height: 720px;
+  border-radius: var(--uto-radius);
+  overflow: hidden;
+  border: 2px solid var(--uto-border);
+  background: var(--uto-input-bg);
+}
+
+.lp-form-embed iframe {
+  border: 0;
+  width: 100%;
+  min-height: 720px;
+  display: block;
+}
+
+.lp-form-note {
+  font-size: 0.875rem;
+  color: var(--uto-text-body);
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--uto-input-bg);
+  border: 2px solid var(--uto-border);
+  border-radius: var(--uto-radius);
+  line-height: 1.55;
+}
+
+.lp-form-note-icon {
+  color: var(--uto-navy);
+  margin-right: 0.35rem;
+}
+
+.lp-form-placeholder {
+  padding: 1.5rem;
+  color: var(--uto-text-body);
+}
+
+.lp-form-placeholder strong {
+  color: var(--uto-text);
+}
+
+.lp-code-sample {
+  font-size: 0.8rem;
+  background: var(--uto-input-bg);
+  border: 1px solid var(--uto-border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  color: var(--uto-navy);
+  margin: 1rem 0;
+}
+
+@media (max-width: 991.98px) {
+  .lp-team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .lp-contact-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .lp-team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Support contact card */
+.lp-support-contact {
+  padding: 1.15rem 1.25rem;
+  background: var(--uto-input-bg);
+  border: 1px solid var(--uto-border);
+  border-radius: var(--uto-radius-lg);
+}
+
+.lp-support-contact__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.lp-support-contact__lead {
+  font-size: 0.9rem;
+  color: var(--uto-muted);
+  line-height: 1.55;
+  margin: 0 0 1rem;
+}
+
+.lp-support-contact__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.lp-support-contact__list li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--uto-text-body);
+}
+
+.lp-support-contact__list i {
+  width: 1.25rem;
+  margin-top: 0.15rem;
+  color: var(--uto-navy);
+}
+
+.lp-support-contact__list a {
+  color: var(--uto-navy);
+  font-weight: 600;
+}
+
+.lp-contact-aside .lp-support-contact {
+  margin-top: 1rem;
+}
+
+/* Help / FAQ page */
+.lp-help-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.lp-help-sidebar {
+  position: sticky;
+  top: 1rem;
+}
+
+.lp-help-block {
+  margin-bottom: 2.5rem;
+}
+
+.lp-help-block__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lp-help-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lp-help-card {
+  padding: 1.15rem 1.25rem;
+  background: #fff;
+  border: 1px solid var(--uto-border-soft);
+  border-radius: var(--uto-radius-lg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.lp-help-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.lp-help-card__text,
+.lp-help-card__note {
+  font-size: 0.9rem;
+  color: var(--uto-text-body);
+  line-height: 1.6;
+  margin: 0 0 0.65rem;
+}
+
+.lp-help-card__list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.9rem;
+  color: var(--uto-text-body);
+  line-height: 1.6;
+}
+
+.lp-help-card__list li {
+  margin-bottom: 0.35rem;
+}
+
+.lp-help-card__note {
+  font-size: 0.85rem;
+  color: var(--uto-muted);
+}
+
+.lp-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lp-faq__item {
+  border: 1px solid var(--uto-border);
+  border-radius: var(--uto-radius);
+  background: #fff;
+  overflow: hidden;
+}
+
+.lp-faq__question {
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lp-faq__question::-webkit-details-marker {
+  display: none;
+}
+
+.lp-faq__item[open] .lp-faq__question {
+  border-bottom: 1px solid var(--uto-border-soft);
+  background: var(--uto-input-bg);
+}
+
+.lp-faq__answer {
+  padding: 0.85rem 1rem 1rem;
+  font-size: 0.9rem;
+  color: var(--uto-text-body);
+  line-height: 1.6;
+}
+
+.lp-faq__answer p {
+  margin: 0;
+}
+
+.lp-help-footer-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.lp-footer-contact a {
+  word-break: break-all;
+}
+
+.lp-footer-grid--compact {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.lp-footer-links-inline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: flex-end;
+}
+
+.lp-footer-links-inline a {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.lp-footer-contact-inline {
+  font-size: 0.875rem;
+}
+
+.lp-footer-contact-inline a {
+  font-weight: 600;
+}
+
+@media (max-width: 991.98px) {
+  .lp-help-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .lp-help-sidebar {
+    position: static;
+  }
+
+  .lp-footer-grid--compact {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .lp-footer-links-inline {
+    justify-content: center;
+  }
+}

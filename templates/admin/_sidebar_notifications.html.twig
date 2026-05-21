@@ -1,0 +1,5 @@
+<li>
+  <a href="{{ path('app_notifications') }}" class="{% if app.request.attributes.get('_route') starts with 'app_notification' %}active{% endif %}">
+    <i class="fas fa-bell"></i> Notifications{% if notification_unread_count() > 0 %} ({{ notification_unread_count() }}){% endif %}
+  </a>
+</li>

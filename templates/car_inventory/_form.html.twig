@@ -1,0 +1,25 @@
+{% block body %}
+<div class="admin-layout">
+
+  {% include 'admin/_sidebar.html.twig' %}
+
+  <!-- Main Content -->
+  <main class="admin-content">
+    {% include 'admin/_topbar_minimal.html.twig' %}
+
+    <div class="container">
+      <h1 class="page-title">Create / Edit Car</h1>
+
+      <!-- ✅ The form stays only inside this main area -->
+      <div class="form-container">
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-create">Save</button>
+        {{ form_end(form) }}
+      </div>
+
+      <a href="{{ path('app_car_inventory_index') }}" class="btn btn-back mt-3">← Back</a>
+    </div>
+  </main>
+</div>
+{% endblock %}

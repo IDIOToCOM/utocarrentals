@@ -1,0 +1,52 @@
+{# pricePerDay: int, rentalEstimate: App\Car\CatalogRentalEstimate|null, layout: 'card'|'detail'|'book' #}
+{% set layout = layout|default('card') %}
+
+{% if rentalEstimate %}
+  {% if layout == 'card' %}
+    <div class="lp-rental-price lp-rental-price--estimate">
+      <div class="lp-rental-price__primary">
+        <span class="lp-rental-price__total">₱{{ rentalEstimate.total|number_format(0, '.', ',') }}</span>
+        <span class="lp-rental-price__label">est. total</span>
+      </div>
+      <p class="lp-rental-price__meta">
+        {{ rentalEstimate.days }} day{{ rentalEstimate.days == 1 ? '' : 's' }}
+        · ₱{{ rentalEstimate.pricePerDay|number_format(0, '.', ',') }}/day
+      </p>
+    </div>
+  {% elseif layout == 'detail' %}
+    <div class="lp-rental-price lp-rental-price--estimate lp-rental-price--detail">
+      <p class="lp-vehicle-detail__rate lp-vehicle-detail__rate--total">
+        ₱{{ rentalEstimate.total|number_format(0, '.', ',') }} <small>estimated total</small>
+      </p>
+      <p class="lp-vehicle-detail__from">
+        {{ rentalEstimate.days }} day{{ rentalEstimate.days == 1 ? '' : 's' }}
+        at ₱{{ rentalEstimate.pricePerDay|number_format(0, '.', ',') }}/day
+      </p>
+    </div>
+  {% elseif layout == 'book' %}
+    <div class="lp-rental-price lp-rental-price--estimate lp-rental-price--book">
+      <p class="lp-vehicle-book-card__rate lp-vehicle-book-card__rate--total">
+        ₱{{ rentalEstimate.total|number_format(0, '.', ',') }} <small>est. for your dates</small>
+      </p>
+      <p class="lp-vehicle-book-card__from">
+        {{ rentalEstimate.days }} day{{ rentalEstimate.days == 1 ? '' : 's' }}
+        · ₱{{ rentalEstimate.pricePerDay|number_format(0, '.', ',') }}/day
+      </p>
+    </div>
+  {% endif %}
+{% else %}
+  {% if layout == 'card' %}
+    <div class="lp-rental-price">
+      <span class="lp-car-card__amount">₱{{ pricePerDay|number_format(0, '.', ',') }}<small>/day</small></span>
+      <span class="lp-car-card__min-total">from ₱{{ rental_min_total(pricePerDay)|number_format(0, '.', ',') }}</span>
+    </div>
+  {% elseif layout == 'detail' %}
+    <p class="lp-vehicle-detail__rate">₱{{ pricePerDay|number_format(0, '.', ',') }} <small>/ day</small></p>
+    <p class="lp-vehicle-detail__from">From ₱{{ rental_min_total(pricePerDay)|number_format(0, '.', ',') }} <span>(1-day minimum)</span></p>
+  {% elseif layout == 'book' %}
+    <p class="lp-vehicle-book-card__rate">
+      ₱{{ pricePerDay|number_format(0, '.', ',') }} <small>/ day</small>
+    </p>
+    <p class="lp-vehicle-book-card__from">From ₱{{ rental_min_total(pricePerDay)|number_format(0, '.', ',') }} <span>· 1-day min</span></p>
+  {% endif %}
+{% endif %}

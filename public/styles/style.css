@@ -1,0 +1,336 @@
+/* Import Google Fonts and Font Awesome (if not in base) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Global Styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: #333333; /* Dark gray for body text readability */
+    background-color: #ffffff; /* Clean white base */
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* ---------------- NAVBAR ---------------- */
+.navbar-uto {
+    background: #e6e6e6; ; /* White background */
+    backdrop-filter: blur(20px);
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(11, 48, 65, 0.1); /* Subtle blue-tinted shadow */
+    border-bottom: 1px solid #e9ecef; /* Light gray border */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.navbar-uto .navbar-brand.uto-logo {
+    color: #0B3041; /* Blue for logo */
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.navbar-uto .navbar-brand:hover {
+    color: #1a3a4a; /* Slightly lighter blue on hover */
+}
+
+.navbar-uto .nav-link {
+    color: #333333; /* Dark gray links */
+    font-size: 1rem;
+    font-weight: 500;
+    margin-left: 2rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.navbar-uto .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #0B3041; /* Blue underline */
+    transition: width 0.3s ease;
+}
+
+.navbar-uto .nav-link:hover::after,
+.navbar-uto .nav-link.active::after {
+    width: 100%;
+}
+
+.navbar-uto .nav-link:hover,
+.navbar-uto .nav-link.active {
+    color: #0B3041; /* Blue on hover/active */
+    transform: translateY(-1px);
+}
+
+.navbar-uto .navbar-toggler {
+    border: 1px solid #0B3041; /* Blue border */
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: #0B3041;
+}
+
+.navbar-uto .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2811, 48, 65, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); /* Blue icon */
+}
+
+/* ---------------- HERO SECTION ---------------- */
+.hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%), /* Light white gradient */
+                url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"%3E%3Cdefs%3E%3Cpattern id="wave" width="100" height="100" patternUnits="userSpaceOnUse"%3E%3Cpath d="M0 0L50 20L100 0V100H0V0Z" fill="rgba(11,48,65,0.02)"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="1200" height="800" fill="url(%23wave)"/%3E%3C/svg%3E'); /* Subtle blue-tinted pattern */
+    background-size: cover, auto;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    position: relative;
+    animation: heroGradient 10s ease-in-out infinite alternate;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(11, 48, 65, 0.02); /* Very subtle blue overlay for depth */
+    z-index: 1;
+}
+
+@keyframes heroGradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    animation: fadeInUp 1.2s ease-out;
+}
+
+.hero-title {
+    font-size: 3.8rem;
+    font-weight: 700;
+    color: #0B3041; /* Blue for main title */
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(11, 48, 65, 0.1); /* Soft blue shadow */
+    letter-spacing: -1px;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #666666; /* Medium gray for subtitle */
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------------- BOOKING CONTAINER ---------------- */
+.booking-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.booking-card {
+    background: #ffffff; /* White card */
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 3rem;
+    border: 1px solid #e9ecef; /* Light gray border */
+    box-shadow: 0 20px 40px rgba(11, 48, 65, 0.08); /* Subtle blue-tinted shadow */
+    animation: fadeInUp 1s ease-out 0.5s both;
+}
+
+.section-group {
+    padding: 1.5rem;
+    background: #f8f9fa; /* Light gray background for sections */
+    border-radius: 16px;
+    border: 1px solid #dee2e6; /* Neutral border */
+    transition: all 0.3s ease;
+}
+
+.section-group:hover {
+    background: #ffffff; /* White on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(11, 48, 65, 0.1); /* Blue-tinted hover shadow */
+    border-color: #0B3041; /* Blue border on hover */
+}
+
+.section-title {
+    color: #0B3041; /* Blue for section titles */
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    color: #333333; /* Dark gray labels */
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Input Groups with Icons */
+.input-group {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0B3041; /* Blue icons */
+    z-index: 3;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.form-control {
+    background: #ffffff; /* White inputs */
+    border: 1px solid #ced4da; /* Light gray border */
+    color: #333333;
+    border-radius: 12px;
+    padding: 0.875rem 1rem 0.875rem 2.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.form-control::placeholder {
+    color: #adb5bd; /* Medium gray placeholder */
+}
+
+.form-control:focus {
+    border-color: #0B3041; /* Blue border on focus */
+    background: #ffffff;
+    color: #333333;
+    box-shadow: 0 0 0 0.25rem rgba(11, 48, 65, 0.15); /* Soft blue glow */
+    outline: none;
+}
+
+.input-group:focus-within .input-icon {
+    color: #0B3041; /* Ensure icon stays blue on focus */
+}
+
+/* Button */
+.btn-uto {
+    background: linear-gradient(135deg, #0B3041 0%, #1a3a4a 100%); /* Blue gradient button */
+    color: #ffffff;
+    font-weight: 600;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(11, 48, 65, 0.2); /* Blue shadow */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 200px;
+}
+
+.btn-uto:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(11, 48, 65, 0.3);
+    background: linear-gradient(135deg, #1a3a4a 0%, #0B3041 100%);
+    color: #ffffff;
+}
+
+.btn-uto:active {
+    transform: translateY(-1px);
+}
+
+/* ---------------- FOOTER ---------------- */
+.footer {
+    background: #f8f9fa; /* Light gray footer */
+    padding: 2rem 0;
+    border-top: 1px solid #dee2e6;
+    margin-top: auto;
+    color: #666666; /* Gray text */
+}
+
+.footer small {
+    color: #0B3041; /* Blue for copyright */
+    font-size: 0.9rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: 2.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .booking-card {
+        padding: 2rem;
+    }
+    
+    .section-group {
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .booking-card {
+        padding: 1.5rem;
+        margin: 0 1rem;
+    }
+    
+    .navbar-uto .nav-link {
+        margin-left: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .hero {
+        padding-top: 80px;
+        min-height: calc(100vh - 80px);
+    }
+    
+    .btn-uto {
+        min-width: 100%;
+    }
+}
+
+/* Utility for full height */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Uto - Register{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/login.css') }}?v=1.6">
+{% endblock %}
+
+{% block body %}
+    <div class="bg-shape-1"></div>
+    <div class="bg-shape-2"></div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo logo--brand-img">
+                <a href="{{ path('app_home') }}#hero">
+                    <img class="auth-logo-img" src="{{ asset('images/uto-car-rentals-logo.png') }}?v=6" alt="UTO Car Rentals" width="220" height="72" decoding="async">
+                </a>
+            </div>
+            <p class="login-subtitle">Create your account to get started</p>
+        </div>
+
+        {% if registrationForm.vars.errors|length > 0 %}
+            <div class="alert alert-danger">
+                {{ form_errors(registrationForm) }}
+            </div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="alert alert-danger">
+                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
+
+        {{ form_start(registrationForm, {'attr': {'class': 'register-form'}}) }}
+            {% if show_google_sign_in_ui %}
+            <a href="{{ path('connect_google_start') }}" class="google-button">
+                <svg class="google-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.29h6.45a5.52 5.52 0 0 1-2.4 3.62v3.01h3.88c2.27-2.1 3.56-5.18 3.56-8.65z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3.01c-1.08.73-2.46 1.17-4.07 1.17-3.13 0-5.78-2.11-6.73-4.95H1.27v3.1A12 12 0 0 0 12 24z"/>
+                    <path fill="#FBBC05" d="M5.27 14.3A7.2 7.2 0 0 1 4.9 12c0-.8.14-1.57.37-2.3V6.6H1.27A12 12 0 0 0 0 12c0 1.93.46 3.76 1.27 5.4l4-3.1z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.76 0 3.35.6 4.6 1.78l3.45-3.45C17.95 1.08 15.24 0 12 0A12 12 0 0 0 1.27 6.6l4 3.1c.95-2.84 3.6-4.95 6.73-4.95z"/>
+                </svg>
+                Continue with Google
+            </a>
+            {% endif %}
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    {{ form_widget(registrationForm.username, {
+                        'attr': {
+                            'class': 'form-input',
+                            'placeholder': 'Username',
+                            'autocomplete': 'username',
+                            'autofocus': true
+                        }
+                    }) }}
+                </div>
+                {% if registrationForm.username.vars.errors|length > 0 %}
+                    <div class="form-error">{{ form_errors(registrationForm.username) }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    {{ form_widget(registrationForm.email, {
+                        'attr': {
+                            'class': 'form-input',
+                            'placeholder': 'Email',
+                            'autocomplete': 'email'
+                        }
+                    }) }}
+                </div>
+                {% if registrationForm.email.vars.errors|length > 0 %}
+                    <div class="form-error">{{ form_errors(registrationForm.email) }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    {{ form_widget(registrationForm.plainPassword.first, {
+                        'attr': {
+                            'class': 'form-input',
+                            'placeholder': 'Password',
+                            'autocomplete': 'new-password'
+                        }
+                    }) }}
+                </div>
+                {% if registrationForm.plainPassword.first.vars.errors|length > 0 %}
+                    <div class="form-error">{{ form_errors(registrationForm.plainPassword.first) }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    {{ form_widget(registrationForm.plainPassword.second, {
+                        'attr': {
+                            'class': 'form-input',
+                            'placeholder': 'Confirm Password',
+                            'autocomplete': 'new-password'
+                        }
+                    }) }}
+                </div>
+                {% if registrationForm.plainPassword.second.vars.errors|length > 0 %}
+                    <div class="form-error">{{ form_errors(registrationForm.plainPassword.second) }}</div>
+                {% endif %}
+            </div>
+
+            <div class="remember-me">
+                {{ form_widget(registrationForm.agreeTerms, {
+                    'attr': {
+                        'id': 'agreeTerms'
+                    }
+                }) }}
+                <label for="agreeTerms">I agree to the terms and conditions</label>
+            </div>
+            {% if registrationForm.agreeTerms.vars.errors|length > 0 %}
+                <div class="form-error">{{ form_errors(registrationForm.agreeTerms) }}</div>
+            {% endif %}
+
+            <button type="submit" class="login-button">REGISTER</button>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="color: #64748b; font-size: 14px;">
+                    Already have an account? <a href="{{ path('app_login') }}" style="color: #0B3041; text-decoration: none; font-weight: 500;">Login here</a>
+                </p>
+            </div>
+        {{ form_end(registrationForm) }}
+    </div>
+{% endblock %}

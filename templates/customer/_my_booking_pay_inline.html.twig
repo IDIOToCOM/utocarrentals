@@ -1,0 +1,22 @@
+{# booking, payment — single-booking pay row #}
+{% set inputId = 'pay-amount-' ~ booking.id %}
+<form class="lp-my-booking-pay" method="post" action="{{ path('app_my_booking_pay', { id: booking.id }) }}">
+  <input type="hidden" name="_token" value="{{ csrf_token('my_booking_pay_' ~ booking.id) }}">
+  <input type="hidden" name="_redirect" value="{{ redirectTo|default('list') }}">
+  <div class="lp-my-booking-pay__fields">
+    <label class="lp-my-booking-pay__label" for="{{ inputId }}">Amount (₱)</label>
+    <input
+      type="number"
+      id="{{ inputId }}"
+      name="amount"
+      class="lp-my-booking-pay__input"
+      min="1"
+      step="1"
+      value="{{ payment.amountDue }}"
+      required
+      inputmode="numeric">
+    <button type="submit" class="lp-btn lp-btn-primary lp-btn-sm">
+      <i class="fas fa-wallet" aria-hidden="true"></i> Submit payment
+    </button>
+  </div>
+</form>

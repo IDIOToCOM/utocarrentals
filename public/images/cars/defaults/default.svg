@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Vehicle">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5f5f5"/>
+      <stop offset="100%" style="stop-color:#d4d4d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg)"/>
+  <ellipse cx="320" cy="320" rx="220" ry="28" fill="rgba(0,0,0,0.08)"/>
+  <path fill="#1a1a1a" d="M120 260h400l-36-72c-12-24-36-40-64-40H220c-28 0-52 16-64 40l-36 72zm48-88c0-22 18-40 40-40h176c22 0 40 18 40 40v8H168v-8zm-24 96a40 40 0 1 1 0-80 40 40 0 0 1 0 80zm272 0a40 40 0 1 1 0-80 40 40 0 0 1 0 80z"/>
+  <rect x="248" y="188" width="144" height="36" rx="8" fill="#404040" opacity="0.35"/>
+</svg>

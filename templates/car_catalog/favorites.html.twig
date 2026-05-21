@@ -1,0 +1,104 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}Saved vehicles — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.6">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.4">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-catalog-main" id="main-content">
+  {% include 'customer/_customer_page_hero.html.twig' with {
+    kicker: 'Your shortlist',
+    title: 'Saved vehicles',
+    lead: 'Vehicles you saved while browsing. Book when you are ready, or compare up to four side by side.',
+    actions: [
+      {
+        href: path('app_car_catalog'),
+        label: 'Browse fleet',
+        icon: 'fas fa-car',
+        class: 'lp-btn-primary',
+      },
+      {
+        href: path('app_car_compare'),
+        label: 'Compare' ~ (catalog_compare_count() > 0 ? ' (' ~ catalog_compare_count() ~ ')' : ''),
+        icon: 'fas fa-scale-balanced',
+        class: 'lp-btn-ghost',
+      },
+    ],
+  } %}
+
+  <section class="lp-section lp-page-section lp-catalog-results">
+    <div class="lp-container">
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('info') %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      {% if items is empty %}
+        <div class="lp-catalog-empty">
+          <h2>No saved vehicles yet</h2>
+          <p>Tap <strong>Save</strong> on any vehicle in the catalog to keep it here.</p>
+          <a class="lp-btn lp-btn-primary" href="{{ path('app_car_catalog') }}">Browse vehicles</a>
+        </div>
+      {% else %}
+        <div class="lp-car-grid lp-car-grid--visual">
+          {% for item in items %}
+            {% set car = item.car %}
+            <article class="lp-car-card lp-car-card--visual">
+              <div class="lp-car-card__media-wrap">
+                <div class="lp-car-card__save-row">
+                  {% include 'customer/_car_browse_actions.html.twig' with {
+                    car: car,
+                    favoriteCarIds: favoriteCarIds|default([]),
+                    compareCarIds: compareCarIds|default([]),
+                    maxCompare: maxCompare|default(4),
+                    redirectPath: path('app_my_favorites'),
+                  } %}
+                </div>
+                <a class="lp-car-card__media-link" href="{{ path('app_car_show', { id: car.id }) }}" tabindex="-1" aria-hidden="true">
+                  <div class="lp-car-card__media">
+                    <img src="{{ asset(item.imageUrl) }}" alt="" width="800" height="500" loading="lazy" decoding="async">
+                    <span class="lp-car-card__badge lp-car-card__badge--available">{{ car.status }}</span>
+                    {% if car.type %}<span class="lp-car-card__type">{{ car.type }}</span>{% endif %}
+                  </div>
+                </a>
+              </div>
+              <div class="lp-car-card__body">
+                <h3 class="lp-car-card__title">
+                  <a href="{{ path('app_car_show', { id: car.id }) }}" class="lp-car-card__title-link">{{ car.brand }} {{ car.model }}</a>
+                </h3>
+                {% include 'customer/_car_specs.html.twig' with { car: car, layout: 'chips' } %}
+                <p class="lp-car-card__saved-at text-muted small mb-0">Saved {{ item.savedAt|date('M j, Y') }}</p>
+              </div>
+              <div class="lp-car-card__footer">
+                <div class="lp-car-card__price-row">
+                  <span class="lp-car-card__amount">₱{{ car.pricePerDay|number_format(0, '.', ',') }}<small>/day</small></span>
+                </div>
+                <div class="lp-car-card__cta">
+                  <a class="lp-btn lp-btn-primary" href="{{ path('app_submit_booking', { car: car.id }) }}">Book now</a>
+                  <a class="lp-btn lp-btn-ghost" href="{{ path('app_car_show', { id: car.id }) }}">Details</a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

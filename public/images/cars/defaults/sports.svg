@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Sports car">
+  <rect width="640" height="400" fill="#e8e8e8"/>
+  <ellipse cx="320" cy="322" rx="200" ry="24" fill="rgba(0,0,0,0.1)"/>
+  <path fill="#0a0a0a" d="M160 268h320l-28-56c-16-28-48-48-84-48H272c-36 0-68 20-84 48l-28 56zm24-72c0-18 14-32 32-32h168c18 0 32 14 32 32v8H184v-8zm-16 88a36 36 0 1 1 0-72 36 36 0 0 1 0 72zm224 0a36 36 0 1 1 0-72 36 36 0 0 1 0 72z"/>
+  <path fill="#333" d="M220 200h200l-20-24H240l-20 24z"/>
+</svg>

@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add New Car{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/car_inventory.css') }}?v=3.0">
+    <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.1">
+{% endblock %}
+
+{% block body %}
+<!-- Top Bar -->
+{% include 'admin/_topbar_minimal.html.twig' %}
+
+<div class="container">
+  <!-- Page Title -->
+  <h1 class="page-title">Add New Car</h1>
+
+  <!-- Form Card -->
+  <div class="uto-card">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+
+      {% include 'car_inventory/_car_form_fields.html.twig' with { form: form } %}
+
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{{ path('app_car_inventory_index') }}" class="btn btn-outline-secondary">← Back to List</a>
+        <button type="submit" class="btn btn-success">✔ Create</button>
+      </div>
+    {{ form_end(form) }}
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  
+  if (!form) {
+    return;
+  }
+  
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Validate all required fields
+    const brandInput = document.querySelector('[name*="[Brand]"]');
+    const modelInput = document.querySelector('[name*="[Model]"]');
+    const typeInput = document.querySelector('[name*="[Type]"]');
+    const priceInput = document.querySelector('[name*="[PricePerDay]"]');
+    const statusInput = document.querySelector('[name*="[Status]"]');
+    
+    const missingFields = [];
+    
+    if (!brandInput || !brandInput.value.trim()) {
+      missingFields.push('Brand');
+    }
+    if (!modelInput || !modelInput.value.trim()) {
+      missingFields.push('Model');
+    }
+    if (!typeInput || !typeInput.value || typeInput.value === '') {
+      missingFields.push('Type');
+    }
+    if (!priceInput || !priceInput.value.trim()) {
+      missingFields.push('Price Per Day');
+    }
+    if (!statusInput || !statusInput.value || statusInput.value === '') {
+      missingFields.push('Status');
+    }
+    
+    if (missingFields.length > 0) {
+      const fieldList = missingFields.join(', ');
+      showWarningModal('Please fill in all required fields: ' + fieldList);
+      return false;
+    }
+    
+    // If all fields are filled, submit the form
+    form.submit();
+  });
+  
+  function showWarningModal(message) {
+    // Remove any existing modals first
+    const existingModal = document.querySelector('.warning-overlay');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'warning-overlay';
+    
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.className = 'warning-modal';
+    
+    modal.innerHTML = `
+      <h3>⚠️ Validation Warning</h3>
+      <p>${message}</p>
+      <div class="warning-buttons">
+        <button id="warning-ok">OK</button>
+      </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Handle OK button
+    document.getElementById('warning-ok').addEventListener('click', function() {
+      overlay.classList.add('fade-out');
+      modal.classList.add('slide-down');
+      setTimeout(function() {
+        overlay.remove();
+        location.reload();
+      }, 200);
+    });
+    
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        document.getElementById('warning-ok').click();
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

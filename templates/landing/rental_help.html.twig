@@ -1,0 +1,180 @@
+{% extends 'landing/base.html.twig' %}
+
+{% set is_customer = app.user and 'ROLE_USER' in app.user.roles and 'ROLE_ADMIN' not in app.user.roles and 'ROLE_STAFF' not in app.user.roles %}
+
+{% block title %}FAQ & rental guide — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.6">
+  {% if is_customer %}
+    <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.4">
+  {% endif %}
+{% endblock %}
+
+{% block body %}
+{% if is_customer %}
+  {% include 'landing/_header_customer.html.twig' %}
+{% else %}
+  {% include 'landing/_header_public.html.twig' %}
+{% endif %}
+
+<main class="lp-page-main{% if is_customer %} lp-catalog-main{% endif %}" id="main-content">
+  {% if is_customer %}
+    {% include 'customer/_customer_page_hero.html.twig' with {
+      kicker: 'Help center',
+      title: 'FAQ & pickup / return guide',
+      lead: 'Where to meet us, what to bring, fuel rules, and answers before you book or on pickup day.',
+      actions: [
+        {
+          href: path('app_car_catalog'),
+          label: 'Browse vehicles',
+          icon: 'fas fa-car',
+          class: 'lp-btn-primary',
+        },
+        {
+          href: path('app_my_bookings'),
+          label: 'My bookings',
+          icon: 'fas fa-calendar-check',
+          class: 'lp-btn-ghost',
+        },
+      ],
+    } %}
+  {% else %}
+    {% include 'customer/_customer_page_hero.html.twig' with {
+      kicker: 'Help center',
+      title: 'FAQ & pickup / return guide',
+      lead: 'Where to meet us, what to bring, fuel rules, and answers before you book or on pickup day.',
+      actions: [
+        {
+          href: path('app_login'),
+          label: 'Sign in to book',
+          icon: 'fas fa-right-to-bracket',
+          class: 'lp-btn-primary',
+        },
+        {
+          href: path('app_contact'),
+          label: 'Contact us',
+          icon: 'fas fa-envelope',
+          class: 'lp-btn-ghost',
+        },
+      ],
+    } %}
+  {% endif %}
+
+  <section class="lp-section lp-page-section">
+    <div class="lp-container lp-help-layout">
+      <aside class="lp-help-sidebar">
+        {% include 'landing/_support_contact_card.html.twig' with { show_contact_link: not is_customer } %}
+      </aside>
+
+      <div class="lp-help-main">
+        <section class="lp-help-block" aria-labelledby="pickup-heading">
+          <h2 id="pickup-heading" class="lp-help-block__title"><i class="fas fa-location-dot" aria-hidden="true"></i> Pickup & return</h2>
+
+          <div class="lp-help-cards">
+            <article class="lp-help-card">
+              <h3 class="lp-help-card__title">Where to meet</h3>
+              <p class="lp-help-card__text">Default meeting point: <strong>UTO Car Rentals desk, Ground Floor, NAIA Terminal 3 Arrivals area</strong> (Pasay City). If your booking lists another pickup or return address, use that location instead—we will confirm it when your booking is <strong>Confirmed</strong>.</p>
+              <p class="lp-help-card__text mb-0">Arrive <strong>15 minutes before</strong> your scheduled pickup time. For returns, please be on time so the next renter is not delayed.</p>
+            </article>
+
+            <article class="lp-help-card">
+              <h3 class="lp-help-card__title">ID & documents</h3>
+              <ul class="lp-help-card__list">
+                <li>Valid government-issued ID (passport, driver’s license, or national ID)</li>
+                <li>Driver’s license valid for the full rental period (Philippines or international permit if required)</li>
+                <li>Booking confirmation (email or <strong>My bookings</strong> on this site)</li>
+                <li>Payment for any balance due at pickup, if applicable</li>
+              </ul>
+              <p class="lp-help-card__note mb-0">The name on your ID should match the name on the booking. Additional drivers must be approved in advance—contact us before pickup.</p>
+            </article>
+
+            <article class="lp-help-card">
+              <h3 class="lp-help-card__title">Fuel policy</h3>
+              <p class="lp-help-card__text"><strong>Full-to-full:</strong> We hand over the vehicle with a full tank (or an agreed fuel level noted on your contract). Return it with the <strong>same fuel level</strong> to avoid a refueling charge.</p>
+              <p class="lp-help-card__text mb-0">If you return with less fuel, we refuel at market rate plus a small service fee. If you return with more fuel than at pickup, we do not refund the difference—please return near the agreed level.</p>
+            </article>
+
+            <article class="lp-help-card">
+              <h3 class="lp-help-card__title">At return</h3>
+              <ul class="lp-help-card__list mb-0">
+                <li>Remove personal belongings and trash</li>
+                <li>Report any new damage or issues before staff inspects the vehicle</li>
+                <li>Return keys and documents to the desk staff</li>
+                <li>Late returns may incur extra day charges—call us if you are running late</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="lp-help-block" aria-labelledby="faq-heading">
+          <h2 id="faq-heading" class="lp-help-block__title"><i class="fas fa-circle-question" aria-hidden="true"></i> Frequently asked questions</h2>
+
+          <div class="lp-faq">
+            <details class="lp-faq__item">
+              <summary class="lp-faq__question">How do I book a vehicle?</summary>
+              <div class="lp-faq__answer">
+                <p>Sign in, browse <strong>Vehicles</strong>, choose dates and pickup details, and submit your booking. Status starts as <strong>Pending</strong> until our team confirms (usually within 24 hours).</p>
+              </div>
+            </details>
+
+            <details class="lp-faq__item">
+              <summary class="lp-faq__question">When and how do I pay?</summary>
+              <div class="lp-faq__answer">
+                <p>Your total is based on rental days × the daily rate. Once your booking is <strong>Confirmed</strong>, pay from <strong>My bookings</strong>—open a reservation and submit payment for the amount due, or pay several bookings at once. Questions about your balance? Email <a href="mailto:{{ uto_support_email() }}">{{ uto_support_email() }}</a> or call <a href="tel:{{ uto_support_phone_tel() }}">{{ uto_support_phone() }}</a>.</p>
+              </div>
+            </details>
+
+            <details class="lp-faq__item" id="faq-cancel">
+              <summary class="lp-faq__question">Can I change or cancel my booking?</summary>
+              <div class="lp-faq__answer">
+                <p><strong>Self-service cancel</strong> — In <strong>My bookings</strong>, tap <strong>Cancel booking</strong> (you are not deleting the record). Status becomes <strong>Cancelled</strong>; the reservation stays in your list and the car is released for those dates.</p>
+                <ul>
+                  <li><strong>When you can cancel online:</strong> status is <strong>Pending</strong> or <strong>Confirmed</strong>, and pickup is more than <strong>24 hours</strong> away (same cutoff as editing).</li>
+                  <li><strong>When you cannot:</strong> already <strong>Cancelled</strong> or <strong>Refunded</strong>, or inside the 24-hour window—<a href="{{ path('app_contact') }}">contact us</a> and quote your booking number.</li>
+                  <li><strong>If you paid:</strong> cancelling marks the payment <strong>Refunded</strong>; our team may follow up if needed.</li>
+                </ul>
+                <p>You can <strong>edit</strong> dates or contact details under the same 24-hour rule. Booking updates (received, confirmed, reminders) appear in the <strong>bell icon</strong> and <strong>Notifications</strong> page.</p>
+              </div>
+            </details>
+
+            <details class="lp-faq__item">
+              <summary class="lp-faq__question">What if the vehicle is not available on my dates?</summary>
+              <div class="lp-faq__answer">
+                <p>Gray dates on the booking calendar are already reserved. Pick different dates or another vehicle from the catalog. Availability updates when bookings are confirmed or cancelled.</p>
+              </div>
+            </details>
+
+            <details class="lp-faq__item">
+              <summary class="lp-faq__question">Can I leave a review?</summary>
+              <div class="lp-faq__answer">
+                <p>Yes—after you have a <strong>confirmed</strong> booking for a vehicle, open its detail page and submit a star rating and optional comment. Other renters will see your review on the catalog.</p>
+              </div>
+            </details>
+
+            <details class="lp-faq__item">
+              <summary class="lp-faq__question">Is insurance included?</summary>
+              <div class="lp-faq__answer">
+                <p>Basic coverage terms are explained at pickup and on your rental agreement. For specific limits or add-ons, ask our team before you travel—contact details are on this page.</p>
+              </div>
+            </details>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+{% if is_customer %}
+  {% include 'landing/_footer_customer.html.twig' %}
+{% else %}
+  {% include 'landing/_footer_public.html.twig' %}
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

@@ -1,0 +1,96 @@
+<script>
+(function () {
+  var toggle = document.getElementById('lpNavToggle');
+  var nav = document.getElementById('lpNav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+  }
+
+  function normalizePath(p) {
+    if (!p || p === '') return '/';
+    return p.replace(/\/$/, '') || '/';
+  }
+
+  function hideExploreDropdown() {
+    var btn = document.getElementById('lpExploreDropdown');
+    if (btn && typeof window.bootstrap !== 'undefined' && bootstrap.Dropdown) {
+      var inst = bootstrap.Dropdown.getInstance(btn);
+      if (inst) inst.hide();
+    }
+  }
+
+  var vehiclesDropdown = document.querySelector('.lp-nav-dropdown--vehicles');
+  var vehiclesTrigger = document.getElementById('lpVehiclesNavTrigger');
+  if (vehiclesDropdown && vehiclesTrigger) {
+    var catalogUrl = vehiclesTrigger.getAttribute('data-catalog-url') || '';
+    var clickDelayMs = 320;
+    var clickTimer = null;
+
+    function setVehiclesDropdownOpen(open) {
+      vehiclesDropdown.classList.toggle('show', open);
+      vehiclesTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    vehiclesTrigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+        if (catalogUrl) {
+          window.location.href = catalogUrl;
+        }
+        return;
+      }
+      clickTimer = setTimeout(function () {
+        clickTimer = null;
+        setVehiclesDropdownOpen(!vehiclesDropdown.classList.contains('show'));
+      }, clickDelayMs);
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!vehiclesDropdown.classList.contains('show')) {
+        return;
+      }
+      if (vehiclesDropdown.contains(e.target)) {
+        return;
+      }
+      setVehiclesDropdownOpen(false);
+    });
+  }
+
+  document.querySelectorAll('a[href*="#"]').forEach(function (anchor) {
+    var href = anchor.getAttribute('href');
+    if (!href || href.indexOf('#') === -1) return;
+    var hashIdx = href.indexOf('#');
+    var hash = href.slice(hashIdx);
+    if (hash.length < 2) return;
+
+    anchor.addEventListener('click', function (e) {
+      var target = document.querySelector(hash);
+      if (!target) return;
+
+      var pathPart = href.slice(0, hashIdx);
+      var url;
+      try {
+        url = new URL(pathPart || window.location.pathname, window.location.origin);
+      } catch (err) {
+        return;
+      }
+      if (normalizePath(url.pathname) !== normalizePath(window.location.pathname)) {
+        return;
+      }
+
+      e.preventDefault();
+      if (nav) nav.classList.remove('is-open');
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      hideExploreDropdown();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+})();
+</script>

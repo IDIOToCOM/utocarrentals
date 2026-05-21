@@ -1,0 +1,28 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+
+    # Note that the session will be started ONLY if you read or write from it.
+    session:
+        enabled: true
+        # Set to false for development with ngrok (HTTPS -> HTTP)
+        cookie_secure: false
+        cookie_samesite: lax
+        cookie_httponly: true
+        # Ensure session is available across different domains (ngrok)
+        name: PHPSESSID
+        cookie_path: /
+        # Start session early to ensure CSRF tokens work
+        cookie_lifetime: 0
+
+
+    #esi: true
+    #fragments: true
+
+
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

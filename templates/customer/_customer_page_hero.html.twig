@@ -1,0 +1,26 @@
+{# kicker, title, lead (plain text), actions: [{ href, label, icon?, class? }] #}
+<section class="lp-customer-hero">
+  <div class="lp-container lp-customer-hero__inner">
+    <div class="lp-customer-hero__copy">
+      {% if kicker|default('') %}
+        <p class="lp-kicker">{{ kicker }}</p>
+      {% endif %}
+      <h1 class="lp-page-title">{{ title }}</h1>
+      {% if lead|default('') %}
+        <p class="lp-page-lead">{{ lead }}</p>
+      {% endif %}
+    </div>
+    {% if actions|default([])|length > 0 %}
+      <div class="lp-customer-hero__actions" aria-label="Page actions">
+        {% for action in actions %}
+          <a href="{{ action.href }}" class="lp-btn {{ action.class|default('lp-btn-ghost') }}">
+            {% if action.icon|default('') %}
+              <i class="{{ action.icon }}" aria-hidden="true"></i>
+            {% endif %}
+            {{ action.label }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>

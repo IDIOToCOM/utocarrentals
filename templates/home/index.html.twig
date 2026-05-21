@@ -1,0 +1,205 @@
+{# templates/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Uto Mobility{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('vendor/flatpickr/dark.css') }}">
+  {% include 'booking/_flatpickr_range_legend_styles.html.twig' %}
+  {% include 'booking/_flatpickr_booking_time_styles.html.twig' %}
+  <style>
+    .flatpickr-calendar.open { z-index: 3000 !important; }
+    .flatpickr-calendar { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); }
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+      background: #6366f1;
+      border-color: #6366f1;
+      color: #fff;
+    }
+    .flatpickr-day.inRange {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .rental-duration-hint { color: #a5adc4 !important; display: block; margin-top: 0.35rem; }
+  </style>
+{% endblock %}
+
+{% block body %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-uto">
+  <div class="container">
+    <a class="navbar-brand fw-bold uto-logo" href="#">
+      <i class="fas fa-car me-2"></i>Uto
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="container">
+    <div class="hero-content text-center">
+      <h1 class="hero-title mb-3">Discover Freedom on the Road</h1>
+      <p class="hero-subtitle mb-5">Rent premium cars with Uto Mobility – seamless, reliable, and affordable.</p>
+      
+      <!-- Booking Form -->
+      <div class="booking-container">
+        <div class="booking-card">
+          <div class="row g-3 text-start">
+            <div class="col-12">
+              <label for="homeRentalDateRange" class="form-label"><i class="fas fa-calendar-days me-2"></i>Rental period</label>
+              <div class="input-group">
+                <span class="input-icon"><i class="fas fa-calendar-alt"></i></span>
+                <input type="text"
+                       class="form-control"
+                       id="homeRentalDateRange"
+                       placeholder="Tap to open calendar"
+                       autocomplete="off"
+                       inputmode="none">
+              </div>
+              <small class="rental-duration-hint d-none" id="homeRentalDurationHint" aria-live="polite"></small>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <!-- Pickup Section -->
+            <div class="col-lg-6">
+              <div class="section-group">
+                <h5 class="section-title"><i class="fas fa-map-marker-alt me-2"></i>Pickup Details</h5>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="pickupLocation" class="form-label">Pickup Location</label>
+                    <div class="input-group">
+                      <span class="input-icon"><i class="fas fa-search-location"></i></span>
+                      <input type="text" id="pickupLocation" class="form-control" placeholder="City, address, or POI">
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label for="pickupTime" class="form-label">Pickup time</label>
+                    <div class="input-group">
+                      <span class="input-icon"><i class="fas fa-clock" aria-hidden="true"></i></span>
+                      <input type="text" id="pickupTime" class="form-control js-flatpickr-time" placeholder="Select time (AM/PM, 30-min slots)" autocomplete="off" inputmode="none">
+                    </div>
+                    {% include 'booking/_time_preset_chips.html.twig' with { variant: 'hero', target_id: 'pickupTime', aria_label: 'Quick pickup times' } %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Drop-off/Return Section -->
+            <div class="col-lg-6">
+              <div class="section-group">
+                <h5 class="section-title"><i class="fas fa-flag-checkered me-2"></i>Return Details</h5>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="dropoffLocation" class="form-label">Drop-off Location</label>
+                    <div class="input-group">
+                      <span class="input-icon"><i class="fas fa-search-location"></i></span>
+                      <input type="text" id="dropoffLocation" class="form-control" placeholder="City, address, or POI">
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label for="returnTime" class="form-label">Return time</label>
+                    <div class="input-group">
+                      <span class="input-icon"><i class="fas fa-clock" aria-hidden="true"></i></span>
+                      <input type="text" id="returnTime" class="form-control js-flatpickr-time" placeholder="Select time (AM/PM, 30-min slots)" autocomplete="off" inputmode="none">
+                    </div>
+                    {% include 'booking/_time_preset_chips.html.twig' with { variant: 'hero', target_id: 'returnTime', aria_label: 'Quick return times' } %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Button -->
+          <div class="text-center mt-4">
+            <button type="button" class="btn btn-uto">
+              <i class="fas fa-search me-2"></i>Search Cars
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container text-center">
+    <small>&copy; 2025 Uto Mobility. All rights reserved.</small>
+  </div>
+</footer>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'booking/_flatpickr_range_legend_script.html.twig' %}
+  <script src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
+  {% include 'booking/_flatpickr_booking_time_script.html.twig' %}
+  <script>
+    (function () {
+      function boot() {
+        var rangeInput = document.getElementById('homeRentalDateRange');
+        var hint = document.getElementById('homeRentalDurationHint');
+        if (!rangeInput || typeof window.flatpickr !== 'function') return;
+
+        function updateHint(start, end) {
+          if (!hint || !start || !end) return;
+          var ms = end.getTime() - start.getTime();
+          var days = Math.max(1, Math.round(ms / 86400000) + 1);
+          hint.textContent = days === 1 ? '1 day rental' : days + ' days rental';
+          hint.classList.remove('d-none');
+        }
+
+        var start = new Date();
+        start.setDate(start.getDate() + 1);
+        start.setHours(0, 0, 0, 0);
+        var end = new Date(start);
+        end.setDate(end.getDate() + 2);
+        var defaultDate = [start, end];
+
+        window.flatpickr(rangeInput, {
+          mode: 'range',
+          minDate: 'today',
+          dateFormat: 'Y-m-d',
+          altInput: true,
+          altFormat: 'M j, Y',
+          allowInput: false,
+          clickOpens: true,
+          appendTo: document.body,
+          showMonths: typeof window.matchMedia !== 'undefined' && window.matchMedia('(min-width: 768px)').matches ? 2 : 1,
+          defaultDate: defaultDate,
+          onOpen: typeof window.fpRangeLegendOnOpen === 'function' ? window.fpRangeLegendOnOpen : undefined,
+          onChange: function (selectedDates) {
+            if (selectedDates.length === 2) {
+              updateHint(selectedDates[0], selectedDates[1]);
+            } else if (selectedDates.length === 0 && hint) {
+              hint.classList.add('d-none');
+            }
+          }
+        });
+
+        updateHint(start, end);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+      } else {
+        boot();
+      }
+    })();
+  </script>
+{% endblock %}

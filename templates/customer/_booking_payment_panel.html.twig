@@ -1,0 +1,45 @@
+{# booking, payment, canPay (bool) #}
+<section class="lp-booking-payment" aria-labelledby="payment-heading">
+  <h3 id="payment-heading" class="lp-booking-payment__title"><i class="fas fa-wallet" aria-hidden="true"></i> Payment</h3>
+
+  {% if payment %}
+    <dl class="lp-booking-payment__summary">
+      <div>
+        <dt>Amount due</dt>
+        <dd class="lp-booking-payment__due">₱{{ payment.amountDue|number_format(0, '.', ',') }}</dd>
+      </div>
+      <div>
+        <dt>Payment status</dt>
+        <dd>{% include 'customer/_payment_status_badge.html.twig' with { payment: payment, labeled: false } %}</dd>
+      </div>
+      {% if payment.isPaid and payment.amountPaid %}
+        <div>
+          <dt>Amount paid</dt>
+          <dd>₱{{ payment.amountPaid|number_format(0, '.', ',') }}</dd>
+        </div>
+        {% if payment.paidAt %}
+          <div>
+            <dt>Paid on</dt>
+            <dd>{{ payment.paidAt|date('M j, Y g:i A') }}</dd>
+          </div>
+        {% endif %}
+      {% endif %}
+    </dl>
+
+    {% if canPay %}
+      <p class="lp-booking-payment__hint">
+        Amount due: <strong>₱{{ payment.amountDue|number_format(0, '.', ',') }}</strong>. Enter the payment amount below to complete checkout.
+        <a href="{{ path('app_my_bookings') }}">Pay several bookings at once</a> from My bookings.
+      </p>
+      {% include 'customer/_my_booking_pay_inline.html.twig' with {
+        booking: booking,
+        payment: payment,
+        redirectTo: 'show',
+      } %}
+    {% elseif payment.isPaid %}
+      <p class="lp-booking-payment__note mb-0">Your payment is on file. No further action needed.</p>
+    {% endif %}
+  {% else %}
+    <p class="lp-booking-payment__note mb-0">Payment details are not available yet.</p>
+  {% endif %}
+</section>

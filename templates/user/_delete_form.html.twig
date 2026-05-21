@@ -1,0 +1,6 @@
+{% if login is defined %}
+<form method="post" action="{{ path('app_user_delete', {'id': login.id}) }}" class="delete-form" data-entity-name="user">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ login.id) }}">
+    <button type="button" class="btn btn-danger delete-btn"><i class="fas fa-trash"></i> Delete</button>
+</form>
+{% endif %}

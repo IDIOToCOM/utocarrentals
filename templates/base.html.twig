@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}Uto Mobility{% endblock %}</title>
+
+  {# Bootstrap #}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  {# Font Awesome Icons #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+{# CSS #}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+{# JS #}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  {% block stylesheets %}
+    {{ encore_entry_link_tags('app') }}
+  {% endblock %}
+  {% if app.user %}
+    <link rel="stylesheet" href="{{ asset('styles/notifications.css') }}?v=1.2">
+    <link rel="stylesheet" href="{{ asset('styles/booking-confirm-modal.css') }}?v=1.0">
+  {% endif %}
+  <style>
+    body {
+      background: #0f1117;
+      color: #ffffff;
+    }
+    
+    /* DataTables dark theme override */
+    .dataTables_wrapper {
+      color: #ffffff;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input {
+      background: #1a1d2e;
+      border: 1px solid #2a2d3e;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    
+    .dataTables_wrapper .dataTables_filter input:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+    
+    .dataTables_wrapper .dataTables_length select {
+      background: #1a1d2e;
+      border: 1px solid #2a2d3e;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      color: #8b92a7 !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background: #6366f1 !important;
+      color: white !important;
+      border-color: #6366f1 !important;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+      background: #252840 !important;
+      color: #ffffff !important;
+      border-color: #2a2d3e !important;
+    }
+    
+    /* Bootstrap form controls dark theme */
+    .form-control, .form-select {
+      background: #1a1d2e;
+      border: 1px solid #2a2d3e;
+      color: #ffffff;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      background: #1a1d2e;
+      border-color: #6366f1;
+      color: #ffffff;
+      box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    }
+    
+    .form-control::placeholder {
+      color: #8b92a7;
+    }
+    
+    .form-label {
+      color: #ffffff;
+    }
+    
+    /* Bootstrap table dark theme */
+    .table {
+      color: #ffffff;
+    }
+    
+    .table-striped > tbody > tr:nth-of-type(odd) {
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+  </style>
+  {# Last in head: global/body fonts must not replace Font Awesome webfont on icons #}
+  <style>
+    .fas,
+    .fa-solid,
+    .far,
+    .fa-regular,
+    .fab,
+    .fa-brands {
+      font-style: normal !important;
+      font-variant: normal !important;
+      line-height: 1 !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .fas, .fa-solid {
+      font-family: "Font Awesome 6 Free" !important;
+      font-weight: 900 !important;
+    }
+    .far, .fa-regular {
+      font-family: "Font Awesome 6 Free" !important;
+      font-weight: 400 !important;
+    }
+    .fab, .fa-brands {
+      font-family: "Font Awesome 6 Brands" !important;
+      font-weight: 400 !important;
+    }
+  </style>
+</head>
+<body>
+  {# BODY BLOCK START #}
+  {% block body %}
+  {% endblock %}
+  {# BODY BLOCK END #}
+
+  {% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+  {% endblock %}
+  {% if app.user %}
+    {% include 'notification/_scripts.html.twig' %}
+    <script src="{{ asset('js/booking-confirm-modal.js') }}?v=1.0"></script>
+  {% endif %}
+
+  <script>
+  // Aggressive back-button and bfcache prevention
+  (function() {
+    // Disable bfcache for authenticated pages
+    if (window.performance && window.performance.navigation) {
+      // Detect when page is restored from bfcache
+      window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+          // Page was restored from bfcache - force reload from server
+          window.location.href = '/login';
+        }
+      });
+    }
+    
+    // Alternative: Use unload/beforeunload to prevent bfcache
+    window.addEventListener('unload', function() {
+      // This helps prevent the page from being cached by bfcache
+    }, false);
+    
+    // Push state to prevent back navigation
+    window.history.pushState(null, '', window.location.href);
+    
+    window.addEventListener('popstate', function(event) {
+      const protectedPaths = ['/admin', '/booking', '/car/inventory', '/payment', '/analytics', '/profile', '/user'];
+      const currentPath = window.location.pathname;
+      const isProtected = protectedPaths.some(path => currentPath.startsWith(path));
+      
+      // If on protected route or login page, redirect to login on back press
+      if (isProtected || currentPath === '/login') {
+        window.location.href = '/login';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

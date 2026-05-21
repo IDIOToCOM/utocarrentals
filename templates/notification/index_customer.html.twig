@@ -1,0 +1,44 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}Notifications — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.6">
+  <link rel="stylesheet" href="{{ asset('styles/notifications.css') }}?v=1.0">
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-notif-page-main" id="main-content">
+  {% include 'customer/_customer_page_hero.html.twig' with {
+    kicker: 'Your account',
+    title: 'Notifications',
+    lead: unreadCount > 0 ? (unreadCount ~ ' unread update' ~ (unreadCount == 1 ? '' : 's')) : 'Booking updates appear here — no email required.',
+    actions: [],
+  } %}
+
+  <section class="lp-section lp-page-section">
+    <div class="lp-container">
+      {% if unreadCount > 0 %}
+        <form method="post"
+              action="{{ path('app_notifications_read_all') }}"
+              class="lp-notif-page__toolbar js-notif-mark-all-read"
+              data-notif-context="page">
+          <input type="hidden" name="_token" value="{{ csrf_token('notifications_read_all') }}">
+          <button type="submit" class="lp-btn lp-btn-ghost lp-btn-sm"><i class="fas fa-check-double" aria-hidden="true"></i> Mark all as read</button>
+        </form>
+      {% endif %}
+      {% include 'notification/_list.html.twig' %}
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

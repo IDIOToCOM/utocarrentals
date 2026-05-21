@@ -1,0 +1,27 @@
+{# Single Symfony form child — stacked label + full-width input #}
+{% macro render(field, options) %}
+  {% set opts = options|default({}) %}
+  {% set icon = opts.icon|default(null) %}
+  {% set placeholder = opts.placeholder|default(field.vars.attr.placeholder|default('')) %}
+  <div class="uto-field{% if field.vars.errors|length %} uto-field--error{% endif %}">
+    <label class="uto-field__label" for="{{ field.vars.id }}">{{ field.vars.label }}</label>
+    <div class="uto-field__control{% if icon %} uto-field__control--icon{% endif %}">
+      {% if icon %}
+        <span class="uto-field__icon" aria-hidden="true"><i class="fas {{ icon }}"></i></span>
+      {% endif %}
+      {{ form_widget(field, {
+        attr: field.vars.attr|merge({
+          class: 'uto-field__input',
+          placeholder: placeholder
+        })
+      }) }}
+    </div>
+    {{ form_errors(field) }}
+  </div>
+{% endmacro %}
+
+{% macro render_password_pair(form, options) %}
+  {% import _self as f %}
+  {{ f.render(form.first, options|merge({ placeholder: options.first_placeholder|default('New password'), icon: options.icon|default('fa-lock') })) }}
+  {{ f.render(form.second, options|merge({ placeholder: options.second_placeholder|default('Confirm new password'), icon: options.icon|default('fa-lock') })) }}
+{% endmacro %}

@@ -1,0 +1,94 @@
+<style>
+  .time-preset-block + .time-preset-block {
+    margin-top: 0.5rem;
+  }
+
+  .time-preset-row__label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--uto-muted-2, #4b5563);
+    margin-bottom: 0.35rem;
+  }
+
+  .time-preset-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0;
+  }
+
+  .time-preset-block .time-preset-row {
+    margin-top: 0;
+  }
+
+  .time-preset-block:not(:has(.time-preset-row__label)) .time-preset-row {
+    margin-top: 0.45rem;
+  }
+  .time-preset-row .time-preset-chip {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1.2;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .time-preset-row--admin .time-preset-chip {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+  }
+  .time-preset-row--admin .time-preset-chip:hover {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #fff;
+  }
+  .time-preset-row--hero .time-preset-chip {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #e2e8f0;
+  }
+  .time-preset-row--hero .time-preset-chip:hover {
+    background: rgba(99, 102, 241, 0.4);
+    border-color: rgba(129, 140, 248, 0.9);
+    color: #fff;
+  }
+  .flatpickr-time input.flatpickr-hour,
+  .flatpickr-time input.flatpickr-minute {
+    font-weight: 600;
+  }
+
+  /* Time stepper arrows: always show (Flatpickr defaults to opacity 0 until hover) + high-contrast triangles */
+  .flatpickr-calendar .flatpickr-time .numInputWrapper span {
+    opacity: 1 !important;
+    border-color: rgba(129, 140, 248, 0.45) !important;
+  }
+  .flatpickr-calendar .flatpickr-time .numInputWrapper span.arrowUp:after {
+    border-bottom-color: #a5b4fc !important;
+    border-left-width: 5px !important;
+    border-right-width: 5px !important;
+    border-bottom-width: 6px !important;
+  }
+  .flatpickr-calendar .flatpickr-time .numInputWrapper span.arrowDown:after {
+    border-top-color: #a5b4fc !important;
+    border-left-width: 5px !important;
+    border-right-width: 5px !important;
+    border-top-width: 6px !important;
+  }
+  .flatpickr-calendar .flatpickr-time .numInputWrapper span.arrowUp:hover:after {
+    border-bottom-color: #e0e7ff !important;
+  }
+  .flatpickr-calendar .flatpickr-time .numInputWrapper span.arrowDown:hover:after {
+    border-top-color: #e0e7ff !important;
+  }
+  .flatpickr-calendar .flatpickr-time .numInputWrapper span:hover {
+    background: rgba(99, 102, 241, 0.35) !important;
+  }
+  .flatpickr-calendar .flatpickr-time .numInputWrapper span:active {
+    background: rgba(99, 102, 241, 0.55) !important;
+  }
+</style>

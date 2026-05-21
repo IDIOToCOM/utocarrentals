@@ -1,0 +1,111 @@
+/* Shared stacked form fields — account, auth, password reset */
+
+.uto-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 1.15rem;
+}
+
+.uto-field__label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--uto-text, #0a0a0a);
+  line-height: 1.3;
+}
+
+.uto-field__control {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.uto-field__control--icon .uto-field__input {
+  padding-left: 2.65rem;
+}
+
+.uto-field__icon {
+  position: absolute;
+  left: 0.95rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--uto-muted, #6b7280);
+  font-size: 0.95rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.uto-field__input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--uto-text, #0a0a0a);
+  background: #f9fafb;
+  border: 1px solid var(--uto-border, #e5e7eb);
+  border-radius: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.uto-field__input::placeholder {
+  color: #9ca3af;
+}
+
+.uto-field__input:hover {
+  border-color: #d1d5db;
+}
+
+.uto-field__input:focus {
+  outline: none;
+  border-color: #0a0a0a;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.uto-field--error .uto-field__input {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.uto-field ul,
+.uto-field .invalid-feedback,
+.uto-field .form-error,
+.uto-field .uto-field__error {
+  display: block;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: #b91c1c;
+}
+
+.uto-field ul li {
+  margin: 0;
+}
+
+/* Symfony default wrappers from form_row — force block layout inside account forms */
+.lp-account-form .mb-3,
+.lp-account-form [class*="mb-"],
+.register-form--stacked .mb-3 {
+  display: block !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  float: none !important;
+}
+
+.lp-account-form .mb-3 > label,
+.register-form--stacked .mb-3 > label {
+  display: block !important;
+  width: 100% !important;
+}
+
+.lp-account-form .mb-3 > input,
+.lp-account-form .mb-3 > select,
+.lp-account-form .mb-3 .uto-field__input,
+.register-form--stacked .mb-3 input {
+  display: block !important;
+  width: 100% !important;
+}

@@ -1,0 +1,335 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}Browse vehicles — Uto{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/pages-public.css') }}?v=2.6">
+  <link rel="stylesheet" href="{{ asset('styles/car-catalog.css') }}?v=3.8">
+  <link rel="stylesheet" href="{{ asset('styles/customer-booking.css') }}?v=2.4">
+  <link rel="stylesheet" href="{{ asset('vendor/flatpickr/flatpickr.min.css') }}">
+  {% include 'booking/_flatpickr_booking_time_styles.html.twig' %}
+{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_customer.html.twig' %}
+
+<main class="lp-page-main lp-catalog-main lp-catalog-main--browse" id="main-content">
+  {% include 'customer/_customer_page_hero.html.twig' with {
+    kicker: 'Our fleet',
+    title: 'Find your rental',
+    lead: availabilityFiltering
+      ? 'Showing vehicles free for your pickup and return window. Book with one click.'
+      : 'Large photos, clear daily rates, and quick filters—pick dates to see only available cars.',
+    actions: [
+      {
+        href: path('app_my_favorites'),
+        label: 'Saved' ~ (catalog_favorite_count() > 0 ? ' (' ~ catalog_favorite_count() ~ ')' : ''),
+        icon: 'fas fa-heart',
+        class: 'lp-btn-ghost',
+      },
+      {
+        href: path('app_car_compare'),
+        label: 'Compare' ~ (catalog_compare_count() > 0 ? ' (' ~ catalog_compare_count() ~ ')' : ''),
+        icon: 'fas fa-scale-balanced',
+        class: 'lp-btn-ghost',
+      },
+      {
+        href: path('app_rental_help'),
+        label: 'Help',
+        icon: 'fas fa-circle-question',
+        class: 'lp-btn-ghost',
+      },
+    ],
+  } %}
+
+  <section class="lp-section lp-page-section lp-catalog-results">
+    <div class="lp-container">
+      <h2 class="visually-hidden">Vehicle listings</h2>
+
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('info') %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      {% if catalogItems|length > 1 and not availabilityFiltering %}
+        {% include 'customer/_catalog_spotlight.html.twig' with { spotlightItems: catalogItems|slice(0, 8) } %}
+      {% endif %}
+
+      {% set has_availability_input = availabilityQuery.pickupDate or availabilityQuery.returnDate or availabilityQuery.pickupTime or availabilityQuery.returnTime %}
+      {% set clear_availability_url = path('app_car_catalog', catalog_query_params(activeType, activeSearch, activeSort)) %}
+
+      <div class="lp-catalog-panel" role="search">
+        <form class="lp-catalog-panel__form" method="get" action="{{ path('app_car_catalog') }}" id="catalog-filter-form">
+          {% if activeType %}
+            <input type="hidden" name="type" value="{{ activeType }}">
+          {% endif %}
+
+          <fieldset class="lp-catalog-availability">
+            <legend class="lp-catalog-availability__legend">
+              <i class="fas fa-calendar-check" aria-hidden="true"></i>
+              When do you need the car?
+            </legend>
+            <p class="lp-catalog-availability__hint">Pick pickup and return dates and times—we will hide vehicles that are already booked for that window.</p>
+
+            {% if availabilityError %}
+              <p class="lp-catalog-availability__error" role="alert">{{ availabilityError }}</p>
+            {% endif %}
+
+            <div class="lp-catalog-availability__grid">
+              <div class="lp-catalog-availability__field lp-catalog-availability__field--range">
+                <label for="catalogRentalRange" class="lp-catalog-availability__label">Rental dates</label>
+                <div class="lp-catalog-availability__input-wrap">
+                  <i class="fas fa-calendar-days" aria-hidden="true"></i>
+                  <input type="text"
+                         id="catalogRentalRange"
+                         class="lp-catalog-availability__input"
+                         placeholder="Pickup date, then return date"
+                         autocomplete="off"
+                         inputmode="none"
+                         data-pickup-prefill="{{ availabilityQuery.pickupDate|default('') }}"
+                         data-return-prefill="{{ availabilityQuery.returnDate|default('') }}">
+                </div>
+                <input type="hidden" name="pickupDate" id="catalogPickupDate" value="{{ availabilityQuery.pickupDate|default('') }}">
+                <input type="hidden" name="returnDate" id="catalogReturnDate" value="{{ availabilityQuery.returnDate|default('') }}">
+              </div>
+              <div class="lp-catalog-availability__field">
+                <label for="catalogPickupTime" class="lp-catalog-availability__label">Pickup time</label>
+                <div class="lp-catalog-availability__input-wrap">
+                  <i class="fas fa-clock" aria-hidden="true"></i>
+                  <input type="text"
+                         name="pickupTime"
+                         id="catalogPickupTime"
+                         class="lp-catalog-availability__input js-flatpickr-time"
+                         placeholder="e.g. 9:00 AM"
+                         autocomplete="off"
+                         inputmode="none"
+                         value="{{ availabilityQuery.pickupTime|default('') }}">
+                </div>
+              </div>
+              <div class="lp-catalog-availability__field">
+                <label for="catalogReturnTime" class="lp-catalog-availability__label">Return time</label>
+                <div class="lp-catalog-availability__input-wrap">
+                  <i class="fas fa-clock" aria-hidden="true"></i>
+                  <input type="text"
+                         name="returnTime"
+                         id="catalogReturnTime"
+                         class="lp-catalog-availability__input js-flatpickr-time"
+                         placeholder="e.g. 5:00 PM"
+                         autocomplete="off"
+                         inputmode="none"
+                         value="{{ availabilityQuery.returnTime|default('') }}">
+                </div>
+              </div>
+            </div>
+            <div class="lp-catalog-time-suggestions">
+              <p class="lp-catalog-time-suggestions__heading">Suggested times</p>
+              {% include 'booking/_time_preset_chips.html.twig' with {
+                variant: 'customer',
+                target_id: 'catalogPickupTime',
+                aria_label: 'Quick pickup times',
+                row_label: 'Pickup',
+              } %}
+              {% include 'booking/_time_preset_chips.html.twig' with {
+                variant: 'customer',
+                target_id: 'catalogReturnTime',
+                aria_label: 'Quick return times',
+                row_label: 'Return',
+              } %}
+            </div>
+            {% if has_availability_input or availabilityFiltering %}
+              <div class="lp-catalog-availability__actions">
+                <a href="{{ clear_availability_url }}" class="lp-btn lp-btn-ghost lp-catalog-availability__clear-btn">
+                  <i class="fas fa-calendar-xmark" aria-hidden="true"></i>
+                  Clear dates &amp; times
+                </a>
+              </div>
+            {% endif %}
+          </fieldset>
+
+          <div class="lp-catalog-panel__search">
+            <label for="catalog-search-q" class="visually-hidden">Search by brand or model</label>
+            <div class="lp-catalog-panel__search-field">
+              <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+              <input type="search" id="catalog-search-q" name="q" class="lp-catalog-search__input" value="{{ activeSearch|default('') }}" placeholder="Search brand or model…" autocomplete="off">
+            </div>
+            <label for="catalog-sort" class="visually-hidden">Sort</label>
+            <select id="catalog-sort" name="sort" class="lp-catalog-search__sort" aria-label="Sort vehicles">
+              {% for label, value in sortChoices %}
+                <option value="{{ value }}"{% if activeSort == value %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="lp-btn lp-btn-primary lp-catalog-panel__submit">
+              {% if availabilityQuery.pickupDate or availabilityQuery.returnDate or availabilityQuery.pickupTime or availabilityQuery.returnTime %}
+                Update results
+              {% else %}
+                Search
+              {% endif %}
+            </button>
+          </div>
+        </form>
+
+        {% if availabilityFiltering %}
+          <div class="lp-catalog-availability__active" role="status">
+            <p class="lp-catalog-availability__active-text mb-0">
+              <i class="fas fa-filter" aria-hidden="true"></i>
+              Showing vehicles available {{ availabilityQuery.pickupDate|date('M j, Y') }} {{ availabilityQuery.pickupTime }}
+              → {{ availabilityQuery.returnDate|date('M j, Y') }} {{ availabilityQuery.returnTime }}.
+              Card prices are estimated totals for that window.
+            </p>
+            <a href="{{ clear_availability_url }}" class="lp-btn lp-btn-ghost lp-catalog-availability__clear-btn">
+              <i class="fas fa-calendar-xmark" aria-hidden="true"></i>
+              Remove filter
+            </a>
+          </div>
+        {% endif %}
+
+        <div class="lp-catalog-panel__filters-row">
+          <nav class="lp-catalog-filters" aria-label="Vehicle type">
+            <a href="{{ path('app_car_catalog', catalog_query_params(null, activeSearch, activeSort, availabilityParams)) }}" class="lp-catalog-filter{% if activeType is null %} is-active{% endif %}"{% if activeType is null %} aria-current="true"{% endif %}>All</a>
+            {% for type in types %}
+              <a href="{{ path('app_car_catalog', catalog_query_params(type, activeSearch, activeSort, availabilityParams)) }}" class="lp-catalog-filter{% if activeType == type %} is-active{% endif %}"{% if activeType == type %} aria-current="true"{% endif %}>{{ type }}</a>
+            {% endfor %}
+          </nav>
+          <p class="lp-catalog-count">
+            <strong>{{ catalogItems|length }}</strong>
+            {% if availabilityFiltering %}available{% else %}vehicle{{ catalogItems|length == 1 ? '' : 's' }}{% endif %}
+          </p>
+        </div>
+      </div>
+
+      {% if catalogItems is empty %}
+        <div class="lp-catalog-empty">
+          {% if availabilityFiltering %}
+            <h2>No vehicles free for those dates</h2>
+            <p>Try different pickup or return times, another category, or clear the date filter to browse the full fleet.</p>
+          {% elseif activeSearch %}
+            <h2>No vehicles match “{{ activeSearch }}”</h2>
+            <p>Try a different search term or browse another category.</p>
+          {% elseif activeType %}
+            <h2>No {{ activeType }} vehicles available</h2>
+            <p>Try another category or check back soon.</p>
+          {% else %}
+            <h2>No vehicles available right now</h2>
+            <p>Ask your admin to upload vehicle photos in inventory — good images make browsing much more appealing.</p>
+          {% endif %}
+          <a class="lp-btn lp-btn-primary" href="{{ path('app_car_catalog') }}">View all vehicles</a>
+        </div>
+      {% else %}
+        <div class="lp-car-grid lp-car-grid--visual">
+          {% for item in catalogItems %}
+            {% set car = item.car %}
+            {% set bookQuery = { car: car.id }|merge(availabilityParams) %}
+            {% set showQuery = availabilityParams|merge({ id: car.id }) %}
+            {% set rentalEstimate = item.rentalEstimate|default(null) %}
+            <article class="lp-car-card lp-car-card--visual">
+              <div class="lp-car-card__media-wrap">
+                <div class="lp-car-card__save-row">
+                  {% include 'customer/_car_browse_actions.html.twig' with {
+                    car: car,
+                    favoriteCarIds: favoriteCarIds,
+                    compareCarIds: compareCarIds,
+                    maxCompare: maxCompare,
+                  } %}
+                </div>
+                <a class="lp-car-card__media-link" href="{{ path('app_car_show', showQuery) }}" tabindex="-1" aria-hidden="true">
+                  <div class="lp-car-card__media">
+                    <img src="{{ asset(item.imageUrl) }}" alt="" width="800" height="500" loading="lazy" decoding="async">
+                    <span class="lp-car-card__badge lp-car-card__badge--available">{{ car.status }}</span>
+                    {% if car.type %}<span class="lp-car-card__type">{{ car.type }}</span>{% endif %}
+                  </div>
+                </a>
+              </div>
+              <div class="lp-car-card__body">
+                <h3 class="lp-car-card__title">
+                  <a href="{{ path('app_car_show', showQuery) }}" class="lp-car-card__title-link">{{ car.brand }} {{ car.model }}</a>
+                </h3>
+                {% include 'customer/_car_specs.html.twig' with { car: car, layout: 'chips' } %}
+                {% include 'customer/_car_trust.html.twig' with { reviewSummary: item.reviewSummary, compact: true } %}
+              </div>
+              <div class="lp-car-card__footer">
+                <div class="lp-car-card__price-row">
+                  {% include 'customer/_rental_price_display.html.twig' with {
+                    pricePerDay: car.pricePerDay,
+                    rentalEstimate: rentalEstimate,
+                    layout: 'card',
+                  } %}
+                </div>
+                <div class="lp-car-card__cta">
+                  <a class="lp-btn lp-btn-primary" href="{{ path('app_submit_booking', bookQuery) }}">
+                    Book now{% if rentalEstimate %}<span class="lp-btn__price"> · ₱{{ rentalEstimate.total|number_format(0, '.', ',') }}</span>{% endif %}
+                  </a>
+                  <a class="lp-btn lp-btn-ghost" href="{{ path('app_car_show', showQuery) }}">Details</a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_customer.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+  <script src="{{ asset('vendor/flatpickr/flatpickr.min.js') }}"></script>
+  {% include 'booking/_flatpickr_booking_time_script.html.twig' %}
+  {% if catalogItems|length > 1 and not availabilityFiltering %}
+    <script src="{{ asset('scripts/vehicle-carousel.js') }}?v=1.0" defer></script>
+  {% endif %}
+  <script>
+    (function () {
+      var form = document.getElementById('catalog-filter-form');
+      var sort = document.getElementById('catalog-sort');
+      if (form && sort) {
+        sort.addEventListener('change', function () { form.submit(); });
+      }
+
+      var rangeInput = document.getElementById('catalogRentalRange');
+      var pickupHidden = document.getElementById('catalogPickupDate');
+      var returnHidden = document.getElementById('catalogReturnDate');
+      if (!rangeInput || !pickupHidden || !returnHidden || typeof window.flatpickr !== 'function') {
+        return;
+      }
+
+      function pad(n) { return String(n).padStart(2, '0'); }
+      function ymd(d) {
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+      }
+
+      var prefill = [];
+      var p = rangeInput.getAttribute('data-pickup-prefill');
+      var r = rangeInput.getAttribute('data-return-prefill');
+      if (p) {
+        var dp = new Date(p + 'T12:00:00');
+        if (!isNaN(dp.getTime())) prefill.push(dp);
+      }
+      if (r) {
+        var dr = new Date(r + 'T12:00:00');
+        if (!isNaN(dr.getTime())) prefill.push(dr);
+      }
+
+      window.flatpickr(rangeInput, {
+        mode: 'range',
+        dateFormat: 'Y-m-d',
+        altInput: true,
+        altFormat: 'M j, Y',
+        minDate: 'today',
+        defaultDate: prefill.length ? prefill : null,
+        onChange: function (selectedDates) {
+          pickupHidden.value = selectedDates[0] ? ymd(selectedDates[0]) : '';
+          returnHidden.value = selectedDates[1] ? ymd(selectedDates[1]) : '';
+        },
+      });
+    })();
+  </script>
+{% endblock %}

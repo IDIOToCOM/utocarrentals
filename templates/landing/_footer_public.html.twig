@@ -1,0 +1,53 @@
+<footer class="lp-footer">
+  <div class="lp-container">
+    <div class="lp-footer-grid">
+      <div>
+        <div class="lp-footer-brand">
+          <a class="lp-footer-brand-link" href="{{ path('app_home') }}#hero">
+            <img
+              class="lp-footer-logo-img"
+              src="{{ asset('images/uto-car-rentals-logo.png') }}?v=6"
+              alt="UTO Car Rentals"
+              width="180"
+              height="50"
+              loading="lazy"
+              decoding="async">
+          </a>
+        </div>
+        <p>Modern vehicle rentals with clear pricing and support you can count on.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="{{ path('app_home') }}#services">Services</a></li>
+          <li><a href="{{ path('app_home') }}#pricing">Plans</a></li>
+          <li><a href="{{ path('app_about') }}">About</a></li>
+          <li><a href="{{ path('app_rental_help') }}">FAQ & rental guide</a></li>
+          <li><a href="{{ path('app_contact') }}">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Reach us</h4>
+        <ul class="lp-footer-contact">
+          <li><a href="mailto:{{ uto_support_email() }}">{{ uto_support_email() }}</a></li>
+          <li><a href="tel:{{ uto_support_phone_tel() }}">{{ uto_support_phone() }}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Account</h4>
+        <ul>
+          <li><a href="{{ path('app_login') }}">Sign In</a></li>
+          <li><a href="{{ path('app_register') }}">Register</a></li>
+        </ul>
+        <div class="lp-footer-social mt-3">
+          <a href="#" aria-label="Facebook (placeholder)"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram (placeholder)"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn (placeholder)"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="lp-footer-bottom">
+      © {{ 'now'|date('Y') }} UTO. All rights reserved. · <a class="lp-footer-toplink" href="{{ path('app_home') }}#hero">Back to top</a>
+    </div>
+  </div>
+</footer>

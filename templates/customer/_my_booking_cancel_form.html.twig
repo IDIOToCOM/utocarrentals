@@ -1,0 +1,15 @@
+{# booking: App\Entity\Booking, buttonClass (optional) #}
+<form method="post"
+      action="{{ path('app_my_booking_cancel', { id: booking.id }) }}"
+      class="lp-my-booking-cancel-form js-booking-confirm-form"
+      data-confirm-theme="customer"
+      data-confirm-variant="cancel"
+      data-confirm-title="Cancel this booking?"
+      data-confirm-message="Your booking will be marked Cancelled and stay in My bookings. The vehicle will be freed for those dates.{% if booking.status == 'Confirmed' %} If you already paid, your payment will be marked for refund.{% endif %}"
+      data-confirm-ok="Yes, cancel booking"
+      data-confirm-cancel="Keep my booking">
+  <input type="hidden" name="_token" value="{{ csrf_token('my_booking_cancel_' ~ booking.id) }}">
+  <button type="submit" class="{{ buttonClass|default('lp-btn lp-btn-ghost lp-btn-danger-text') }}">
+    <i class="fas fa-ban" aria-hidden="true"></i> Cancel booking
+  </button>
+</form>

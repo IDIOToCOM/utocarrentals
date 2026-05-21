@@ -1,0 +1,12 @@
+# Enable CSRF protection for forms and logins/logouts
+framework:
+    form:
+        csrf_protection:
+            token_id: submit
+
+    csrf_protection:
+        # Use session-based CSRF tokens (more reliable with proxies like ngrok)
+        stateless_token_ids:
+            - submit
+            # Removed 'authenticate' and 'logout' to use session-based tokens
+            # This works better with ngrok and other proxies

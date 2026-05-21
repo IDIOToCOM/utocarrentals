@@ -1,0 +1,29 @@
+{# Expects: form, car_image_url (optional), has_uploaded_photo (optional bool) #}
+{% for field in form %}
+  {% if field.vars.name == 'photoFile' %}
+    <div class="form-group mb-3 car-photo-upload">
+      {{ form_label(field) }}
+      {% if has_uploaded_photo|default(false) and car_image_url is defined %}
+        <div class="car-photo-current">
+          <img src="{{ asset(car_image_url) }}" alt="Current vehicle photo" class="car-photo-current__img">
+          <p class="car-photo-current__hint">Current photo. Upload a new file to replace it.</p>
+        </div>
+      {% endif %}
+      {{ form_widget(field) }}
+      <p class="form-text text-muted mb-0">
+        JPG, PNG, or WebP · max 5 MB. For best results on the customer browse page use
+        <strong>1600×900 px</strong> (16:9), landscape, car centered — 3/4 front angle, daylight, plain background.
+      </p>
+      {{ form_errors(field) }}
+    </div>
+  {% elseif field.vars.name != '_token' %}
+    <div class="form-group mb-3">
+      {{ form_label(field) }}
+      {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+      {% if field.vars.help is not empty %}
+        <p class="form-text text-muted mb-0">{{ field.vars.help }}</p>
+      {% endif %}
+      {{ form_errors(field) }}
+    </div>
+  {% endif %}
+{% endfor %}

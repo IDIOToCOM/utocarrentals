@@ -1,0 +1,67 @@
+{# paymentsByBooking: map from index; payment: single on show #}
+{% set pay = paymentsByBooking[booking.id]|default(payment|default(null)) %}
+{% set canRefund = pay and pay.status == 'Completed' and booking.status != 'Refunded' %}
+{% set hasStatusActions = booking.status == 'Pending' or booking.status == 'Confirmed' or canRefund %}
+
+{% if hasStatusActions %}
+  <div class="booking-actions-row booking-actions-row--status">
+    {% if booking.status == 'Pending' %}
+      <form method="post"
+            action="{{ path('app_booking_update_status', {id: booking.id}) }}"
+            class="booking-quick-form js-booking-confirm-form"
+            data-confirm-theme="admin"
+            data-confirm-variant="confirm"
+            data-confirm-title="Confirm booking?"
+            data-confirm-message="Confirm booking #{{ booking.id }}? The customer will be notified."
+            data-confirm-ok="Yes, confirm"
+            data-confirm-cancel="Not yet">
+        <input type="hidden" name="_token" value="{{ csrf_token('booking_status_' ~ booking.id) }}">
+        <input type="hidden" name="action" value="confirm">
+        <button type="submit" class="booking-action-btn booking-action-btn--confirm"><i class="fas fa-check"></i><span>Confirm</span></button>
+      </form>
+      <form method="post"
+            action="{{ path('app_booking_update_status', {id: booking.id}) }}"
+            class="booking-quick-form js-booking-confirm-form"
+            data-confirm-theme="admin"
+            data-confirm-variant="decline"
+            data-confirm-title="Decline booking?"
+            data-confirm-message="Decline booking #{{ booking.id }}? The customer will be notified."
+            data-confirm-ok="Yes, decline"
+            data-confirm-cancel="Keep pending">
+        <input type="hidden" name="_token" value="{{ csrf_token('booking_status_' ~ booking.id) }}">
+        <input type="hidden" name="action" value="decline">
+        <button type="submit" class="booking-action-btn booking-action-btn--decline"><i class="fas fa-times"></i><span>Decline</span></button>
+      </form>
+    {% elseif booking.status == 'Confirmed' %}
+      <form method="post"
+            action="{{ path('app_booking_update_status', {id: booking.id}) }}"
+            class="booking-quick-form js-booking-confirm-form"
+            data-confirm-theme="admin"
+            data-confirm-variant="cancel"
+            data-confirm-title="Cancel booking?"
+            data-confirm-message="Cancel booking #{{ booking.id }}? The customer will be notified. Paid amounts will be marked refunded if applicable."
+            data-confirm-ok="Yes, cancel"
+            data-confirm-cancel="Keep booking">
+        <input type="hidden" name="_token" value="{{ csrf_token('booking_status_' ~ booking.id) }}">
+        <input type="hidden" name="action" value="cancel">
+        <button type="submit" class="booking-action-btn booking-action-btn--cancel"><i class="fas fa-ban"></i><span>Cancel</span></button>
+      </form>
+    {% endif %}
+
+    {% if canRefund %}
+      <form method="post"
+            action="{{ path('app_booking_update_status', {id: booking.id}) }}"
+            class="booking-quick-form js-booking-confirm-form"
+            data-confirm-theme="admin"
+            data-confirm-variant="refund"
+            data-confirm-title="Refund booking?"
+            data-confirm-message="Mark booking #{{ booking.id }} and its payment as refunded? This cannot be undone from the quick actions."
+            data-confirm-ok="Yes, refund"
+            data-confirm-cancel="Not now">
+        <input type="hidden" name="_token" value="{{ csrf_token('booking_status_' ~ booking.id) }}">
+        <input type="hidden" name="action" value="refund">
+        <button type="submit" class="booking-action-btn booking-action-btn--refund"><i class="fas fa-undo"></i><span>Refund</span></button>
+      </form>
+    {% endif %}
+  </div>
+{% endif %}

@@ -1,0 +1,154 @@
+<script>
+(function () {
+  function initNotificationBell() {
+    var wrap = document.getElementById('lpNotif');
+    var trigger = document.getElementById('lpNotifTrigger');
+    var panel = document.getElementById('lpNotifPanel');
+    if (!wrap || !trigger || !panel) {
+      return;
+    }
+    if (wrap.dataset.notifInit === '1') {
+      return;
+    }
+    wrap.dataset.notifInit = '1';
+
+    function closePanel() {
+      panel.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function openPanel() {
+      panel.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+    }
+
+    trigger.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (panel.hidden) {
+        openPanel();
+      } else {
+        closePanel();
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (panel.hidden) {
+        return;
+      }
+      if (wrap.contains(e.target)) {
+        return;
+      }
+      closePanel();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closePanel();
+      }
+    });
+  }
+
+  function updateBellAfterMarkAll(wrap) {
+    if (!wrap) {
+      return;
+    }
+    var badge = wrap.querySelector('.lp-notif__badge');
+    if (badge) {
+      badge.remove();
+    }
+    wrap.querySelectorAll('.lp-notif__item--unread').forEach(function (li) {
+      li.classList.remove('lp-notif__item--unread');
+    });
+    var markAllForm = wrap.querySelector('.lp-notif__mark-all-form');
+    if (markAllForm) {
+      markAllForm.remove();
+    }
+    var trigger = wrap.querySelector('.lp-notif__trigger');
+    if (trigger) {
+      trigger.setAttribute('aria-label', 'Notifications');
+    }
+  }
+
+  function updateNotificationsPageAfterMarkAll() {
+    document.querySelectorAll('.lp-notif-page__item--unread').forEach(function (li) {
+      li.classList.remove('lp-notif-page__item--unread');
+    });
+    document.querySelectorAll('.lp-notif-page__toolbar').forEach(function (el) {
+      el.remove();
+    });
+    document.querySelectorAll('.lp-notif-page__actions form').forEach(function (form) {
+      var label = document.createElement('span');
+      label.className = 'lp-notif-page__read-label';
+      label.textContent = 'Read';
+      form.replaceWith(label);
+    });
+    var lead = document.querySelector('.lp-page-lead');
+    if (lead) {
+      lead.textContent = 'Booking updates appear here — no email required.';
+    }
+    var adminToolbar = document.querySelector('.js-notif-mark-all-read[data-notif-context="page"]');
+    if (adminToolbar && adminToolbar.closest('.mb-3')) {
+      adminToolbar.closest('.mb-3').remove();
+    }
+  }
+
+  function bindMarkAllReadForms() {
+    document.querySelectorAll('.js-notif-mark-all-read').forEach(function (form) {
+      if (form.dataset.markAllBound === '1') {
+        return;
+      }
+      form.dataset.markAllBound = '1';
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var btn = form.querySelector('button[type="submit"]');
+        if (btn) {
+          btn.disabled = true;
+        }
+
+        fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          credentials: 'same-origin',
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error('Request failed');
+            }
+            return response.json();
+          })
+          .then(function () {
+            var context = form.getAttribute('data-notif-context') || 'dropdown';
+            if (context === 'page') {
+              updateNotificationsPageAfterMarkAll();
+            } else {
+              updateBellAfterMarkAll(document.getElementById('lpNotif'));
+            }
+          })
+          .catch(function () {
+            if (btn) {
+              btn.disabled = false;
+            }
+            window.alert('Could not mark notifications as read. Please try again.');
+          });
+      });
+    });
+  }
+
+  function init() {
+    initNotificationBell();
+    bindMarkAllReadForms();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>

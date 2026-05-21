@@ -1,0 +1,11 @@
+{# payment: App\Entity\Payment, labeled: bool (default true) #}
+{% set labeled = labeled is defined ? labeled : true %}
+{% set paymentLabel = payment.status == 'Completed' ? 'Paid' : (payment.status == 'Pending' ? 'Unpaid' : payment.status) %}
+{% if labeled %}
+  <span class="lp-status-chip lp-status-chip--payment">
+    <span class="lp-status-chip__label">Payment</span>
+    <span class="lp-payment-status lp-payment-status--{{ payment.status|lower }}">{{ paymentLabel }}</span>
+  </span>
+{% else %}
+  <span class="lp-payment-status lp-payment-status--{{ payment.status|lower }}">{{ paymentLabel }}</span>
+{% endif %}

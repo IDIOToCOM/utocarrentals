@@ -1,0 +1,40 @@
+{# booking, customerRules, layout: 'card'|'detail' #}
+{% set layout = layout|default('card') %}
+{% set canCancel = customerRules.canCustomerCancel(booking) %}
+{% set cancelBlockReason = customerRules.getCancelBlockReason(booking) %}
+{% set showPolicy = customerRules.isCancellableStatus(booking.status) or canCancel %}
+
+{% if layout == 'detail' %}
+  <section class="lp-booking-cancel-panel" aria-labelledby="booking-cancel-heading">
+    <h3 id="booking-cancel-heading" class="lp-booking-cancel-panel__title">
+      <i class="fas fa-ban" aria-hidden="true"></i> Cancel this booking
+    </h3>
+    {% if showPolicy %}
+      {% include 'customer/_booking_cancel_policy.html.twig' with { customerRules: customerRules, variant: 'compact' } %}
+    {% endif %}
+    <div class="lp-booking-cancel-panel__action">
+      {% if canCancel %}
+        {% include 'customer/_my_booking_cancel_form.html.twig' with { booking: booking, buttonClass: 'lp-btn lp-btn-outline-danger' } %}
+      {% elseif cancelBlockReason and customerRules.isCancellableStatus(booking.status) == false and booking.status != 'Cancelled' and booking.status != 'Refunded' %}
+        {# inactive status — next steps already explain #}
+      {% elseif cancelBlockReason %}
+        <p class="lp-booking-cancel-panel__blocked" role="status">
+          <i class="fas fa-lock" aria-hidden="true"></i> {{ cancelBlockReason }}
+        </p>
+        <p class="lp-booking-cancel-panel__contact mb-0">
+          Need help? <a href="{{ path('app_contact') }}">Contact us</a> with booking <strong>#{{ booking.id }}</strong>.
+        </p>
+      {% endif %}
+    </div>
+  </section>
+{% else %}
+  <div class="lp-my-booking-card__cancel">
+    {% if canCancel %}
+      {% include 'customer/_my_booking_cancel_form.html.twig' with { booking: booking } %}
+    {% elseif cancelBlockReason and customerRules.isCancellableStatus(booking.status) %}
+      <p class="lp-my-booking-card__cancel-hint" role="status">
+        <i class="fas fa-circle-info" aria-hidden="true"></i> {{ cancelBlockReason }}
+      </p>
+    {% endif %}
+  </div>
+{% endif %}

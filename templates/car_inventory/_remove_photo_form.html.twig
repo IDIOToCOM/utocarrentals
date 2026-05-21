@@ -1,0 +1,14 @@
+{# car_inventory, redirect (photo|edit|index), has_uploaded_photo, button_class (optional) #}
+{% if has_uploaded_photo|default(false) %}
+<form
+  method="post"
+  action="{{ path('app_car_inventory_photo_remove', { id: car_inventory.id }) }}"
+  class="remove-photo-form"
+  onsubmit="return confirm('Remove this vehicle photo? The catalog will show the default image for this type.');">
+  <input type="hidden" name="_token" value="{{ csrf_token('remove_photo' ~ car_inventory.id) }}">
+  <input type="hidden" name="redirect" value="{{ redirect|default('photo') }}">
+  <button type="submit" class="btn btn-remove-photo {{ button_class|default('') }}">
+    <i class="fas fa-trash-alt" aria-hidden="true"></i> Remove photo
+  </button>
+</form>
+{% endif %}

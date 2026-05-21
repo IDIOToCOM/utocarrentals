@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Truck">
+  <rect width="640" height="400" fill="#eaeaea"/>
+  <ellipse cx="320" cy="322" rx="240" ry="28" fill="rgba(0,0,0,0.1)"/>
+  <path fill="#121212" d="M88 262h464l-24-80c-8-28-32-48-60-48h-96c-28 0-52 20-60 48l-24 80zm72-92c0-22 18-40 40-40h56v80h-96V170zm200 92a44 44 0 1 1 0-88 44 44 0 0 1 0 88zm176 0a44 44 0 1 1 0-88 44 44 0 0 1 0 88z"/>
+  <rect x="120" y="150" width="200" height="72" rx="6" fill="#3a3a3a" opacity="0.35"/>
+</svg>

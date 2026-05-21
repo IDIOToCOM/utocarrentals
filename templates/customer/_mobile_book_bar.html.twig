@@ -1,0 +1,19 @@
+{# car, rentalEstimate (optional), bookQuery #}
+{% set bookQuery = bookQuery|default({ car: car.id }) %}
+<div class="lp-mobile-book-bar" role="region" aria-label="Quick book">
+  <div class="lp-mobile-book-bar__info">
+    <p class="lp-mobile-book-bar__name">{{ car.brand }} {{ car.model }}</p>
+    {% if rentalEstimate|default(null) %}
+      <p class="lp-mobile-book-bar__price">
+        <strong>₱{{ rentalEstimate.total|number_format(0, '.', ',') }}</strong>
+        <small>{{ rentalEstimate.days }}d · ₱{{ rentalEstimate.pricePerDay|number_format(0, '.', ',') }}/day</small>
+      </p>
+    {% else %}
+      <p class="lp-mobile-book-bar__price">₱{{ car.pricePerDay|number_format(0, '.', ',') }} <small>/ day</small></p>
+    {% endif %}
+  </div>
+  <a class="lp-btn lp-btn-primary lp-mobile-book-bar__cta" href="{{ path('app_submit_booking', bookQuery) }}">
+    <i class="fas fa-calendar-check" aria-hidden="true"></i>
+    {% if rentalEstimate|default(null) %}Book · ₱{{ rentalEstimate.total|number_format(0, '.', ',') }}{% else %}Book{% endif %}
+  </a>
+</div>

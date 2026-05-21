@@ -1,0 +1,62 @@
+{% extends 'car_inventory/_admin_layout.html.twig' %}
+
+{% block title %}Vehicle photo — {{ car_inventory.brand }} {{ car_inventory.model }}{% endblock %}
+
+{% block car_inventory_inner %}
+  <h1 class="page-title">Vehicle photo</h1>
+
+  {% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+  {% for message in app.flashes('warning') %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+  {% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+
+  <div class="car-photo-view-card">
+    <div class="car-photo-view-header">
+      <div>
+        <h2 class="car-photo-view-title">{{ car_inventory.brand }} {{ car_inventory.model }}</h2>
+        <p class="car-photo-view-meta">
+          <span><i class="fas fa-car" aria-hidden="true"></i> {{ car_inventory.type }}</span>
+          <span class="status {% if car_inventory.status|lower == 'available' %}available{% else %}unavailable{% endif %}">{{ car_inventory.status }}</span>
+        </p>
+      </div>
+      <div class="car-photo-view-actions">
+        <a href="{{ path('app_car_inventory_edit', { id: car_inventory.id }) }}" class="btn btn-edit"><i class="fas fa-upload"></i> Change photo</a>
+        {% include 'car_inventory/_remove_photo_form.html.twig' with {
+          car_inventory: car_inventory,
+          has_uploaded_photo: has_uploaded_photo
+        } %}
+        <a href="{{ path('app_car_inventory_index') }}" class="btn btn-outline-secondary">← Inventory</a>
+      </div>
+    </div>
+
+    <div class="car-photo-view-frame{% if not has_uploaded_photo %} car-photo-view-frame--placeholder{% endif %}">
+      <img
+        src="{{ asset(image_url) }}"
+        alt="{{ car_inventory.brand }} {{ car_inventory.model }}"
+        class="car-photo-view-img">
+    </div>
+
+    {% if has_uploaded_photo %}
+      <p class="car-photo-view-caption"><i class="fas fa-check-circle" aria-hidden="true"></i> Uploaded photo for this vehicle</p>
+    {% else %}
+      <p class="car-photo-view-caption car-photo-view-caption--muted">
+        <i class="fas fa-info-circle" aria-hidden="true"></i> No custom photo yet — showing type placeholder.
+        <a href="{{ path('app_car_inventory_edit', { id: car_inventory.id }) }}">Upload one</a>.
+      </p>
+    {% endif %}
+  </div>
+{% endblock %}

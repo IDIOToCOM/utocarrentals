@@ -1,0 +1,259 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Payment Index{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('styles/user.css') }}?v=3.2">
+  <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
+  <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.0">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block body %}
+<div class="admin-layout">
+  
+  {% include 'payment/_sidebar.html.twig' %}
+
+  <!-- ✅ Main Content -->
+  <main class="admin-content">
+    {% include 'admin/_topbar.html.twig' %}
+
+    <div class="container">
+      <h1 class="page-title">Payment Index</h1>
+
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Booking</th>
+              <th>Name</th>
+              <th>Car</th>
+              <th>Due</th>
+              <th>Paid</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for payment in payments %}
+            <tr>
+              <td>{{ payment.id }}</td>
+              <td>
+                {% if payment.booking %}
+                  <a href="{{ path('app_booking_show', { id: payment.booking.id }) }}">#{{ payment.booking.id }}</a>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>{{ payment.name }}</td>
+              <td>
+                {% if payment.car is not null %}
+                  {{ payment.car.Brand }} {{ payment.car.Model }}
+                {% else %}
+                  <span class="text-muted">Car Deleted</span>
+                {% endif %}
+              </td>
+              <td>₱{{ payment.amountDue|number_format(0, '.', ',') }}</td>
+              <td>
+                {% if payment.amountPaid %}
+                  ₱{{ payment.amountPaid|number_format(0, '.', ',') }}
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-{% if payment.status == 'Completed' %}success{% elseif payment.status == 'Pending' %}warning{% elseif payment.status == 'Failed' %}danger{% else %}secondary{% endif %}">
+                  {{ payment.status == 'Completed' ? 'Paid' : payment.status }}
+                </span>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                  <a href="{{ path('app_payment_show', {'id': payment.id}) }}" class="btn btn-show"><i class="fas fa-eye"></i> Show</a>
+                  {# Edit button: Staff can edit any record, admin can edit all #}
+                  <a href="{{ path('app_payment_edit', {'id': payment.id}) }}" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</a>
+                  {# Delete button: Only show if admin OR if staff owns the record #}
+                  {% set isOwner = false %}
+                  {% if payment.createdBy is not null and app.user is not null %}
+                    {% set createdById = payment.createdBy.id %}
+                    {% set currentUserId = app.user.id %}
+                    {% if createdById == currentUserId %}
+                      {% set isOwner = true %}
+                    {% endif %}
+                  {% endif %}
+                  {% if is_granted('ROLE_ADMIN') or isOwner %}
+                    <form method="post" action="{{ path('app_payment_delete', {'id': payment.id}) }}" class="delete-form" data-entity-name="payment" style="display: inline-block;">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ payment.id) }}">
+                      <button type="button" class="btn btn-danger delete-btn"><i class="fas fa-trash"></i> Delete</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="8" style="text-align:center; padding:2rem;">No payments found</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+
+    </div>
+  </main>
+</div>
+
+<!-- ✅ Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function() {
+  // Sidebar toggle
+  $('#sidebarToggle').on('click', function() {
+    $('.admin-sidebar').toggleClass('collapsed');
+    $('.admin-content').toggleClass('expanded');
+  });
+
+  // DataTables init
+  const table = $('.table').DataTable({
+    ordering: false,
+    paging: true,
+    searching: true,
+    pageLength: 10,
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+  });
+  
+  // Delete confirmation handler
+  $(document).on('click', '.delete-btn', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const form = $(this).closest('.delete-form');
+    if (form.length === 0) {
+      console.error('Delete form not found');
+      return;
+    }
+    const entityName = form.data('entity-name') || 'item';
+    const entityType = entityName === 'booking' ? 'booking' : entityName === 'payment' ? 'payment' : 'item';
+    
+    showDeleteConfirmation(entityType, function() {
+      form.off('submit');
+      form.submit();
+    });
+  });
+  
+  function showDeleteConfirmation(entityType, onConfirm) {
+    // Remove any existing modals first
+    $('.delete-confirm-overlay').remove();
+    
+    // Create modal overlay
+    const overlay = $('<div>').addClass('delete-confirm-overlay warning-overlay');
+    
+    // Create modal dialog
+    const modal = $('<div>').addClass('warning-modal');
+    
+    const entityLabel = entityType === 'booking' ? 'booking' : entityType === 'payment' ? 'payment' : 'item';
+    
+    modal.html(`
+      <h3>⚠️ Confirm Deletion</h3>
+      <p>Are you sure you want to delete this ${entityLabel}? This action cannot be undone.</p>
+      <div class="warning-buttons">
+        <button id="confirm-yes" class="btn-danger">Yes, Delete</button>
+        <button id="confirm-no">Cancel</button>
+      </div>
+    `);
+    
+    overlay.append(modal);
+    $('body').append(overlay);
+    
+    // Handle Yes button
+    overlay.find('#confirm-yes').on('click', function() {
+      overlay.addClass('fade-out');
+      modal.addClass('slide-down');
+      setTimeout(function() {
+        overlay.remove();
+        if (onConfirm) onConfirm();
+      }, 200);
+    });
+    
+    // Handle No button
+    overlay.find('#confirm-no').on('click', function() {
+      overlay.addClass('fade-out');
+      modal.addClass('slide-down');
+      setTimeout(function() {
+        overlay.remove();
+      }, 200);
+    });
+    
+    // Close on overlay click
+    overlay.on('click', function(e) {
+      if (e.target === overlay[0]) {
+        overlay.find('#confirm-no').click();
+      }
+    });
+  }
+});
+
+// Logout confirmation dialog
+document.getElementById('logout-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'logout-overlay';
+    
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.className = 'logout-modal';
+    
+    modal.innerHTML = `
+        <h3>Logout Confirmation</h3>
+        <p>Are you sure you want to logout?</p>
+        <div class="logout-buttons">
+            <button id="confirm-yes">Yes</button>
+            <button id="confirm-no">No</button>
+        </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Handle Yes button
+    document.getElementById('confirm-yes').addEventListener('click', function() {
+        window.location.href = '{{ path('app_logout') }}';
+    });
+    
+    // Handle No button - remove modal
+    document.getElementById('confirm-no').addEventListener('click', function() {
+        overlay.classList.add('fade-out');
+        modal.classList.add('slide-down');
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 200);
+    });
+    
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            document.getElementById('confirm-no').click();
+        }
+    });
+});
+</script>
+{% endblock %}

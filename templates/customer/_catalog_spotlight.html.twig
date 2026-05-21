@@ -1,0 +1,49 @@
+{# spotlightItems: [{ car, imageUrl }] — featured strip on /cars only #}
+{% if spotlightItems|length > 0 %}
+<section class="lp-catalog-spotlight" aria-labelledby="catalog-spotlight-heading">
+  <div class="lp-catalog-spotlight__head">
+    <h2 id="catalog-spotlight-heading" class="lp-catalog-spotlight__title">Featured in our fleet</h2>
+    <p class="lp-catalog-spotlight__lead">Swipe through available vehicles — tap any slide for full details.</p>
+  </div>
+  <div class="lp-catalog-spotlight__widget">
+    <div class="lp-catalog-spotlight__viewport" data-vehicle-carousel-viewport tabindex="0" aria-roledescription="carousel" aria-label="Featured vehicles">
+      <div class="lp-catalog-spotlight__track" data-vehicle-carousel-track>
+        {% for item in spotlightItems %}
+          {% set car = item.car %}
+          <article class="lp-catalog-spotlight__slide" data-vehicle-carousel-slide>
+            <a href="{{ path('app_car_show', { id: car.id }) }}" class="lp-catalog-spotlight__link">
+              <div class="lp-catalog-spotlight__media">
+                <img
+                  src="{{ asset(item.imageUrl) }}"
+                  alt="{{ car.brand }} {{ car.model }}"
+                  width="960"
+                  height="540"
+                  loading="{{ loop.first ? 'eager' : 'lazy' }}"
+                  decoding="async">
+                <div class="lp-catalog-spotlight__caption">
+                  <div class="lp-catalog-spotlight__meta">
+                    {% if car.type %}<span class="lp-catalog-spotlight__type">{{ car.type }}</span>{% endif %}
+                    {% if car.transmission %}<span class="lp-catalog-spotlight__spec">{{ car.transmission }}</span>{% endif %}
+                    {% if car.passengerSeats %}<span class="lp-catalog-spotlight__spec">{{ car.passengerSeats }} seats</span>{% endif %}
+                  </div>
+                  <span class="lp-catalog-spotlight__name">{{ car.brand }} {{ car.model }}</span>
+                  <span class="lp-catalog-spotlight__price">₱{{ car.pricePerDay|number_format(0, '.', ',') }} <small>/ day</small></span>
+                </div>
+              </div>
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="lp-catalog-spotlight__controls">
+      <button type="button" class="lp-catalog-spotlight__arrow" data-vehicle-carousel-prev aria-label="Previous slide">
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <div class="lp-catalog-spotlight__dots" data-vehicle-carousel-dots role="tablist" aria-label="Slide navigation"></div>
+      <button type="button" class="lp-catalog-spotlight__arrow" data-vehicle-carousel-next aria-label="Next slide">
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</section>
+{% endif %}

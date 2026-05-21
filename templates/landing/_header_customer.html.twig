@@ -1,0 +1,67 @@
+{# Header for signed-in customers (vehicles + booking flow) #}
+{% set current_route = app.request.attributes.get('_route') %}
+{% set on_vehicles_nav = current_route == 'app_car_catalog' or current_route == 'app_car_show' %}
+{% set active_catalog_type = current_route == 'app_car_catalog' ? app.request.query.get('type') : null %}
+{% set catalog_q = current_route == 'app_car_catalog' ? app.request.query.get('q') : null %}
+{% set catalog_sort = current_route == 'app_car_catalog' ? app.request.query.get('sort') : null %}
+{% set catalog_avail = catalog_availability_params_from_request() %}
+{% set vehicle_types = catalog_vehicle_types() %}
+<header class="lp-header">
+  <div class="lp-header-inner">
+    <a class="lp-logo" href="{{ path('app_car_catalog') }}">
+      <img
+        class="lp-logo-img"
+        src="{{ asset('images/uto-car-rentals-logo.png') }}?v=6"
+        alt="UTO Car Rentals"
+        width="200"
+        height="56"
+        decoding="async"
+        fetchpriority="high">
+    </a>
+    <button type="button" class="lp-mobile-toggle" id="lpNavToggle" aria-label="Open menu" aria-expanded="false">
+      <i class="fas fa-bars"></i>
+    </button>
+    <nav class="lp-nav lp-nav-desktop" id="lpNav" aria-label="Primary">
+      <div class="lp-nav-dropdown lp-nav-dropdown--click lp-nav-dropdown--vehicles{% if on_vehicles_nav %} is-active-group{% endif %}">
+        <button type="button"
+                class="lp-nav-link lp-nav-dropdown-trigger{% if on_vehicles_nav and current_route == 'app_car_catalog' and not active_catalog_type %} is-active{% endif %}"
+                id="lpVehiclesNavTrigger"
+                data-catalog-url="{{ path('app_car_catalog') }}"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-controls="lpVehiclesMenu"
+                title="Click to open types; double-click for all vehicles">
+          Vehicles
+          <i class="fas fa-chevron-down lp-nav-dropdown-chevron" aria-hidden="true"></i>
+        </button>
+        <ul class="lp-nav-dropdown-menu dropdown-menu" id="lpVehiclesMenu" role="menu" aria-labelledby="lpVehiclesNavTrigger">
+          <li role="none">
+            <a class="dropdown-item lp-nav-dropdown-item{% if current_route == 'app_car_catalog' and not active_catalog_type %} active{% endif %}"
+               href="{{ path('app_car_catalog', catalog_query_params(null, catalog_q, catalog_sort, catalog_avail)) }}"
+               role="menuitem">All vehicles</a>
+          </li>
+          {% for type in vehicle_types %}
+            <li role="none">
+              <a class="dropdown-item lp-nav-dropdown-item{% if active_catalog_type == type %} active{% endif %}"
+                 href="{{ path('app_car_catalog', catalog_query_params(type, catalog_q, catalog_sort, catalog_avail)) }}"
+                 role="menuitem">{{ type }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <a href="{{ path('app_my_favorites') }}" class="lp-nav-link{% if current_route == 'app_my_favorites' %} is-active{% endif %}"{% if current_route == 'app_my_favorites' %} aria-current="page"{% endif %}>
+        Saved{% if catalog_favorite_count() > 0 %} <span class="lp-nav-count">{{ catalog_favorite_count() }}</span>{% endif %}
+      </a>
+      <a href="{{ path('app_car_compare') }}" class="lp-nav-link{% if current_route == 'app_car_compare' %} is-active{% endif %}"{% if current_route == 'app_car_compare' %} aria-current="page"{% endif %}>
+        Compare{% if catalog_compare_count() > 0 %} <span class="lp-nav-count">{{ catalog_compare_count() }}</span>{% endif %}
+      </a>
+      <a href="{{ path('app_my_bookings') }}" class="lp-nav-link{% if current_route starts with 'app_my_booking' %} is-active{% endif %}"{% if current_route starts with 'app_my_booking' %} aria-current="page"{% endif %}>My bookings</a>
+      <a href="{{ path('app_rental_help') }}" class="lp-nav-link{% if current_route == 'app_rental_help' %} is-active{% endif %}"{% if current_route == 'app_rental_help' %} aria-current="page"{% endif %}>Help</a>
+      <a href="{{ path('app_customer_account') }}" class="lp-nav-link{% if current_route starts with 'app_customer_account' %} is-active{% endif %}"{% if current_route starts with 'app_customer_account' %} aria-current="page"{% endif %}>Account</a>
+      <div class="lp-nav-actions">
+        {% include 'notification/_bell.html.twig' %}
+        <a class="lp-btn lp-btn-ghost" href="{{ path('app_logout') }}">Sign out</a>
+      </div>
+    </nav>
+  </div>
+</header>

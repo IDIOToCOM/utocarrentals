@@ -1,0 +1,30 @@
+{# reviewSummary: App\Car\CarReviewSummary — optional compact (bool) #}
+{% if reviewSummary is defined and reviewSummary.hasReviews %}
+  <div class="lp-car-trust{% if compact|default(false) %} lp-car-trust--compact{% endif %}">
+    {% set rating = reviewSummary.averageRating %}
+    {% set stars = reviewSummary.starRatingDisplay %}
+    {% if rating is not null %}
+      <p class="lp-car-trust__rating" aria-label="Rated {{ rating }} out of 5 from {{ reviewSummary.reviewCount }} reviews">
+        <span class="lp-car-trust__stars" aria-hidden="true">
+          {% for i in 1..5 %}
+            {% if stars >= i %}
+              <i class="fas fa-star"></i>
+            {% elseif stars >= i - 0.5 %}
+              <i class="fas fa-star-half-stroke"></i>
+            {% else %}
+              <i class="far fa-star lp-car-trust__star--empty"></i>
+            {% endif %}
+          {% endfor %}
+        </span>
+        <span class="lp-car-trust__score"><strong>{{ rating|number_format(1) }}</strong></span>
+        <span class="lp-car-trust__count">({{ reviewSummary.reviewCount }} review{{ reviewSummary.reviewCount == 1 ? '' : 's' }})</span>
+      </p>
+    {% else %}
+      <p class="lp-car-trust__rating">
+        <span class="lp-car-trust__count">{{ reviewSummary.reviewCount }} review{{ reviewSummary.reviewCount == 1 ? '' : 's' }}</span>
+      </p>
+    {% endif %}
+  </div>
+{% elseif compact|default(false) == false and reviewSummary is defined %}
+  <p class="lp-car-trust lp-car-trust--empty text-muted small mb-0">No renter reviews yet.</p>
+{% endif %}

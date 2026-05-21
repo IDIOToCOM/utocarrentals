@@ -1,0 +1,41 @@
+{# Public marketing header — no admin links #}
+{% set current_route = app.request.attributes.get('_route') %}
+<header class="lp-header">
+  <div class="lp-header-inner">
+    <a class="lp-logo" href="{{ path('app_home') }}#hero">
+      <img
+        class="lp-logo-img"
+        src="{{ asset('images/uto-car-rentals-logo.png') }}?v=6"
+        alt="UTO Car Rentals"
+        width="200"
+        height="56"
+        decoding="async"
+        fetchpriority="high">
+    </a>
+    <button type="button" class="lp-mobile-toggle" id="lpNavToggle" aria-label="Open menu" aria-expanded="false">
+      <i class="fas fa-bars"></i>
+    </button>
+    <nav class="lp-nav lp-nav-desktop" id="lpNav" aria-label="Primary">
+      <a href="{{ path('app_home') }}" class="lp-nav-link{% if current_route == 'app_home' %} is-active{% endif %}"{% if current_route == 'app_home' %} aria-current="page"{% endif %}>Home</a>
+      <div class="dropdown lp-nav-dropdown">
+        <button type="button" class="lp-nav-link lp-nav-dropdown-toggle" id="lpExploreDropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" aria-haspopup="true" aria-controls="lpExploreMenu">
+          Explore
+          <i class="fas fa-chevron-down lp-nav-dropdown-chevron" aria-hidden="true"></i>
+        </button>
+        <ul class="dropdown-menu lp-nav-dropdown-menu" id="lpExploreMenu" aria-labelledby="lpExploreDropdown">
+          <li><a class="dropdown-item lp-nav-dropdown-item" href="{{ path('app_home') }}#services">Services</a></li>
+          <li><a class="dropdown-item lp-nav-dropdown-item" href="{{ path('app_home') }}#features">Why Uto</a></li>
+          <li><a class="dropdown-item lp-nav-dropdown-item" href="{{ path('app_home') }}#testimonials">Reviews</a></li>
+          <li><a class="dropdown-item lp-nav-dropdown-item" href="{{ path('app_home') }}#pricing">Plans</a></li>
+        </ul>
+      </div>
+      <a href="{{ path('app_about') }}" class="lp-nav-link{% if current_route == 'app_about' %} is-active{% endif %}"{% if current_route == 'app_about' %} aria-current="page"{% endif %}>About</a>
+      <a href="{{ path('app_rental_help') }}" class="lp-nav-link{% if current_route == 'app_rental_help' %} is-active{% endif %}"{% if current_route == 'app_rental_help' %} aria-current="page"{% endif %}>Help</a>
+      <a href="{{ path('app_contact') }}" class="lp-nav-link{% if current_route == 'app_contact' %} is-active{% endif %}"{% if current_route == 'app_contact' %} aria-current="page"{% endif %}>Contact</a>
+      <div class="lp-nav-actions">
+        <a class="lp-btn lp-btn-ghost" href="{{ path('app_register') }}">Register</a>
+        <a class="lp-btn lp-btn-primary" href="{{ path('app_login') }}">Sign In</a>
+      </div>
+    </nav>
+  </div>
+</header>

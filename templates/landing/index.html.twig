@@ -1,0 +1,195 @@
+{% extends 'landing/base.html.twig' %}
+
+{% block title %}Uto — Modern vehicle rentals{% endblock %}
+
+{% block body %}
+{% include 'landing/_header_public.html.twig' %}
+
+<main id="main-content">
+  {# Section 1: Hero #}
+  <section class="lp-hero" id="hero" aria-labelledby="hero-heading">
+    <div class="lp-container lp-hero-grid">
+      <div>
+        <p class="lp-kicker">Vehicle rental for every journey</p>
+        <h1 id="hero-heading">Rent the right car, right when you need it</h1>
+        <p class="lp-lead">Transparent pricing and flexible pickup windows. Compare plans below and sign in when you're ready to book.</p>
+        <div class="lp-hero-cta">
+          <a class="lp-btn lp-btn-primary lp-btn-lg" href="{{ path('app_login') }}">Sign in to book</a>
+          <a class="lp-btn lp-btn-ghost lp-btn-lg" href="{{ path('app_register') }}">Create account</a>
+          <a class="lp-btn lp-btn-ghost lp-btn-lg" href="#pricing">View plans</a>
+        </div>
+        <div class="lp-trust">
+          <span><i class="fas fa-circle-check" aria-hidden="true"></i> Clear rates</span>
+          <span><i class="fas fa-circle-check" aria-hidden="true"></i> Flexible schedules</span>
+          <span><i class="fas fa-circle-check" aria-hidden="true"></i> Help when you need it</span>
+        </div>
+      </div>
+      <div class="lp-hero-visual" role="img" aria-label="Illustrative rate summary">
+        <div class="lp-hero-card">
+          <h3>Example weekend rate</h3>
+          <p class="lp-price">₱2,450 <small>/ 3 days · compact</small></p>
+          <p class="lp-caption">Final price depends on vehicle and dates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# Section 2: Services #}
+  <section class="lp-section lp-services" id="services" aria-labelledby="services-heading">
+    <div class="lp-container text-center">
+      <p class="lp-kicker">What we offer</p>
+      <h2 class="lp-section-title" id="services-heading">Rental options that fit your schedule</h2>
+      <p class="lp-section-lead">Short trips or longer assignments—choose what matches how long you need a vehicle.</p>
+      <div class="lp-cards">
+        <article class="lp-card">
+          <div class="lp-card-icon" aria-hidden="true"><i class="fas fa-car"></i></div>
+          <h3>Daily & weekend</h3>
+          <p>Per-day pricing for city runs, client visits, and quick getaways.</p>
+        </article>
+        <article class="lp-card">
+          <div class="lp-card-icon" aria-hidden="true"><i class="fas fa-calendar-week"></i></div>
+          <h3>Multi-day bundles</h3>
+          <p>Better value when you need a vehicle for several days in a row.</p>
+        </article>
+        <article class="lp-card">
+          <div class="lp-card-icon" aria-hidden="true"><i class="fas fa-building"></i></div>
+          <h3>Business-friendly</h3>
+          <p>Options suited to teams that share vehicles across projects.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  {# Section 3: Features #}
+  <section class="lp-section" id="features" aria-labelledby="features-heading">
+    <div class="lp-container">
+      <div class="text-center">
+        <p class="lp-kicker">Why Uto</p>
+        <h2 class="lp-section-title" id="features-heading">Built for a smooth rental experience</h2>
+        <p class="lp-section-lead">Straightforward booking, clear choices, and support when your plans change.</p>
+      </div>
+      <div class="lp-features-grid">
+        <div class="lp-feature">
+          <div class="lp-feature-icon" aria-hidden="true"><i class="fas fa-bolt"></i></div>
+          <div>
+            <h4>Simple booking</h4>
+            <p>Guided steps so you pick dates, vehicle type, and add-ons with confidence.</p>
+          </div>
+        </div>
+        <div class="lp-feature">
+          <div class="lp-feature-icon" aria-hidden="true"><i class="fas fa-shield-halved"></i></div>
+          <div>
+            <h4>Clear coverage options</h4>
+            <p>See protection choices before you confirm—no fine-print surprises.</p>
+          </div>
+        </div>
+        <div class="lp-feature">
+          <div class="lp-feature-icon" aria-hidden="true"><i class="fas fa-clock"></i></div>
+          <div>
+            <h4>Flexible timing</h4>
+            <p>Align pickup and return with flights, meetings, or road trips.</p>
+          </div>
+        </div>
+        <div class="lp-feature">
+          <div class="lp-feature-icon" aria-hidden="true"><i class="fas fa-headset"></i></div>
+          <div>
+            <h4>Responsive support</h4>
+            <p>Get help when you need to adjust a reservation or ask a question.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# Section 4: Testimonials #}
+  <section class="lp-section lp-testimonials" id="testimonials" aria-labelledby="testimonials-heading">
+    <div class="lp-container text-center">
+      <p class="lp-kicker">Reviews</p>
+      <h2 class="lp-section-title" id="testimonials-heading">What renters say</h2>
+      <p class="lp-section-lead">Feedback from customers who value reliability and clear communication.</p>
+      <div class="lp-quotes">
+        <article class="lp-quote">
+          <div class="lp-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <blockquote>“Booking was quick and the return was straightforward.”</blockquote>
+          <footer>
+            <strong>Maya R.</strong>
+            Makati
+          </footer>
+        </article>
+        <article class="lp-quote">
+          <div class="lp-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <blockquote>“Rates were easy to understand before we confirmed.”</blockquote>
+          <footer>
+            <strong>Jon D.</strong>
+            Cebu
+          </footer>
+        </article>
+        <article class="lp-quote">
+          <div class="lp-stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <blockquote>“Support helped when we had to extend our dates.”</blockquote>
+          <footer>
+            <strong>Sofia L.</strong>
+            Davao
+          </footer>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  {# Section 5: Pricing #}
+  <section class="lp-section lp-pricing" id="pricing" aria-labelledby="pricing-heading">
+    <div class="lp-container text-center">
+      <p class="lp-kicker">Plans</p>
+      <h2 class="lp-section-title" id="pricing-heading">Choose a tier that fits your trip</h2>
+      <p class="lp-section-lead">Illustrative starting rates—final pricing depends on vehicle class and availability.</p>
+      <div class="lp-pricing-grid">
+        <div class="lp-plan">
+          <h3>Starter</h3>
+          <p class="lp-amount">₱1,200 <span>/ day from</span></p>
+          <p class="lp-plan-tagline">Economy & compact</p>
+          <ul>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Standard mileage</li>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Email support</li>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Self-serve booking</li>
+          </ul>
+          <a class="lp-btn lp-btn-ghost" href="{{ path('app_login') }}">Sign in to book</a>
+        </div>
+        <div class="lp-plan lp-plan-featured">
+          <span class="lp-plan-badge">Popular</span>
+          <h3>Plus</h3>
+          <p class="lp-amount">₱1,850 <span>/ day from</span></p>
+          <p class="lp-plan-tagline">SUV & comfort</p>
+          <ul>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Priority support</li>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Mileage options</li>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Cancellation window*</li>
+          </ul>
+          <a class="lp-btn lp-btn-primary" href="{{ path('app_login') }}">Sign in to book</a>
+        </div>
+        <div class="lp-plan">
+          <h3>Custom</h3>
+          <p class="lp-amount">Quote</p>
+          <p class="lp-plan-tagline">Multiple vehicles</p>
+          <ul>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Tailored terms</li>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Coordinator assist</li>
+            <li><i class="fas fa-check" aria-hidden="true"></i> Fleet options</li>
+          </ul>
+          <div class="lp-plan__actions">
+            <a class="lp-btn lp-btn-ghost" href="{{ path('app_rental_help') }}">FAQ & guide</a>
+            <a class="lp-btn lp-btn-ghost" href="{{ path('app_contact') }}">Contact us</a>
+          </div>
+        </div>
+      </div>
+      <p class="lp-pricing-footnote">*Where applicable. See terms when booking.</p>
+    </div>
+  </section>
+</main>
+
+{% include 'landing/_footer_public.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {% include 'landing/_scripts_public.html.twig' %}
+{% endblock %}

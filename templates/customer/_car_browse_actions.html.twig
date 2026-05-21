@@ -1,0 +1,23 @@
+{# car, favoriteCarIds, compareCarIds, maxCompare, redirectPath (optional current path+query) #}
+{% set isFavorite = car.id in favoriteCarIds|default([]) %}
+{% set inCompare = car.id in compareCarIds|default([]) %}
+{% set redirect = redirectPath|default(app.request.pathInfo ~ (app.request.queryString ? '?' ~ app.request.queryString : '')) %}
+<div class="lp-car-save-actions">
+  <form class="lp-car-save-actions__form" method="post" action="{{ path('app_car_favorite_toggle', { id: car.id }) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('car_favorite_' ~ car.id) }}">
+    <input type="hidden" name="_redirect" value="{{ redirect }}">
+    <button type="submit" class="lp-car-save-btn{% if isFavorite %} is-active{% endif %}" title="{{ isFavorite ? 'Remove from favorites' : 'Save to favorites' }}" aria-pressed="{{ isFavorite ? 'true' : 'false' }}">
+      <i class="{% if isFavorite %}fas fa-heart{% else %}far fa-heart{% endif %}" aria-hidden="true"></i>
+      <span class="visually-hidden">{{ isFavorite ? 'Saved' : 'Save' }}</span>
+      <span class="lp-car-save-btn__label">{{ isFavorite ? 'Saved' : 'Save' }}</span>
+    </button>
+  </form>
+  <form class="lp-car-save-actions__form" method="post" action="{{ path('app_car_compare_toggle', { id: car.id }) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('car_compare_' ~ car.id) }}">
+    <input type="hidden" name="_redirect" value="{{ redirect }}">
+    <button type="submit" class="lp-car-save-btn lp-car-save-btn--compare{% if inCompare %} is-active{% endif %}" title="{{ inCompare ? 'Remove from compare' : 'Add to compare (max ' ~ maxCompare|default(4) ~ ')' }}" aria-pressed="{{ inCompare ? 'true' : 'false' }}">
+      <i class="fas fa-scale-balanced" aria-hidden="true"></i>
+      <span class="lp-car-save-btn__label">{{ inCompare ? 'Comparing' : 'Compare' }}</span>
+    </button>
+  </form>
+</div>

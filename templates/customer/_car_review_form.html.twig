@@ -1,0 +1,37 @@
+{# car, userReview (optional), canSubmitReview (bool) #}
+{% if canSubmitReview %}
+  <section class="lp-car-review-form" aria-labelledby="review-form-heading">
+    <h3 id="review-form-heading" class="lp-car-review-form__title">
+      {% if userReview %}Update your review{% else %}Write a review{% endif %}
+    </h3>
+    {% if userReview is null %}
+      <p class="lp-car-review-form__hint">Share your experience after a <strong>confirmed</strong> booking for this vehicle. Other renters will see your rating and comments.</p>
+    {% endif %}
+    <form method="post" action="{{ path('app_car_review_submit', { id: car.id }) }}" class="lp-car-review-form__form">
+      <input type="hidden" name="_token" value="{{ csrf_token('car_review_' ~ car.id) }}">
+      <div class="lp-car-review-form__rating">
+        <span class="lp-car-review-form__label" id="rating-label-{{ car.id }}">Your rating</span>
+        <div class="lp-car-review-form__stars-input" role="group" aria-labelledby="rating-label-{{ car.id }}">
+          {% for star in 5..1 %}
+            <label class="lp-car-review-form__star-option">
+              <input type="radio" name="rating" value="{{ star }}" required{% if userReview and userReview.rating == star %} checked{% elseif star == 5 and userReview is null %} checked{% endif %}>
+              <span>{{ star }} <i class="fas fa-star" aria-hidden="true"></i></span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="review-comment-{{ car.id }}" class="form-label">Your review (optional)</label>
+        <textarea id="review-comment-{{ car.id }}" name="comment" class="form-control" rows="3" maxlength="2000" placeholder="How was the vehicle? Would you rent it again?">{{ userReview ? userReview.comment : '' }}</textarea>
+      </div>
+      <button type="submit" class="lp-btn lp-btn-primary">
+        {% if userReview %}Update review{% else %}Post review{% endif %}
+      </button>
+    </form>
+  </section>
+{% else %}
+  <p class="lp-car-review-form__locked text-muted small">
+    <i class="fas fa-lock" aria-hidden="true"></i>
+    Book and get this vehicle <strong>confirmed</strong> before you can leave a review.
+  </p>
+{% endif %}

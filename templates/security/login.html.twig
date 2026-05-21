@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Uto - Login{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/login.css') }}?v=1.6">
+{% endblock %}
+
+{% block body %}
+    <div class="bg-shape-1"></div>
+    <div class="bg-shape-2"></div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo logo--brand-img">
+                <a href="{{ path('app_home') }}#hero">
+                    <img class="auth-logo-img" src="{{ asset('images/uto-car-rentals-logo.png') }}?v=6" alt="UTO Car Rentals" width="220" height="72" decoding="async">
+                </a>
+            </div>
+            <p class="login-subtitle">Welcome back! Please login to your account</p>
+            <p class="auth-switch" style="margin-top: 0.25rem;">
+                <a href="{{ path('app_home') }}#hero">Back to landing page</a>
+            </p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        {% if app.user %}
+            <div class="alert alert-danger">
+                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% if show_google_sign_in_ui %}
+            <a href="{{ path('connect_google_start') }}" class="google-button">
+                <svg class="google-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.29h6.45a5.52 5.52 0 0 1-2.4 3.62v3.01h3.88c2.27-2.1 3.56-5.18 3.56-8.65z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3.01c-1.08.73-2.46 1.17-4.07 1.17-3.13 0-5.78-2.11-6.73-4.95H1.27v3.1A12 12 0 0 0 12 24z"/>
+                    <path fill="#FBBC05" d="M5.27 14.3A7.2 7.2 0 0 1 4.9 12c0-.8.14-1.57.37-2.3V6.6H1.27A12 12 0 0 0 0 12c0 1.93.46 3.76 1.27 5.4l4-3.1z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.76 0 3.35.6 4.6 1.78l3.45-3.45C17.95 1.08 15.24 0 12 0A12 12 0 0 0 1.27 6.6l4 3.1c.95-2.84 3.6-4.95 6.73-4.95z"/>
+                </svg>
+                Continue with Google
+            </a>
+            {% endif %}
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input type="text"
+                           value="{{ last_username }}"
+                           name="username"
+                           id="inputUsername"
+                           class="form-input"
+                           placeholder="Username or email"
+                           autocomplete="username"
+                           required
+                           autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input type="password"
+                           name="password"
+                           id="inputPassword"
+                           class="form-input"
+                           placeholder="Password"
+                           autocomplete="current-password"
+                           required>
+                </div>
+                <div class="forgot-password">
+                    <a href="{{ path('app_forgot_password_request') }}">Forgot password?</a>
+                </div>
+            </div>
+
+            <div class="remember-me">
+                <input type="checkbox" name="_remember_me" id="remember">
+                <label for="remember">Remember me</label>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button type="submit" class="login-button">LOGIN</button>
+
+            <div class="auth-switch">
+                Don't have an account? <a href="{{ path('app_register') }}">Create one</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

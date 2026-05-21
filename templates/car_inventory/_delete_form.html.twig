@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('app_car_inventory_delete', {'id': car_inventory.id}) }}" class="delete-form" data-entity-name="car" data-has-bookings="{{ (has_bookings ?? false) ? '1' : '0' }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ car_inventory.id) }}">
+    <button type="button" class="btn btn-danger delete-btn"><i class="fas fa-trash"></i> Delete</button>
+</form>

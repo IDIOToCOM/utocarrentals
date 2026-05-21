@@ -1,0 +1,25 @@
+{# Vehicle type, transmission, seats — layout: default | chips #}
+{% if car is defined and car %}
+  <ul class="lp-car-specs{% if layout|default('') == 'chips' %} lp-car-specs--chips{% endif %}" aria-label="Vehicle details">
+    {% if car.type %}
+      <li class="lp-car-specs__item">
+        <i class="fas fa-car" aria-hidden="true"></i>
+        <span>{{ car.type }}</span>
+      </li>
+    {% endif %}
+    <li class="lp-car-specs__item lp-car-specs__item--transmission">
+      <i class="fas fa-gears" aria-hidden="true"></i>
+      {% if car.transmission %}
+        <span>{{ car.transmission }}</span>
+      {% else %}
+        <span class="lp-car-specs__muted">Transmission N/A</span>
+      {% endif %}
+    </li>
+    {% if car.passengerSeats %}
+      <li class="lp-car-specs__item">
+        <i class="fas fa-users" aria-hidden="true"></i>
+        <span>{{ car.passengerSeats }} seats</span>
+      </li>
+    {% endif %}
+  </ul>
+{% endif %}
