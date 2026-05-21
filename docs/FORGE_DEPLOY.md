@@ -172,7 +172,21 @@ Push latest code, redeploy, then try `/login` again.
 
 ---
 
-## JWT (mobile API)
+## JWT (mobile API) — required for app login
+
+If the mobile app shows **“JWT keys on Forge”**, run on the server:
+
+```bash
+bash scripts/forge-jwt-keys.sh
+php bin/console cache:clear --env=prod
+php bin/console cache:warmup --env=prod
+```
+
+Set `JWT_PASSPHRASE` in Forge Environment to match. Add shared path **`config/jwt`** if using zero-downtime deploys.
+
+See [REACT_NATIVE_FORGE.md](REACT_NATIVE_FORGE.md).
+
+## JWT (manual OpenSSL)
 
 ```bash
 mkdir -p config/jwt
@@ -197,6 +211,12 @@ Customer account:
 ```bash
 php bin/console app:create-user juan juan@example.com YourPassword123 --role=ROLE_USER --env=prod
 ```
+
+---
+
+## React Native app (SAMSON)
+
+Point the mobile app at your Forge URL. See [REACT_NATIVE_FORGE.md](REACT_NATIVE_FORGE.md).
 
 ---
 

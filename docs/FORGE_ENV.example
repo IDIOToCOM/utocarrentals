@@ -23,6 +23,7 @@ GOOGLE_CLIENT_SECRET=CHANGE_ME
 
 CONTACT_FORM_EMBED_URL=
 
+# Web + optional WebView; native React Native fetch does not use CORS the same way
 CORS_ALLOW_ORIGIN='^https?://(localhost|127\.0\.0\.1|utocarrentals-hxyws5o9\.on-forge\.com)(:[0-9]+)?$'
 
 JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
