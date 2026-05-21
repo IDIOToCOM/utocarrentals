@@ -21,6 +21,14 @@ framework:
 
 
 
+when@prod:
+    framework:
+        session:
+            # HTTPS on Forge (.on-forge.com)
+            cookie_secure: auto
+            cookie_samesite: lax
+            save_path: '%kernel.project_dir%/var/sessions'
+
 when@test:
     framework:
         test: true

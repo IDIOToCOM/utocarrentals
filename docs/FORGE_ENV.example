@@ -1,0 +1,70 @@
+# =============================================================================
+# Laravel Forge → Site → Environment
+# Copy everything below (no # comment lines) into Forge Environment.
+# Replace every CHANGE_ME / YOUR_* value before saving.
+# =============================================================================
+
+APP_ENV=prod
+APP_DEBUG=0
+APP_SECRET=c02bf2c8d0f6d86a3772806795c123cb
+
+DEFAULT_URI=https://utocarrentals-hxyws5o9.on-forge.com
+
+DATABASE_URL="mysql://forge:CHANGE_ME_DB_PASSWORD@127.0.0.1:3306/forge?serverVersion=8.0&charset=utf8mb4"
+
+MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
+
+MAILER_DSN=null://null
+MAILER_DEFAULT_FROM_EMAIL=noreply@utocarrentals.com
+MAILER_DEFAULT_FROM_NAME="UTO Mobility"
+
+GOOGLE_CLIENT_ID=CHANGE_ME.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=CHANGE_ME
+
+CONTACT_FORM_EMBED_URL=
+
+CORS_ALLOW_ORIGIN='^https?://(localhost|127\.0\.0\.1|utocarrentals-hxyws5o9\.on-forge\.com)(:[0-9]+)?$'
+
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+JWT_PASSPHRASE=1f9905248cb8ff1f6bec933c
+
+COMPOSER_MEMORY_LIMIT=-1
+
+# =============================================================================
+# HOW TO FILL EACH VALUE
+# =============================================================================
+#
+# APP_SECRET
+#   Random 32-char hex. Generate: php -r "echo bin2hex(random_bytes(16));"
+#   Example above is valid — or generate your own. Never commit to git.
+#
+# DEFAULT_URI
+#   Your live site URL (Forge domain or custom domain), with https://
+#
+# DATABASE_URL
+#   Forge → Site → Database → copy user, password, database name.
+#   Format: mysql://USER:PASSWORD@127.0.0.1:3306/DATABASE?serverVersion=8.0&charset=utf8mb4
+#   URL-encode password: @ → %40   # → %23   % → %25
+#   Alternative: omit DATABASE_URL if Forge set DB_HOST, DB_USERNAME, DB_PASSWORD, DB_DATABASE
+#   (deploy script scripts/forge-database.sh builds the URL).
+#
+# MAILER_DSN
+#   null://null = no email (register still works).
+#   Brevo example (encode @ in login as %40):
+#   MAILER_DSN=smtp://USER%40smtp-brevo.com:SMTP_KEY@smtp-relay.brevo.com:587
+#
+# GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
+#   Google Cloud Console → Credentials → OAuth 2.0 Client ID.
+#   Authorized redirect URI: https://YOUR-DOMAIN/connect/google/check
+#   Copy from your local .env.local if you already configured Google.
+#
+# JWT_PASSPHRASE
+#   Must match keys in config/jwt/ on the server.
+#   After first deploy SSH: bash scripts/forge-jwt-keys.sh
+#   Use the SAME passphrase here, or set here first then run the script.
+#
+# CONTACT_FORM_EMBED_URL
+#   Optional Google Form embed URL for /contact page.
+#
+# =============================================================================
