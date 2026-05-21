@@ -23,6 +23,9 @@ framework:
 
 when@prod:
     framework:
+        # Forge / nginx: generate https:// redirect URIs for Google OAuth
+        trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+        trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
         session:
             # HTTPS on Forge (.on-forge.com)
             cookie_secure: auto

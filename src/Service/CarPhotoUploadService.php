@@ -24,6 +24,8 @@ final class CarPhotoUploadService
     public function __construct(
         #[Autowire('%kernel.project_dir%/public')]
         private readonly string $publicDir,
+        #[Autowire('%env(default:car_photos_storage_dir:CAR_PHOTOS_STORAGE_DIR)%')]
+        private readonly string $carsStorageDir,
     ) {
     }
 
@@ -47,7 +49,7 @@ final class CarPhotoUploadService
 
         $this->removeUploadedPhotos($id);
 
-        $targetDir = $this->publicDir.'/images/cars';
+        $targetDir = $this->carsStorageDir;
         if (!is_dir($targetDir)) {
             mkdir($targetDir, 0755, true);
         }
@@ -107,9 +109,8 @@ final class CarPhotoUploadService
         }
 
         foreach (self::ALLOWED_EXTENSIONS as $ext) {
-            $relative = 'images/cars/'.$id.'.'.$ext;
-            if (is_file($this->publicDir.'/'.$relative)) {
-                return '/'.$relative;
+            if (is_file($this->carsStorageDir.'/'.$id.'.'.$ext)) {
+                return '/images/cars/'.$id.'.'.$ext;
             }
         }
 
@@ -137,7 +138,7 @@ final class CarPhotoUploadService
     private function removeUploadedPhotos(int $carId): void
     {
         foreach (self::ALLOWED_EXTENSIONS as $ext) {
-            $path = $this->publicDir.'/images/cars/'.$carId.'.'.$ext;
+            $path = $this->carsStorageDir.'/'.$carId.'.'.$ext;
             if (is_file($path)) {
                 unlink($path);
             }

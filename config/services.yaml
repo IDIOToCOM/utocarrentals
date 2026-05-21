@@ -5,8 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.timezone: 'Asia/Manila'
-    # Twig global in config/packages/twig.yaml (login/register Google button)
-    app.show_google_sign_in_ui: false
+    # Override on Forge with CAR_PHOTOS_STORAGE_DIR so admin uploads survive deploys
+    car_photos_storage_dir: '%kernel.project_dir%/public/images/cars'
 
 services:
     # default configuration for services in *this* file
@@ -49,6 +49,11 @@ services:
     App\Service\BookingNotificationService:
         arguments:
             $appTimezone: '%app.timezone%'
+
+    App\Service\GoogleSignInFeature:
+        arguments:
+            $googleClientId: '%env(default::GOOGLE_CLIENT_ID)%'
+            $googleClientSecret: '%env(default::GOOGLE_CLIENT_SECRET)%'
 
     App\Service\GoogleIdTokenVerifier:
         arguments:

@@ -93,8 +93,13 @@ final class GoogleStaffAuthenticator extends OAuth2Authenticator
         if ($exception instanceof CustomUserMessageAccountStatusException) {
             $request->getSession()->getFlashBag()->add('error', $exception->getMessageKey());
         } else {
-            $request->getSession()->getFlashBag()->add('error', 'Google login failed.');
+            $message = $exception->getMessage();
+            if ($message === '' || str_contains($message, 'OAuth')) {
+                $message = 'Google sign-in failed. Check GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and redirect URI in Google Cloud Console.';
+            }
+            $request->getSession()->getFlashBag()->add('error', $message);
         }
+
         return new RedirectResponse($this->urlGenerator->generate('app_login'));
     }
 

@@ -14,8 +14,10 @@ use App\Repository\AppNotificationRepository;
 use App\MobileApi\MobileApiEnvelope;
 use App\Payment\PaymentStatus;
 use App\Repository\BookingRepository;
+use App\Repository\CarFavoriteRepository;
 use App\Repository\CarInventoryRepository;
 use App\Entity\CarReview;
+use App\Service\CarFavoriteService;
 use App\Service\BookingConflictChecker;
 use App\Service\BookingCustomerRules;
 use App\Service\BookingNotificationService;
@@ -48,6 +50,8 @@ final class MobileApiController extends AbstractController
         private readonly BookingNotificationService $bookingNotifications,
         private readonly CarPhotoUploadService $photoUploadService,
         private readonly CarReviewService $carReviewService,
+        private readonly CarFavoriteService $favoriteService,
+        private readonly CarFavoriteRepository $favoriteRepository,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -465,6 +469,58 @@ final class MobileApiController extends AbstractController
         return MobileApiEnvelope::ok([
             'booking' => $this->serializeBooking($booking, $payment),
             'message' => $message,
+        ]);
+    }
+
+    #[Route('/favorites', name: 'api_mobile_v1_favorites_list', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function listFavorites(): JsonResponse
+    {
+        $user = $this->requireLoginUser();
+        $favorites = $this->favoriteRepository->findForUserOrdered($user);
+        $carIds = [];
+        foreach ($favorites as $favorite) {
+            $car = $favorite->getCar();
+            if ($car?->getId() !== null) {
+                $carIds[] = $car->getId();
+            }
+        }
+        $summaries = $this->carReviewService->getSummariesForCarIds($carIds);
+        $cars = [];
+        foreach ($favorites as $favorite) {
+            $car = $favorite->getCar();
+            if (!$car instanceof CarInventory || $car->getId() === null) {
+                continue;
+            }
+            $id = $car->getId();
+            $cars[] = $this->serializeCar($car, $summaries[$id] ?? null);
+        }
+
+        return MobileApiEnvelope::ok([
+            'cars' => $cars,
+            'favoriteIds' => $this->favoriteService->getFavoriteCarIds($user),
+        ], ['count' => \count($cars)]);
+    }
+
+    #[Route('/favorites/{id}/toggle', name: 'api_mobile_v1_favorites_toggle', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function toggleFavorite(int $id): JsonResponse
+    {
+        $user = $this->requireLoginUser();
+
+        try {
+            $action = $this->favoriteService->toggle($user, $id, $this->em);
+        } catch (\InvalidArgumentException $e) {
+            return MobileApiEnvelope::fail(
+                'CAR_NOT_AVAILABLE',
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST,
+            );
+        }
+
+        return MobileApiEnvelope::ok([
+            'favorited' => $action === 'added',
+            'favoriteIds' => $this->favoriteService->getFavoriteCarIds($user),
         ]);
     }
 

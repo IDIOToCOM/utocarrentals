@@ -65,8 +65,16 @@ final class MobileGoogleAuthController extends AbstractController
             ], Response::HTTP_FORBIDDEN);
         }
 
+        try {
+            $token = $this->jwtManager->create($user);
+        } catch (\Throwable $e) {
+            return $this->json([
+                'message' => 'Server could not issue a login token. Ensure JWT keys and JWT_PASSPHRASE are configured on the server.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
         return $this->json([
-            'token' => $this->jwtManager->create($user),
+            'token' => $token,
             'username' => $user->getUserIdentifier(),
             'email' => $user->getEmail(),
         ]);
