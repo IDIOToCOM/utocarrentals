@@ -11,28 +11,31 @@ else
   STORAGE_DIR="$(pwd)/${STORAGE_REL}"
 fi
 
-PUBLIC_UPLOAD_LINK="$(pwd)/public/uploads/cars"
 LEGACY_DIR="$(pwd)/public/images/cars"
+OLD_UPLOAD_DIR="$(pwd)/public/uploads/cars"
 
-mkdir -p "${STORAGE_DIR}" "$(dirname "${PUBLIC_UPLOAD_LINK}")"
+mkdir -p "${STORAGE_DIR}"
 chmod -R ug+rwx "$(dirname "${STORAGE_DIR}")" 2>/dev/null || true
 
-# Serve storage at /uploads/cars/ (symlink survives each release when storage/ is a Forge shared path)
-rm -f "${PUBLIC_UPLOAD_LINK}"
-ln -sfn "${STORAGE_DIR}" "${PUBLIC_UPLOAD_LINK}"
+# Remove broken symlink from older deploys (photos are served via /media/cars/ now)
+if [[ -L "${OLD_UPLOAD_DIR}" ]]; then
+  rm -f "${OLD_UPLOAD_DIR}"
+fi
 
-# Move uploads from old location (public/images/cars/*.jpg) into persistent storage
 shopt -s nullglob
 for ext in jpg jpeg png webp; do
-  for f in "${LEGACY_DIR}"/*."${ext}"; do
-    base=$(basename "${f}")
-    if [[ ! -f "${STORAGE_DIR}/${base}" ]]; then
-      mv "${f}" "${STORAGE_DIR}/${base}"
-    else
-      rm -f "${f}"
-    fi
+  for source_dir in "${LEGACY_DIR}" "${OLD_UPLOAD_DIR}"; do
+    [[ -d "${source_dir}" ]] || continue
+    for f in "${source_dir}"/*."${ext}"; do
+      base=$(basename "${f}")
+      if [[ ! -f "${STORAGE_DIR}/${base}" ]]; then
+        mv "${f}" "${STORAGE_DIR}/${base}"
+      else
+        rm -f "${f}"
+      fi
+    done
   done
 done
 shopt -u nullglob
 
-echo "Car photos: ${STORAGE_DIR} -> public/uploads/cars"
+echo "Car photos storage: ${STORAGE_DIR} (served at /media/cars/{id}.ext)"

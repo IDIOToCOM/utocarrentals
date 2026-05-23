@@ -7,10 +7,11 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * Stores car photos in storage/car_photos (persistent on Forge) and serves them at /uploads/cars/.
+ * Stores car photos in storage/car_photos (persistent on Forge) and serves them at /media/cars/.
  */
 final class CarPhotoUploadService
 {
+    private const PUBLIC_UPLOAD_SUBDIR = 'uploads/cars';
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
     private const TYPE_DEFAULTS = [
@@ -32,6 +33,40 @@ final class CarPhotoUploadService
     private function legacyStorageDir(): string
     {
         return $this->publicDir.'/images/cars';
+    }
+
+    private function publicUploadDir(): string
+    {
+        return $this->publicDir.'/'.self::PUBLIC_UPLOAD_SUBDIR;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function storageDirectories(): array
+    {
+        return array_values(array_unique([
+            $this->carsStorageDir,
+            $this->publicUploadDir(),
+            $this->legacyStorageDir(),
+        ]));
+    }
+
+    public function resolveFilesystemPath(int $carId, string $ext): ?string
+    {
+        $ext = strtolower($ext);
+        if (!\in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
+            return null;
+        }
+
+        foreach ($this->storageDirectories() as $dir) {
+            $path = $dir.'/'.$carId.'.'.$ext;
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 
     public function upload(CarInventory $car, UploadedFile $file): void
@@ -114,11 +149,8 @@ final class CarPhotoUploadService
         }
 
         foreach (self::ALLOWED_EXTENSIONS as $ext) {
-            if (is_file($this->carsStorageDir.'/'.$id.'.'.$ext)) {
-                return '/uploads/cars/'.$id.'.'.$ext;
-            }
-            if (is_file($this->legacyStorageDir().'/'.$id.'.'.$ext)) {
-                return '/images/cars/'.$id.'.'.$ext;
+            if ($this->resolveFilesystemPath($id, $ext) !== null) {
+                return '/media/cars/'.$id.'.'.$ext;
             }
         }
 
@@ -146,7 +178,7 @@ final class CarPhotoUploadService
     private function removeUploadedPhotos(int $carId): void
     {
         foreach (self::ALLOWED_EXTENSIONS as $ext) {
-            foreach ([$this->carsStorageDir, $this->legacyStorageDir()] as $dir) {
+            foreach ($this->storageDirectories() as $dir) {
                 $path = $dir.'/'.$carId.'.'.$ext;
                 if (is_file($path)) {
                     unlink($path);

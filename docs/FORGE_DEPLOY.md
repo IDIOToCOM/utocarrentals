@@ -140,7 +140,7 @@ bash scripts/forge-storage.sh
 ls storage/car_photos
 ```
 
-Photos are served at `/uploads/cars/{carId}.jpg` (not inside `public/images/cars/` anymore).
+Photos are served at **`/media/cars/{carId}.jpg`** via Symfony (reads from `storage/car_photos`). No symlink required.
 
 ---
 
@@ -160,7 +160,7 @@ After adding `storage/car_photos`, run once on the server:
 bash scripts/forge-storage.sh
 ```
 
-This links `public/uploads/cars` to the shared folder so `/uploads/cars/{id}.jpg` keeps working after each deploy.
+This migrates any old files into `storage/car_photos`. The app serves them at `/media/cars/{id}.jpg`.
 
 ---
 
