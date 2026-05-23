@@ -16,6 +16,7 @@ class Booking
     public const STATUS_CONFIRMED = BookingStatus::CONFIRMED;
     public const STATUS_CANCELLED = BookingStatus::CANCELLED;
     public const STATUS_REFUNDED = BookingStatus::REFUNDED;
+    public const STATUS_COMPLETED = BookingStatus::COMPLETED;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

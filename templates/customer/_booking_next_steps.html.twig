@@ -31,6 +31,12 @@
     <div class="lp-booking-next-steps__actions">
       <a href="{{ path('app_car_catalog') }}" class="lp-btn lp-btn-primary lp-btn-sm">Browse vehicles</a>
     </div>
+  {% elseif status == 'Completed' %}
+    <p class="lp-booking-next-steps__text">This rental is <strong>completed</strong>. Thank you for choosing UTO Car Rentals.</p>
+    <p class="lp-booking-next-steps__text mb-0">We hope you enjoyed your trip. You can book again anytime from our fleet.</p>
+    <div class="lp-booking-next-steps__actions">
+      <a href="{{ path('app_car_catalog') }}" class="lp-btn lp-btn-primary lp-btn-sm">Browse vehicles</a>
+    </div>
   {% else %}
     <p class="lp-booking-next-steps__text mb-0">Status: <strong>{{ status }}</strong>. Contact us if you have questions about this rental.</p>
   {% endif %}

@@ -15,7 +15,7 @@
     <div class="lp-booking-cancel-panel__action">
       {% if canCancel %}
         {% include 'customer/_my_booking_cancel_form.html.twig' with { booking: booking, buttonClass: 'lp-btn lp-btn-outline-danger' } %}
-      {% elseif cancelBlockReason and customerRules.isCancellableStatus(booking.status) == false and booking.status != 'Cancelled' and booking.status != 'Refunded' %}
+      {% elseif cancelBlockReason and customerRules.isCancellableStatus(booking.status) == false and booking.status != 'Cancelled' and booking.status != 'Refunded' and booking.status != 'Completed' %}
         {# inactive status — next steps already explain #}
       {% elseif cancelBlockReason %}
         <p class="lp-booking-cancel-panel__blocked" role="status">

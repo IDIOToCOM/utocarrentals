@@ -107,6 +107,20 @@ final class BookingNotificationService
                     $booking,
                     $em,
                 );
+            } elseif ($newStatus === BookingStatus::COMPLETED) {
+                $this->create(
+                    $customer,
+                    NotificationType::BOOKING_COMPLETED,
+                    'Rental completed',
+                    sprintf(
+                        'Your rental for %s is complete. Thank you for choosing UTO Car Rentals.',
+                        $summary,
+                    ),
+                    'app_my_booking_show',
+                    ['id' => $booking->getId()],
+                    $booking,
+                    $em,
+                );
             }
         }
 

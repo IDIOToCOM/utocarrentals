@@ -55,7 +55,7 @@ final class CarReviewService
             if ($booking->getCar()?->getId() !== $carId) {
                 continue;
             }
-            if ($booking->getStatus() === BookingStatus::CONFIRMED) {
+            if ($booking->getStatus() === BookingStatus::CONFIRMED || $booking->getStatus() === BookingStatus::COMPLETED) {
                 return true;
             }
         }

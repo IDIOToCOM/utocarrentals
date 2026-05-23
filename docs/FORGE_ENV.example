@@ -32,6 +32,9 @@ JWT_PASSPHRASE=1f9905248cb8ff1f6bec933c
 
 COMPOSER_MEMORY_LIMIT=-1
 
+# Optional: absolute path for car photos (default: storage/car_photos in project)
+# CAR_PHOTOS_STORAGE_DIR=/home/forge/your-site/storage/car_photos
+
 # =============================================================================
 # HOW TO FILL EACH VALUE
 # =============================================================================

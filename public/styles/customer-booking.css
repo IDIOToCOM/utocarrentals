@@ -118,6 +118,12 @@
   border: 1px solid #c4b5fd;
 }
 
+.lp-booking-status--completed {
+  background: #ccfbf1;
+  color: #115e59;
+  border: 1px solid #5eead4;
+}
+
 .lp-booking-status-hint {
   font-size: 0.85rem;
   color: var(--uto-muted, #6b7280);

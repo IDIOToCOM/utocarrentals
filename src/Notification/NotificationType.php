@@ -17,4 +17,6 @@ final class NotificationType
     public const PICKUP_REMINDER = 'pickup_reminder';
 
     public const BOOKING_NEW_STAFF = 'booking_new_staff';
+
+    public const BOOKING_COMPLETED = 'booking_completed';
 }

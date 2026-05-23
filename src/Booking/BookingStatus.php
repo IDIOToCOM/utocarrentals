@@ -15,10 +15,13 @@ final class BookingStatus
 
     public const REFUNDED = 'Refunded';
 
+    public const COMPLETED = 'Completed';
+
     /** @var list<string> */
     private const INACTIVE = [
         self::CANCELLED,
         self::REFUNDED,
+        self::COMPLETED,
     ];
 
     /**
@@ -31,6 +34,7 @@ final class BookingStatus
             'Confirmed' => self::CONFIRMED,
             'Cancelled' => self::CANCELLED,
             'Refunded' => self::REFUNDED,
+            'Completed' => self::COMPLETED,
         ];
     }
 

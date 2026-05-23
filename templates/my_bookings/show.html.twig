@@ -153,7 +153,7 @@
           <a class="lp-btn lp-btn-ghost" href="{{ path('app_my_bookings') }}">Back to list</a>
         </div>
 
-        {% if booking.status != 'Cancelled' and booking.status != 'Refunded' %}
+        {% if booking.status != 'Cancelled' and booking.status != 'Refunded' and booking.status != 'Completed' %}
           {% include 'customer/_my_booking_cancel_action.html.twig' with {
             booking: booking,
             customerRules: customerRules,

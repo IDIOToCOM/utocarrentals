@@ -548,6 +548,28 @@ label.form-label {
   background: #15803d;
 }
 
+.booking-action-btn--confirm-off,
+.booking-action-btn--confirm-off:disabled {
+  background: #e5e7eb !important;
+  color: #6b7280 !important;
+  border: 1px solid #d1d5db !important;
+  cursor: not-allowed;
+  box-shadow: none !important;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.booking-action-btn--confirm-off i {
+  color: #9ca3af !important;
+}
+
+.booking-action-btn--confirm-off:hover {
+  background: #e5e7eb !important;
+  color: #6b7280 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .booking-action-btn--decline {
   background: #b45309;
 }
@@ -570,6 +592,14 @@ label.form-label {
 
 .booking-action-btn--refund:hover {
   background: #4f46e5;
+}
+
+.booking-action-btn--complete {
+  background: #0d9488;
+}
+
+.booking-action-btn--complete:hover {
+  background: #0f766e;
 }
 
 /* Booking detail page: status + actions inline */

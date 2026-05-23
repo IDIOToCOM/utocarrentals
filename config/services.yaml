@@ -5,8 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.timezone: 'Asia/Manila'
-    # Override on Forge with CAR_PHOTOS_STORAGE_DIR so admin uploads survive deploys
-    car_photos_storage_dir: '%kernel.project_dir%/public/images/cars'
+    # Persistent on Forge: set shared path storage/car_photos + run scripts/forge-storage.sh
+    car_photos_storage_dir: '%kernel.project_dir%/storage/car_photos'
 
 services:
     # default configuration for services in *this* file

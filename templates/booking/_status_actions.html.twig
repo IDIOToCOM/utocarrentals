@@ -1,6 +1,6 @@
 {# paymentsByBooking: map from index; payment: single on show #}
 {% set pay = paymentsByBooking[booking.id]|default(payment|default(null)) %}
-{% set canRefund = pay and pay.status == 'Completed' and booking.status != 'Refunded' %}
+{% set canRefund = pay and pay.status == 'Completed' and booking.status == 'Confirmed' %}
 {% set hasStatusActions = booking.status == 'Pending' or booking.status == 'Confirmed' or canRefund %}
 
 {% if hasStatusActions %}
@@ -33,6 +33,26 @@
         <button type="submit" class="booking-action-btn booking-action-btn--decline"><i class="fas fa-times"></i><span>Decline</span></button>
       </form>
     {% elseif booking.status == 'Confirmed' %}
+      <button type="button"
+              class="booking-action-btn booking-action-btn--confirm booking-action-btn--confirm-off"
+              disabled
+              aria-disabled="true"
+              title="This booking is already confirmed">
+        <i class="fas fa-check"></i><span>Confirmed</span>
+      </button>
+      <form method="post"
+            action="{{ path('app_booking_update_status', {id: booking.id}) }}"
+            class="booking-quick-form js-booking-confirm-form"
+            data-confirm-theme="admin"
+            data-confirm-variant="complete"
+            data-confirm-title="Mark rental completed?"
+            data-confirm-message="Mark booking #{{ booking.id }} as completed? Use this when the vehicle has been returned and the rental has ended."
+            data-confirm-ok="Yes, complete"
+            data-confirm-cancel="Not yet">
+        <input type="hidden" name="_token" value="{{ csrf_token('booking_status_' ~ booking.id) }}">
+        <input type="hidden" name="action" value="complete">
+        <button type="submit" class="booking-action-btn booking-action-btn--complete"><i class="fas fa-flag-checkered"></i><span>Complete</span></button>
+      </form>
       <form method="post"
             action="{{ path('app_booking_update_status', {id: booking.id}) }}"
             class="booking-quick-form js-booking-confirm-form"

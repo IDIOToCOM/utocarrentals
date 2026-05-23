@@ -60,6 +60,9 @@ final class BookingCustomerRules
         if ($status === BookingStatus::REFUNDED) {
             return 'This booking was refunded and cannot be cancelled online.';
         }
+        if ($status === BookingStatus::COMPLETED) {
+            return 'This rental is already completed.';
+        }
         if (!BookingStatus::allowsCustomerEdit($status)) {
             return 'This booking can no longer be cancelled online.';
         }

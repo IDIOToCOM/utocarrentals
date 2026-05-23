@@ -16,6 +16,7 @@ fi
 
 bash scripts/forge-jwt-keys.sh
 bash scripts/forge-database.sh
+bash scripts/forge-storage.sh
 
 php bin/console cache:clear --env=prod --no-warmup --no-interaction
 php bin/console cache:warmup --env=prod --no-interaction

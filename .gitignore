@@ -6,6 +6,9 @@
 /public/bundles/
 /var/
 /vendor/
+/storage/car_photos/*
+!/storage/car_photos/.gitkeep
+/public/uploads/cars
 ###< symfony/framework-bundle ###
 .env
 ###> phpunit/phpunit ###

@@ -47,7 +47,7 @@ class BookingRepository extends ServiceEntityRepository
             ->where('b.car IN (:carIds)')
             ->andWhere('b.status NOT IN (:inactive)')
             ->setParameter('carIds', $carIds)
-            ->setParameter('inactive', [BookingStatus::CANCELLED, BookingStatus::REFUNDED])
+            ->setParameter('inactive', [BookingStatus::CANCELLED, BookingStatus::REFUNDED, BookingStatus::COMPLETED])
             ->groupBy('b.car')
             ->getQuery()
             ->getScalarResult();

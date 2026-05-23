@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * Stores car photos as public/images/cars/{id}.{ext} and resolves catalog/admin URLs.
+ * Stores car photos in storage/car_photos (persistent on Forge) and serves them at /uploads/cars/.
  */
 final class CarPhotoUploadService
 {
@@ -27,6 +27,11 @@ final class CarPhotoUploadService
         #[Autowire('%env(default:car_photos_storage_dir:CAR_PHOTOS_STORAGE_DIR)%')]
         private readonly string $carsStorageDir,
     ) {
+    }
+
+    private function legacyStorageDir(): string
+    {
+        return $this->publicDir.'/images/cars';
     }
 
     public function upload(CarInventory $car, UploadedFile $file): void
@@ -110,6 +115,9 @@ final class CarPhotoUploadService
 
         foreach (self::ALLOWED_EXTENSIONS as $ext) {
             if (is_file($this->carsStorageDir.'/'.$id.'.'.$ext)) {
+                return '/uploads/cars/'.$id.'.'.$ext;
+            }
+            if (is_file($this->legacyStorageDir().'/'.$id.'.'.$ext)) {
                 return '/images/cars/'.$id.'.'.$ext;
             }
         }
@@ -138,9 +146,11 @@ final class CarPhotoUploadService
     private function removeUploadedPhotos(int $carId): void
     {
         foreach (self::ALLOWED_EXTENSIONS as $ext) {
-            $path = $this->carsStorageDir.'/'.$carId.'.'.$ext;
-            if (is_file($path)) {
-                unlink($path);
+            foreach ([$this->carsStorageDir, $this->legacyStorageDir()] as $dir) {
+                $path = $dir.'/'.$carId.'.'.$ext;
+                if (is_file($path)) {
+                    unlink($path);
+                }
             }
         }
     }

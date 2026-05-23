@@ -78,6 +78,7 @@ chmod -R ug+rwx var 2>/dev/null || true
 
 bash scripts/forge-jwt-keys.sh
 bash scripts/forge-database.sh
+bash scripts/forge-storage.sh
 
 php bin/console cache:clear --env=prod --no-warmup
 php bin/console cache:warmup --env=prod
@@ -100,6 +101,7 @@ bash scripts/forge-deploy.sh
 |------|---------|
 | Create DB if missing | `doctrine:database:create --if-not-exists` |
 | Create/update tables | `doctrine:migrations:migrate` |
+| Persist car photo uploads | `scripts/forge-storage.sh` |
 
 Implemented in [`scripts/forge-database.sh`](../scripts/forge-database.sh).
 
@@ -124,6 +126,24 @@ bash scripts/forge-database.sh
 
 ---
 
+## Fix: car photos disappear after deploy
+
+Uploads are stored in **`storage/car_photos`**, not in git. Each deploy must keep that folder.
+
+1. **Forge → Site →** enable **Shared path** `storage/car_photos` (required for zero-downtime; recommended always).
+2. Ensure the deploy script runs `bash scripts/forge-storage.sh` (included in `scripts/forge-deploy.sh`).
+3. After the first deploy with this fix, re-upload any photos that were lost, **or** SSH and migrate old files if they still exist:
+
+```bash
+cd $FORGE_SITE_PATH
+bash scripts/forge-storage.sh
+ls storage/car_photos
+```
+
+Photos are served at `/uploads/cars/{carId}.jpg` (not inside `public/images/cars/` anymore).
+
+---
+
 ## Shared paths (zero-downtime deploys)
 
 If **Zero downtime deployments** is enabled, add **Shared paths**:
@@ -132,6 +152,15 @@ If **Zero downtime deployments** is enabled, add **Shared paths**:
 |------|-----|
 | `config/jwt` | JWT keys survive new releases |
 | `var/sessions` | Login/register sessions persist |
+| `storage/car_photos` | Admin-uploaded car photos survive new releases |
+
+After adding `storage/car_photos`, run once on the server:
+
+```bash
+bash scripts/forge-storage.sh
+```
+
+This links `public/uploads/cars` to the shared folder so `/uploads/cars/{id}.jpg` keeps working after each deploy.
 
 ---
 

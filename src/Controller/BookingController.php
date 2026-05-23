@@ -222,6 +222,7 @@ final class BookingController extends AbstractController
             'confirm' => BookingStatus::CONFIRMED,
             'decline', 'cancel' => BookingStatus::CANCELLED,
             'refund' => BookingStatus::REFUNDED,
+            'complete' => BookingStatus::COMPLETED,
             default => null,
         };
 
@@ -255,6 +256,7 @@ final class BookingController extends AbstractController
             'decline' => 'Booking #'.$booking->getId().' declined.',
             'cancel' => 'Booking #'.$booking->getId().' cancelled.',
             'refund' => 'Booking #'.$booking->getId().' marked as refunded.',
+            'complete' => 'Booking #'.$booking->getId().' marked as completed.',
             default => 'Booking status updated.',
         });
 
@@ -484,6 +486,9 @@ final class BookingController extends AbstractController
                 || !$payment instanceof Payment
                 || !PaymentStatus::isPaid($payment->getStatus())
                 ? 'Refund is only available for paid bookings that are not already refunded.'
+                : null,
+            'complete' => $status !== BookingStatus::CONFIRMED
+                ? 'Only confirmed bookings can be marked completed.'
                 : null,
             default => 'Invalid action.',
         };
