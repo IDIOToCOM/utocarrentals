@@ -8,6 +8,7 @@
 /vendor/
 /storage/car_photos/*
 !/storage/car_photos/.gitkeep
+/storage/firebase-service-account.json
 /public/uploads/cars
 ###< symfony/framework-bundle ###
 .env

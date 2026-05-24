@@ -79,6 +79,7 @@ security:
         - { path: ^/api/mobile/v1/bookings, roles: ROLE_USER }
         - { path: ^/api/mobile/v1/favorites, roles: ROLE_USER }
         - { path: ^/api/mobile/v1/notifications, roles: ROLE_USER }
+        - { path: ^/api/mobile/v1/device-tokens, roles: ROLE_USER }
         - { path: ^/api/mobile/v1/health$, roles: PUBLIC_ACCESS }
         - { path: ^/api/mobile/v1/cars, roles: PUBLIC_ACCESS }
         - { path: ^/api/mobile, roles: PUBLIC_ACCESS }

@@ -25,6 +25,7 @@ use App\Service\BookingPaymentService;
 use App\Service\BookingScheduleValidator;
 use App\Service\CarPhotoUploadService;
 use App\Service\CarReviewService;
+use App\Service\DeviceTokenService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -52,6 +53,7 @@ final class MobileApiController extends AbstractController
         private readonly CarReviewService $carReviewService,
         private readonly CarFavoriteService $favoriteService,
         private readonly CarFavoriteRepository $favoriteRepository,
+        private readonly DeviceTokenService $deviceTokenService,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -522,6 +524,80 @@ final class MobileApiController extends AbstractController
             'favorited' => $action === 'added',
             'favoriteIds' => $this->favoriteService->getFavoriteCarIds($user),
         ]);
+    }
+
+    #[Route('/device-tokens', name: 'api_mobile_v1_device_tokens_register', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function registerDeviceToken(Request $request): JsonResponse
+    {
+        $data = $this->parseJsonBody($request);
+        if ($data === null) {
+            return MobileApiEnvelope::fail('INVALID_JSON', 'Request body must be JSON.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $fcmToken = $data['fcmToken'] ?? $data['fcm_token'] ?? null;
+        $platform = $data['platform'] ?? 'android';
+
+        if (!\is_string($fcmToken) || trim($fcmToken) === '') {
+            return MobileApiEnvelope::fail(
+                'VALIDATION_ERROR',
+                'fcmToken is required.',
+                Response::HTTP_BAD_REQUEST,
+                null,
+                ['fields' => ['fcmToken' => 'FCM token is required.']],
+            );
+        }
+
+        if (!\is_string($platform)) {
+            $platform = 'android';
+        }
+
+        try {
+            $this->deviceTokenService->register(
+                $this->requireLoginUser(),
+                $fcmToken,
+                $platform,
+            );
+        } catch (\InvalidArgumentException $e) {
+            return MobileApiEnvelope::fail(
+                'VALIDATION_ERROR',
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST,
+            );
+        }
+
+        return MobileApiEnvelope::ok(['registered' => true]);
+    }
+
+    #[Route('/device-tokens', name: 'api_mobile_v1_device_tokens_remove', methods: ['DELETE'])]
+    #[IsGranted('ROLE_USER')]
+    public function removeDeviceToken(Request $request): JsonResponse
+    {
+        $data = $this->parseJsonBody($request);
+        if ($data === null) {
+            return MobileApiEnvelope::fail('INVALID_JSON', 'Request body must be JSON.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $fcmToken = $data['fcmToken'] ?? $data['fcm_token'] ?? null;
+        if (!\is_string($fcmToken) || trim($fcmToken) === '') {
+            return MobileApiEnvelope::fail(
+                'VALIDATION_ERROR',
+                'fcmToken is required.',
+                Response::HTTP_BAD_REQUEST,
+            );
+        }
+
+        try {
+            $this->deviceTokenService->remove($this->requireLoginUser(), $fcmToken);
+        } catch (\InvalidArgumentException $e) {
+            return MobileApiEnvelope::fail(
+                'VALIDATION_ERROR',
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST,
+            );
+        }
+
+        return MobileApiEnvelope::ok(['removed' => true]);
     }
 
     #[Route('/notifications', name: 'api_mobile_v1_notifications_list', methods: ['GET'])]

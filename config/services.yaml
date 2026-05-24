@@ -60,5 +60,10 @@ services:
             $googleClientId: '%env(default::GOOGLE_CLIENT_ID)%'
             $googleMobileClientId: '%env(default::GOOGLE_MOBILE_CLIENT_ID)%'
 
+    App\Service\FcmPushService:
+        arguments:
+            $fcmProjectId: '%env(default::FCM_PROJECT_ID)%'
+            $fcmServiceAccountJsonPath: '%env(default::FCM_SERVICE_ACCOUNT_JSON)%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
