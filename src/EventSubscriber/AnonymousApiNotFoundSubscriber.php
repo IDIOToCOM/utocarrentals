@@ -53,6 +53,7 @@ final class AnonymousApiNotFoundSubscriber implements EventSubscriberInterface
         $publicExact = [
             '/api/login',
             '/api/register',
+            '/api/auth/google',
             '/api/verify-email',
             '/api/resend-verification',
             '/api/verification-status',
