@@ -19,6 +19,9 @@ final class FcmPushService
 {
     private const FCM_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
 
+    /** Must match SAMSON Android channel (notificationDisplay.ts + AndroidManifest). */
+    private const ANDROID_CHANNEL_ID = 'uto_mobility_alerts';
+
     private ?string $cachedAccessToken = null;
 
     private int $cachedAccessTokenExpiresAt = 0;
@@ -116,6 +119,12 @@ final class FcmPushService
                 'data' => $data,
                 'android' => [
                     'priority' => 'HIGH',
+                    'notification' => [
+                        'channel_id' => self::ANDROID_CHANNEL_ID,
+                        'sound' => 'default',
+                        'default_vibrate_timings' => true,
+                        'notification_priority' => 'PRIORITY_HIGH',
+                    ],
                 ],
             ],
         ];
