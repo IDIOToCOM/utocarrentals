@@ -7,14 +7,26 @@ namespace App\Service;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Validates a Google Sign-In id_token for mobile apps.
+ * Validates a Google Sign-In id_token for mobile apps (Firebase / React Native).
  */
 final class GoogleIdTokenVerifier
 {
+    /** @var list<string> */
+    private array $allowedClientIds;
+
+    /**
+     * @param string $googleClientId     Website OAuth client ID (fallback for mobile aud check)
+     * @param string $googleMobileClientId Firebase / SAMSON Web client ID (preferred for mobile)
+     */
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly string $googleClientId,
+        string $googleClientId,
+        string $googleMobileClientId = '',
     ) {
+        $this->allowedClientIds = array_values(array_unique(array_filter(
+            [trim($googleMobileClientId), trim($googleClientId)],
+            static fn (string $id): bool => $id !== '',
+        )));
     }
 
     /**
@@ -22,6 +34,12 @@ final class GoogleIdTokenVerifier
      */
     public function verify(string $idToken): array
     {
+        if ($this->allowedClientIds === []) {
+            throw new \InvalidArgumentException(
+                'Google sign-in is not configured on the server (set GOOGLE_MOBILE_CLIENT_ID or GOOGLE_CLIENT_ID).',
+            );
+        }
+
         $idToken = trim($idToken);
         if ($idToken === '') {
             throw new \InvalidArgumentException('Google id token is required.');
@@ -41,7 +59,7 @@ final class GoogleIdTokenVerifier
         $data = $response->toArray(false);
 
         $aud = (string) ($data['aud'] ?? '');
-        if ($aud !== $this->googleClientId) {
+        if (!\in_array($aud, $this->allowedClientIds, true)) {
             throw new \InvalidArgumentException('Google sign-in token audience mismatch.');
         }
 

@@ -58,6 +58,7 @@ services:
     App\Service\GoogleIdTokenVerifier:
         arguments:
             $googleClientId: '%env(default::GOOGLE_CLIENT_ID)%'
+            $googleMobileClientId: '%env(default::GOOGLE_MOBILE_CLIENT_ID)%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

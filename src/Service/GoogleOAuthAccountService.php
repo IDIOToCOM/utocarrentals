@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Entity\Login;
 use App\Repository\LoginRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * Find or create a customer account from a Google-verified email (web OAuth + mobile id token).
@@ -16,6 +17,7 @@ final class GoogleOAuthAccountService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly LoginRepository $loginRepository,
+        private readonly UserPasswordHasherInterface $passwordHasher,
     ) {
     }
 
@@ -52,7 +54,7 @@ final class GoogleOAuthAccountService
         $user->setUsername($candidate);
         $user->setRoles(['ROLE_USER']);
         $this->markEmailVerifiedByGoogle($user);
-        $user->setPassword(bin2hex(random_bytes(32)));
+        $user->setPassword($this->passwordHasher->hashPassword($user, bin2hex(random_bytes(32))));
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();

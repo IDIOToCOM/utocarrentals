@@ -18,8 +18,11 @@ MAILER_DSN=null://null
 MAILER_DEFAULT_FROM_EMAIL=noreply@utocarrentals.com
 MAILER_DEFAULT_FROM_NAME="UTO Mobility"
 
-GOOGLE_CLIENT_ID=CHANGE_ME.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=CHANGE_ME_WEB.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=CHANGE_ME
+
+# SAMSON React Native (Firebase Web client — token aud for POST /api/auth/google)
+GOOGLE_MOBILE_CLIENT_ID=91144758451-quaf2k09d6ia0mg199qh5m2lcbvplm2i.apps.googleusercontent.com
 
 CONTACT_FORM_EMBED_URL=
 

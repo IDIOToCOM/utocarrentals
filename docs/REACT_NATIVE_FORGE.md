@@ -149,10 +149,18 @@ Same users as the website (`login` table). Create users on Forge or via `app:cre
 
 ## 5. Google Sign-In on mobile
 
-1. Use the **Web application** OAuth client ID in `src/config/google.ts` (same as `GOOGLE_CLIENT_ID` on Forge).
-2. In Google Cloud Console, add your Android/iOS OAuth clients for the native app.
-3. Set `SHOW_GOOGLE_SIGN_IN_UI = true` in `google.ts` when ready.
-4. Forge must have matching `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
+1. Use the **Firebase Web client ID** in `src/config/google.ts` (same as `GOOGLE_MOBILE_CLIENT_ID` on Forge).
+2. In Google Cloud / Firebase, add Android OAuth client (package `com.samson` + SHA-1).
+3. After Google sign-in, POST the **Google id token** to `POST /api/auth/google` (not Firebase id token).
+4. Forge Environment:
+
+```env
+GOOGLE_MOBILE_CLIENT_ID=91144758451-quaf2k09d6ia0mg199qh5m2lcbvplm2i.apps.googleusercontent.com
+```
+
+Keep `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` for website OAuth separately if needed.
+
+New mobile Google users are **`ROLE_USER`** customers in the **`login`** table → visible at **`/user`** (admin user list).
 
 ---
 

@@ -23,6 +23,10 @@ security:
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        mobile_google_auth:
+            pattern: ^/api/auth/google$
+            stateless: true
+            security: false
         api:
             pattern: ^/api
             stateless: true

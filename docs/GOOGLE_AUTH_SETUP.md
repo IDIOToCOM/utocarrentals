@@ -26,21 +26,31 @@ http://localhost:8000/connect/google/check
 
 ## 2. Symfony / Forge Environment
 
+**Website** (`/login` → Continue with Google):
+
 ```env
 GOOGLE_CLIENT_ID=798060321628-xxxxx.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=GOCSPX-xxxxx
-
 DEFAULT_URI=https://utocarrentals-hxyws5o9.on-forge.com
 ```
 
-When both are set, **Continue with Google** appears on `/login` and `/register`.
+**SAMSON mobile** (`POST /api/auth/google` — Firebase id token):
+
+```env
+GOOGLE_MOBILE_CLIENT_ID=91144758451-quaf2k09d6ia0mg199qh5m2lcbvplm2i.apps.googleusercontent.com
+```
+
+Use **both** on Forge if you need web + mobile Google sign-in. The mobile verifier accepts `GOOGLE_MOBILE_CLIENT_ID` first, then falls back to `GOOGLE_CLIENT_ID`.
+
+When website credentials are set, **Continue with Google** appears on `/login` and `/register`.
 
 ## 3. React Native (SAMSON)
 
-`src/config/google.ts` — use the **same Web client ID** as `GOOGLE_CLIENT_ID`:
+`src/config/google.ts` — use the **Firebase Web client ID** (same as `GOOGLE_MOBILE_CLIENT_ID` on Forge):
 
 ```typescript
-export const GOOGLE_WEB_CLIENT_ID = '798060321628-xxxxx.apps.googleusercontent.com';
+export const GOOGLE_WEB_CLIENT_ID =
+  '91144758451-quaf2k09d6ia0mg199qh5m2lcbvplm2i.apps.googleusercontent.com';
 ```
 
 For **Android**, in the same Google Cloud project:
@@ -74,6 +84,6 @@ Requires **JWT keys** on the server (`scripts/forge-jwt-keys.sh`).
 |---------|-----|
 | Button missing on web | Set `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` in Forge Environment |
 | `redirect_uri_mismatch` | Add exact `/connect/google/check` URL in Google Console |
-| Mobile `audience mismatch` | `GOOGLE_WEB_CLIENT_ID` must equal Symfony `GOOGLE_CLIENT_ID` |
+| Mobile `audience mismatch` | `GOOGLE_MOBILE_CLIENT_ID` on Forge must equal Firebase Web client ID in SAMSON |
 | 500 on Google login | Fix `JWT_PASSPHRASE` + `config/jwt/*.pem` (see REACT_NATIVE_FORGE.md) |
 | HTTP redirect on Forge | Deploy includes `trusted_proxies` in `framework.yaml` (prod) |
