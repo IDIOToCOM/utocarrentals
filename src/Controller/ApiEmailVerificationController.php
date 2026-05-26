@@ -86,7 +86,9 @@ final class ApiEmailVerificationController extends AbstractController
             UrlGeneratorInterface::ABSOLUTE_URL
         );
 
-        $this->emailVerificationService->sendVerificationEmail($user, $verificationUrl);
+        if (!$this->emailVerificationService->sendVerificationEmail($user, $verificationUrl)) {
+            return $this->json(['success' => false, 'message' => 'Could not send verification email right now. Please try again later.'], 503);
+        }
 
         return $this->json(['success' => true, 'message' => 'Verification email sent successfully'], 200);
     }

@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Entity\Login;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -19,7 +20,9 @@ class UserChecker implements UserCheckerInterface
             throw new DisabledException('Your account has been disabled. Please contact an administrator.');
         }
 
-        // Email verification is optional; login uses username/email + password only.
+        if (!$user->isVerified()) {
+            throw new CustomUserMessageAccountStatusException('Please verify your email before signing in. Check your inbox for the verification link.');
+        }
     }
 
     public function checkPostAuth(UserInterface $user): void

@@ -75,6 +75,14 @@ final class MobileAuthController extends AbstractController
             );
         }
 
+        if (!$user->isVerified()) {
+            return MobileApiEnvelope::fail(
+                'EMAIL_VERIFICATION_REQUIRED',
+                'Please verify your email before signing in. Check your inbox for the verification link.',
+                Response::HTTP_FORBIDDEN,
+            );
+        }
+
         try {
             $token = $this->jwtManager->create($user);
         } catch (\Throwable $e) {

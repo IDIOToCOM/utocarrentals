@@ -41,7 +41,7 @@ class RegistrationController extends AbstractController
 
             $verificationToken = $emailVerificationService->generateVerificationToken();
             $user->setVerificationToken($verificationToken);
-            $user->setIsVerified(true);
+            $user->setIsVerified(false);
             $user->setRoles(['ROLE_USER']);
 
             $entityManager->persist($user);
@@ -70,11 +70,9 @@ class RegistrationController extends AbstractController
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
 
-            try {
-                $emailVerificationService->sendVerificationEmail($user, $verificationUrl);
-                $this->addFlash('success', 'Registration successful. You can log in with your username and password.');
-            } catch (\Throwable $e) {
-                error_log('Failed to send verification email: ' . $e->getMessage());
+            if ($emailVerificationService->sendVerificationEmail($user, $verificationUrl)) {
+                $this->addFlash('success', 'Registration successful. Please verify your email before signing in. Check your inbox for the verification link.');
+            } else {
                 $this->addFlash('error', 'Registration succeeded, but we could not send the verification email right now. Please contact support or try again later.');
             }
 
