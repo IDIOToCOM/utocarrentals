@@ -7,6 +7,7 @@ use App\Entity\Login;
 use App\Entity\ActivityLog;
 use App\Form\PaymentType;
 use App\Repository\PaymentRepository;
+use App\Service\BookingNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -106,11 +107,17 @@ final class PaymentController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_payment_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Payment $payment, EntityManagerInterface $entityManager): Response
+    public function edit(
+        Request $request,
+        Payment $payment,
+        EntityManagerInterface $entityManager,
+        BookingNotificationService $bookingNotifications,
+    ): Response
     {
         // Staff can edit any record, admins can edit all
         // No ownership check needed for edit
-        
+
+        $previousPaymentStatus = $payment->getStatus();
         $form = $this->createForm(PaymentType::class, $payment);
         $form->handleRequest($request);
 
@@ -121,6 +128,18 @@ final class PaymentController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $paymentId = $payment->getId();
             $entityManager->flush();
+
+            $booking = $payment->getBooking();
+            if ($booking !== null) {
+                $bookingNotifications->notifyPaymentStatusChange(
+                    $booking,
+                    $previousPaymentStatus,
+                    $payment->getStatus(),
+                    $entityManager,
+                );
+                $entityManager->flush();
+            }
+
             try {
                 $user = $this->getUser();
                 $username = $user ? $user->getUserIdentifier() : 'System';

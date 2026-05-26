@@ -217,6 +217,7 @@ final class BookingController extends AbstractController
         $payment = $booking->getId() !== null
             ? $paymentRepository->findOneByBookingId($booking->getId())
             : null;
+        $previousPaymentStatus = $payment?->getStatus();
 
         $newStatus = match ($action) {
             'confirm' => BookingStatus::CONFIRMED,
@@ -249,6 +250,14 @@ final class BookingController extends AbstractController
         $entityManager->flush();
 
         $this->bookingNotifications->notifyStatusChange($booking, $previousStatus, $entityManager);
+        if ($booking->getStatus() !== BookingStatus::REFUNDED) {
+            $this->bookingNotifications->notifyPaymentStatusChange(
+                $booking,
+                $previousPaymentStatus,
+                $payment?->getStatus(),
+                $entityManager,
+            );
+        }
         $entityManager->flush();
 
         $this->addFlash('success', match ($action) {

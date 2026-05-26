@@ -7,6 +7,7 @@ use App\Entity\AppNotification;
 use App\Entity\Booking;
 use App\Entity\Login;
 use App\Notification\NotificationType;
+use App\Payment\PaymentStatus;
 use App\Repository\AppNotificationRepository;
 use App\Repository\LoginRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,56 +73,17 @@ final class BookingNotificationService
             return;
         }
 
-        $customer = $this->resolveCustomer($booking);
         $summary = $this->bookingSummary($booking);
         $newStatus = $booking->getStatus();
 
-        if ($customer !== null) {
-            if ($newStatus === BookingStatus::CONFIRMED) {
-                $this->create(
-                    $customer,
-                    NotificationType::BOOKING_CONFIRMED,
-                    'Booking confirmed',
-                    sprintf(
-                        'Your rental is confirmed for %s. %s You can pay from My bookings when ready.',
-                        $summary,
-                        $this->scheduleLine($booking),
-                    ),
-                    'app_my_booking_show',
-                    ['id' => $booking->getId()],
-                    $booking,
-                    $em,
-                );
-            } elseif ($newStatus === BookingStatus::CANCELLED) {
-                $this->create(
-                    $customer,
-                    NotificationType::BOOKING_DECLINED,
-                    'Booking not confirmed',
-                    sprintf(
-                        'Your booking for %s was cancelled and is no longer scheduled. %s',
-                        $summary,
-                        $this->scheduleLine($booking),
-                    ),
-                    'app_my_booking_show',
-                    ['id' => $booking->getId()],
-                    $booking,
-                    $em,
-                );
-            } elseif ($newStatus === BookingStatus::COMPLETED) {
-                $this->create(
-                    $customer,
-                    NotificationType::BOOKING_COMPLETED,
-                    'Rental completed',
-                    sprintf(
-                        'Your rental for %s is complete. Thank you for choosing UTO Car Rentals.',
-                        $summary,
-                    ),
-                    'app_my_booking_show',
-                    ['id' => $booking->getId()],
-                    $booking,
-                    $em,
-                );
-            }
+        if ($newStatus === BookingStatus::CONFIRMED) {
+            $this->notifyBookingConfirmed($booking, $em);
+        } elseif ($newStatus === BookingStatus::CANCELLED) {
+            $this->notifyBookingCancelled($booking, $em);
+        } elseif ($newStatus === BookingStatus::REFUNDED) {
+            $this->notifyBookingRefunded($booking, $em);
+        } elseif ($newStatus === BookingStatus::COMPLETED) {
+            $this->notifyBookingCompleted($booking, $em);
         }
 
         if ($newStatus === BookingStatus::CANCELLED && \in_array($previousStatus, [BookingStatus::PENDING, BookingStatus::CONFIRMED], true)) {
@@ -145,6 +107,98 @@ final class BookingNotificationService
                 );
             }
         }
+    }
+
+    public function notifyPaymentStatusChange(Booking $booking, ?string $previousPaymentStatus, ?string $newPaymentStatus, EntityManagerInterface $em): void
+    {
+        if ($previousPaymentStatus === $newPaymentStatus || $newPaymentStatus !== PaymentStatus::REFUNDED) {
+            return;
+        }
+
+        $this->notifyBookingRefunded($booking, $em);
+    }
+
+    public function notifyBookingConfirmed(Booking $booking, EntityManagerInterface $em): void
+    {
+        $customer = $this->resolveCustomer($booking);
+        if ($customer === null || $booking->getId() === null) {
+            return;
+        }
+
+        $this->create(
+            $customer,
+            NotificationType::BOOKING_CONFIRMED,
+            'Booking confirmed',
+            sprintf('Your booking #%d has been confirmed.', $booking->getId()),
+            'app_my_booking_show',
+            ['id' => $booking->getId()],
+            $booking,
+            $em,
+            false,
+        );
+    }
+
+    public function notifyBookingCancelled(Booking $booking, EntityManagerInterface $em): void
+    {
+        $customer = $this->resolveCustomer($booking);
+        if ($customer === null || $booking->getId() === null) {
+            return;
+        }
+
+        $this->create(
+            $customer,
+            NotificationType::BOOKING_CANCELLED,
+            'Booking cancelled',
+            sprintf('Your booking #%d has been cancelled.', $booking->getId()),
+            'app_my_booking_show',
+            ['id' => $booking->getId()],
+            $booking,
+            $em,
+            false,
+        );
+    }
+
+    public function notifyBookingRefunded(Booking $booking, EntityManagerInterface $em): void
+    {
+        $customer = $this->resolveCustomer($booking);
+        if ($customer === null || $booking->getId() === null) {
+            return;
+        }
+
+        $this->create(
+            $customer,
+            NotificationType::BOOKING_REFUNDED,
+            'Booking refunded',
+            sprintf('Your booking #%d has been refunded.', $booking->getId()),
+            'app_my_booking_show',
+            ['id' => $booking->getId()],
+            $booking,
+            $em,
+            false,
+        );
+    }
+
+    private function notifyBookingCompleted(Booking $booking, EntityManagerInterface $em): void
+    {
+        $customer = $this->resolveCustomer($booking);
+        if ($customer === null) {
+            return;
+        }
+
+        $this->create(
+            $customer,
+            NotificationType::BOOKING_COMPLETED,
+            'Rental completed',
+            sprintf(
+                'Your rental for %s is complete. Thank you for choosing UTO Car Rentals.',
+                $this->bookingSummary($booking),
+            ),
+            'app_my_booking_show',
+            ['id' => $booking->getId()],
+            $booking,
+            $em,
+            false,
+        );
     }
 
     public function notifyCustomerCancelled(Booking $booking, EntityManagerInterface $em): void
@@ -268,12 +322,15 @@ final class BookingNotificationService
         ?array $linkParams,
         ?Booking $booking,
         EntityManagerInterface $em,
+        bool $dedupe = true,
     ): void {
         if ($recipient->getId() === null) {
             return;
         }
 
-        if ($booking !== null && $booking->getId() !== null
+        if ($dedupe
+            && $booking !== null
+            && $booking->getId() !== null
             && $this->notificationRepository->existsForBookingRecipientAndType(
                 $booking->getId(),
                 (int) $recipient->getId(),
