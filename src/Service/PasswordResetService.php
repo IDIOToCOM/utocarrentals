@@ -14,6 +14,7 @@ final class PasswordResetService
 {
     private const TOKEN_BYTES = 32;
     private const TOKEN_TTL_HOURS = 1;
+    private const MAIL_TIMEOUT_SECONDS = 5;
 
     public function __construct(
         private readonly LoginRepository $loginRepository,
@@ -68,9 +69,15 @@ final class PasswordResetService
             ]);
 
         try {
+            $previousTimeout = ini_get('default_socket_timeout');
+            @ini_set('default_socket_timeout', (string) self::MAIL_TIMEOUT_SECONDS);
             $this->mailer->send($message);
         } catch (\Throwable $e) {
             error_log('Failed to send password reset email: '.$e->getMessage());
+        } finally {
+            if (isset($previousTimeout) && $previousTimeout !== false) {
+                @ini_set('default_socket_timeout', $previousTimeout);
+            }
         }
     }
 

@@ -10,6 +10,8 @@ use Symfony\Component\Mime\Address;
 
 class EmailVerificationService
 {
+    private const MAIL_TIMEOUT_SECONDS = 5;
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private MailerInterface $mailer,
@@ -40,7 +42,7 @@ class EmailVerificationService
                 'verificationUrl' => $verificationUrl,
             ]);
 
-        $this->mailer->send($email);
+        $this->sendWithoutHanging($email);
     }
 
     public function verifyToken(string $token): ?Login
@@ -63,5 +65,21 @@ class EmailVerificationService
     public function needsVerification(Login $user): bool
     {
         return !$user->isVerified();
+    }
+
+    private function sendWithoutHanging(TemplatedEmail $email): void
+    {
+        $previousTimeout = ini_get('default_socket_timeout');
+        @ini_set('default_socket_timeout', (string) self::MAIL_TIMEOUT_SECONDS);
+
+        try {
+            $this->mailer->send($email);
+        } catch (\Throwable $e) {
+            error_log('Failed to send verification email: '.$e->getMessage());
+        } finally {
+            if ($previousTimeout !== false) {
+                @ini_set('default_socket_timeout', $previousTimeout);
+            }
+        }
     }
 }
