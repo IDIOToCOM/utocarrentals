@@ -63,6 +63,44 @@ final class BookingController extends AbstractController
         ]);
     }
 
+    #[Route('/poll', name: 'app_booking_poll', methods: ['GET'])]
+    public function poll(BookingRepository $bookingRepository, PaymentRepository $paymentRepository): JsonResponse
+    {
+        $bookings = $bookingRepository->createQueryBuilder('b')
+            ->leftJoin('b.car', 'car')
+            ->addSelect('car')
+            ->leftJoin('b.user', 'user')
+            ->addSelect('user')
+            ->leftJoin('b.createdBy', 'creator')
+            ->addSelect('creator')
+            ->orderBy('b.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $bookingIds = array_values(array_filter(array_map(
+            static fn (Booking $b): ?int => $b->getId(),
+            $bookings,
+        )));
+        $paymentsByBooking = $paymentRepository->findMapByBookingIds($bookingIds);
+
+        $html = $this->renderView('booking/_rows.html.twig', [
+            'bookings' => $bookings,
+            'paymentsByBooking' => $paymentsByBooking,
+        ]);
+
+        $latestId = null;
+        if (!empty($bookings) && method_exists($bookings[0], 'getId')) {
+            $latestId = $bookings[0]->getId();
+        }
+
+        return new JsonResponse([
+            'ok' => true,
+            'latestId' => $latestId,
+            'total' => count($bookings),
+            'rowsHtml' => $html,
+        ]);
+    }
+
     #[Route('/check-conflict', name: 'app_booking_check_conflict', methods: ['POST'])]
     public function checkConflict(Request $request): JsonResponse
     {
