@@ -90,6 +90,23 @@ final class NotificationController extends AbstractController
         return $this->redirectToRoute('app_notifications');
     }
 
+    #[Route('/notifications/poll', name: 'app_notifications_poll', methods: ['GET'])]
+    public function poll(Request $request): JsonResponse
+    {
+        $user = $this->requireLogin();
+        $limit = max(1, min(12, $request->query->getInt('limit', 6)));
+        $notifications = $this->notificationRepository->findRecentForUser((int) $user->getId(), $limit);
+
+        return new JsonResponse([
+            'ok' => true,
+            'unreadCount' => $this->notificationRepository->countUnreadForUser((int) $user->getId()),
+            'notifications' => array_map(
+                fn ($notification): array => $this->serializeNotification($notification),
+                $notifications
+            ),
+        ]);
+    }
+
     private function requireLogin(): Login
     {
         $user = $this->getUser();
@@ -134,5 +151,31 @@ final class NotificationController extends AbstractController
         }
 
         return $map;
+    }
+
+    private function serializeNotification(\App\Entity\AppNotification $notification): array
+    {
+        $id = $notification->getId();
+        $link = null;
+        $route = $notification->getLinkRoute();
+        if ($route !== null) {
+            try {
+                $link = $this->urlGenerator->generate($route, $notification->getLinkParams() ?? []);
+            } catch (\Throwable) {
+                $link = null;
+            }
+        }
+
+        return [
+            'id' => $id,
+            'title' => $notification->getTitle(),
+            'body' => $notification->getBody(),
+            'read' => $notification->isRead(),
+            'createdAtIso' => $notification->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            'createdAtLabel' => $notification->getCreatedAt()->format('M j, g:i A'),
+            'createdAtLongLabel' => $notification->getCreatedAt()->format('F j, Y g:i A'),
+            'link' => $link,
+            'markReadUrl' => $id !== null ? $this->urlGenerator->generate('app_notification_read', ['id' => $id]) : null,
+        ];
     }
 }

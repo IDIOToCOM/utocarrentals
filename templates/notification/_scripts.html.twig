@@ -140,9 +140,202 @@
     });
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function shorten(text, max) {
+    if (text.length <= max) {
+      return text;
+    }
+    return text.slice(0, max) + '...';
+  }
+
+  function updateSidebarCount(unreadCount) {
+    var wrap = document.getElementById('adminSidebarNotifCountWrap');
+    if (!wrap) {
+      return;
+    }
+    if (unreadCount > 0) {
+      wrap.innerHTML = ' (<span id="adminSidebarNotifCount">' + unreadCount + '</span>)';
+      return;
+    }
+    wrap.innerHTML = '';
+  }
+
+  function renderBellNotifications(payload) {
+    var wrap = document.getElementById('lpNotif');
+    if (!wrap || !payload || !Array.isArray(payload.notifications)) {
+      return;
+    }
+
+    var unreadCount = payload.unreadCount || 0;
+    var trigger = wrap.querySelector('.lp-notif__trigger');
+    if (trigger) {
+      trigger.setAttribute('aria-label', unreadCount > 0 ? ('Notifications (' + unreadCount + ' unread)') : 'Notifications');
+    }
+
+    var badge = wrap.querySelector('.lp-notif__badge');
+    if (unreadCount > 0) {
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'lp-notif__badge';
+        if (trigger) {
+          trigger.appendChild(badge);
+        }
+      }
+      badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+    } else if (badge) {
+      badge.remove();
+    }
+
+    var list = wrap.querySelector('.lp-notif__list');
+    var empty = wrap.querySelector('.lp-notif__empty');
+    if (payload.notifications.length === 0) {
+      if (list) {
+        list.remove();
+      }
+      if (!empty) {
+        empty = document.createElement('p');
+        empty.className = 'lp-notif__empty';
+        empty.textContent = 'No notifications yet.';
+        var panel = wrap.querySelector('.lp-notif__panel');
+        var viewAll = wrap.querySelector('.lp-notif__view-all');
+        if (panel && viewAll) {
+          panel.insertBefore(empty, viewAll);
+        }
+      }
+    } else {
+      if (!list) {
+        list = document.createElement('ul');
+        list.className = 'lp-notif__list';
+        var panel2 = wrap.querySelector('.lp-notif__panel');
+        var viewAll2 = wrap.querySelector('.lp-notif__view-all');
+        if (panel2 && viewAll2) {
+          panel2.insertBefore(list, viewAll2);
+        }
+      }
+      if (empty) {
+        empty.remove();
+      }
+
+      list.innerHTML = payload.notifications.map(function (n) {
+        var title = escapeHtml(n.title || '');
+        var body = escapeHtml(shorten(n.body || '', 100));
+        var dateTime = escapeHtml(n.createdAtIso || '');
+        var when = escapeHtml(n.createdAtLabel || '');
+        var content = ''
+          + '<span class="lp-notif__item-title">' + title + '</span>'
+          + '<span class="lp-notif__item-body">' + body + '</span>'
+          + '<time class="lp-notif__item-time" datetime="' + dateTime + '">' + when + '</time>';
+        var itemClass = 'lp-notif__item' + (n.read ? '' : ' lp-notif__item--unread');
+        if (n.link) {
+          return '<li class="' + itemClass + '"><a href="' + escapeHtml(n.link) + '" class="lp-notif__link">' + content + '</a></li>';
+        }
+        return '<li class="' + itemClass + '"><div class="lp-notif__link">' + content + '</div></li>';
+      }).join('');
+    }
+  }
+
+  function renderNotificationPage(payload) {
+    var list = document.querySelector('.lp-notif-page__list');
+    var empty = document.querySelector('.lp-notif-page__empty');
+    if (!list || !payload || !Array.isArray(payload.notifications)) {
+      return;
+    }
+
+    if (payload.notifications.length === 0) {
+      list.innerHTML = '';
+      if (!empty) {
+        var holder = document.createElement('div');
+        holder.className = 'lp-notif-page__empty';
+        holder.innerHTML = '<p class="mb-0">You have no notifications yet. Updates about bookings will appear here.</p>';
+        list.parentNode.insertBefore(holder, list);
+      }
+      return;
+    }
+
+    if (empty) {
+      empty.remove();
+    }
+
+    list.innerHTML = payload.notifications.map(function (n) {
+      var title = escapeHtml(n.title || '');
+      var body = escapeHtml(n.body || '');
+      var iso = escapeHtml(n.createdAtIso || '');
+      var longWhen = escapeHtml(n.createdAtLongLabel || '');
+      var unreadClass = n.read ? '' : ' lp-notif-page__item--unread';
+      var open = n.link ? '<a href="' + escapeHtml(n.link) + '" class="lp-btn lp-btn-primary lp-btn-sm">Open</a>' : '';
+      var action = n.read ? '<span class="lp-notif-page__read-label">Read</span>' : '<span class="lp-notif-page__read-label">Unread</span>';
+      return ''
+        + '<li class="lp-notif-page__item' + unreadClass + '">'
+        + '  <div class="lp-notif-page__item-inner">'
+        + '    <div class="lp-notif-page__content">'
+        + '      <h2 class="lp-notif-page__title">' + title + '</h2>'
+        + '      <p class="lp-notif-page__body">' + body + '</p>'
+        + '      <time class="lp-notif-page__time" datetime="' + iso + '">' + longWhen + '</time>'
+        + '    </div>'
+        + '    <div class="lp-notif-page__actions">' + open + action + '</div>'
+        + '  </div>'
+        + '</li>';
+    }).join('');
+  }
+
+  function startNotificationPolling() {
+    var pollUrl = '{{ path('app_notifications_poll') }}';
+    var previousUnreadCount = null;
+    var inFlight = false;
+
+    function runPoll() {
+      if (inFlight || document.hidden) {
+        return;
+      }
+      inFlight = true;
+      fetch(pollUrl, {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        },
+        credentials: 'same-origin',
+        cache: 'no-store'
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error('Polling failed');
+          }
+          return response.json();
+        })
+        .then(function (payload) {
+          var unreadCount = payload.unreadCount || 0;
+          updateSidebarCount(unreadCount);
+          if (previousUnreadCount === null || previousUnreadCount !== unreadCount) {
+            renderBellNotifications(payload);
+            renderNotificationPage(payload);
+            previousUnreadCount = unreadCount;
+          }
+        })
+        .catch(function () {
+          // Ignore transient failures (deploys / network blips).
+        })
+        .finally(function () {
+          inFlight = false;
+        });
+    }
+
+    runPoll();
+    setInterval(runPoll, 10000);
+  }
+
   function init() {
     initNotificationBell();
     bindMarkAllReadForms();
+    startNotificationPolling();
   }
 
   if (document.readyState === 'loading') {

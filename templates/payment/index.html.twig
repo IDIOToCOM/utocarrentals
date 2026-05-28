@@ -37,7 +37,7 @@
       {% endfor %}
 
       <div class="table-container">
-        <table class="table">
+        <table class="table" id="paymentsTable" data-poll-url="{{ path('app_payment_poll') }}">
           <thead>
             <tr>
               <th>ID</th>
@@ -50,67 +50,7 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
-          {% for payment in payments %}
-            <tr>
-              <td>{{ payment.id }}</td>
-              <td>
-                {% if payment.booking %}
-                  <a href="{{ path('app_booking_show', { id: payment.booking.id }) }}">#{{ payment.booking.id }}</a>
-                {% else %}
-                  <span class="text-muted">—</span>
-                {% endif %}
-              </td>
-              <td>{{ payment.name }}</td>
-              <td>
-                {% if payment.car is not null %}
-                  {{ payment.car.Brand }} {{ payment.car.Model }}
-                {% else %}
-                  <span class="text-muted">Car Deleted</span>
-                {% endif %}
-              </td>
-              <td>₱{{ payment.amountDue|number_format(0, '.', ',') }}</td>
-              <td>
-                {% if payment.amountPaid %}
-                  ₱{{ payment.amountPaid|number_format(0, '.', ',') }}
-                {% else %}
-                  <span class="text-muted">—</span>
-                {% endif %}
-              </td>
-              <td>
-                <span class="badge bg-{% if payment.status == 'Completed' %}success{% elseif payment.status == 'Pending' %}warning{% elseif payment.status == 'Failed' %}danger{% else %}secondary{% endif %}">
-                  {{ payment.status == 'Completed' ? 'Paid' : payment.status }}
-                </span>
-              </td>
-              <td>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                  <a href="{{ path('app_payment_show', {'id': payment.id}) }}" class="btn btn-show"><i class="fas fa-eye"></i> Show</a>
-                  {# Edit button: Staff can edit any record, admin can edit all #}
-                  <a href="{{ path('app_payment_edit', {'id': payment.id}) }}" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</a>
-                  {# Delete button: Only show if admin OR if staff owns the record #}
-                  {% set isOwner = false %}
-                  {% if payment.createdBy is not null and app.user is not null %}
-                    {% set createdById = payment.createdBy.id %}
-                    {% set currentUserId = app.user.id %}
-                    {% if createdById == currentUserId %}
-                      {% set isOwner = true %}
-                    {% endif %}
-                  {% endif %}
-                  {% if is_granted('ROLE_ADMIN') or isOwner %}
-                    <form method="post" action="{{ path('app_payment_delete', {'id': payment.id}) }}" class="delete-form" data-entity-name="payment" style="display: inline-block;">
-                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ payment.id) }}">
-                      <button type="button" class="btn btn-danger delete-btn"><i class="fas fa-trash"></i> Delete</button>
-                    </form>
-                  {% endif %}
-                </div>
-              </td>
-            </tr>
-          {% else %}
-            <tr>
-              <td colspan="8" style="text-align:center; padding:2rem;">No payments found</td>
-            </tr>
-          {% endfor %}
-          </tbody>
+          <tbody id="paymentsTableBody">{% include 'payment/_rows.html.twig' with { payments: payments } %}</tbody>
         </table>
       </div>
 
@@ -132,13 +72,76 @@ $(document).ready(function() {
   });
 
   // DataTables init
-  const table = $('.table').DataTable({
+  const tableElement = $('#paymentsTable');
+  let table = tableElement.DataTable({
     ordering: false,
     paging: true,
     searching: true,
     pageLength: 10,
     lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
   });
+
+  let lastRowsHtml = $('#paymentsTableBody').html();
+  let pollInFlight = false;
+
+  function refreshPaymentsTableRows(rowsHtml) {
+    const currentPage = table.page();
+    const currentSearch = table.search();
+    table.destroy();
+    $('#paymentsTableBody').html(rowsHtml);
+    table = tableElement.DataTable({
+      ordering: false,
+      paging: true,
+      searching: true,
+      pageLength: 10,
+      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+    });
+    table.search(currentSearch).draw(false);
+    table.page(currentPage).draw(false);
+  }
+
+  function pollPayments() {
+    if (pollInFlight || document.hidden) {
+      return;
+    }
+    const pollUrl = tableElement.data('poll-url');
+    if (!pollUrl) {
+      return;
+    }
+    pollInFlight = true;
+    fetch(pollUrl, {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      },
+      credentials: 'same-origin',
+      cache: 'no-store'
+    })
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error('Failed to poll payments');
+        }
+        return response.json();
+      })
+      .then(function(payload) {
+        if (!payload || typeof payload.rowsHtml !== 'string') {
+          return;
+        }
+        if (payload.rowsHtml !== lastRowsHtml) {
+          refreshPaymentsTableRows(payload.rowsHtml);
+          lastRowsHtml = payload.rowsHtml;
+        }
+      })
+      .catch(function() {
+        // Ignore transient errors, next poll will retry.
+      })
+      .finally(function() {
+        pollInFlight = false;
+      });
+  }
+
+  setInterval(pollPayments, 10000);
   
   // Delete confirmation handler
   $(document).on('click', '.delete-btn', function(e) {

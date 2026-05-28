@@ -10,6 +10,7 @@ use App\Repository\PaymentRepository;
 use App\Service\BookingNotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -34,6 +35,37 @@ final class PaymentController extends AbstractController
 
         return $this->render('payment/index.html.twig', [
             'payments' => $payments,
+        ]);
+    }
+
+    #[Route('/poll', name: 'app_payment_poll', methods: ['GET'])]
+    public function poll(PaymentRepository $paymentRepository): JsonResponse
+    {
+        $payments = $paymentRepository->createQueryBuilder('p')
+            ->leftJoin('p.car', 'car')
+            ->addSelect('car')
+            ->leftJoin('p.booking', 'booking')
+            ->addSelect('booking')
+            ->leftJoin('p.createdBy', 'creator')
+            ->addSelect('creator')
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $html = $this->renderView('payment/_rows.html.twig', [
+            'payments' => $payments,
+        ]);
+
+        $latestId = null;
+        if (!empty($payments) && method_exists($payments[0], 'getId')) {
+            $latestId = $payments[0]->getId();
+        }
+
+        return new JsonResponse([
+            'ok' => true,
+            'latestId' => $latestId,
+            'total' => count($payments),
+            'rowsHtml' => $html,
         ]);
     }
 
