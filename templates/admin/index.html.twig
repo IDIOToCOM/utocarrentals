@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="{{ asset('styles/adminpanel.css') }}?v=3.4">
     <link rel="stylesheet" href="{{ asset('styles/admin_sidebar.css') }}?v=2.0">
     <link rel="stylesheet" href="{{ asset('styles/logout.css') }}?v=2.0">
+    <style>
+        .stat-value--updated {
+            color: #16a34a;
+            transition: color 0.3s ease;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -35,7 +41,7 @@
             </header>
 
         <!-- Quick Stats Bar -->
-        <div class="stats-bar">
+        <div class="stats-bar" id="adminStatsBar" data-poll-url="{{ path('app_admin_poll') }}">
             <div class="stat-item">
                 <div class="stat-icon"><i class="fas fa-car"></i></div>
                 <div class="stat-content">
@@ -216,9 +222,91 @@
             }, 20);
         }
 
-        animateCounter(document.getElementById('totalCars'), {{ totalCars }});
-        animateCounter(document.getElementById('activeBookings'), {{ activeBookings }});
-        animateCounter(document.getElementById('totalUsers'), {{ totalUsers }});
+        const statElements = {
+            totalCars: document.getElementById('totalCars'),
+            activeBookings: document.getElementById('activeBookings'),
+            totalUsers: document.getElementById('totalUsers'),
+        };
+
+        animateCounter(statElements.totalCars, {{ totalCars }});
+        animateCounter(statElements.activeBookings, {{ activeBookings }});
+        animateCounter(statElements.totalUsers, {{ totalUsers }});
+
+        let lastStatsSnapshot = JSON.stringify({
+            totalCars: {{ totalCars }},
+            activeBookings: {{ activeBookings }},
+            totalUsers: {{ totalUsers }},
+        });
+        let statsPollInFlight = false;
+
+        function updateStatValue(element, nextValue) {
+            if (!element) {
+                return;
+            }
+            const current = parseInt(element.textContent, 10);
+            if (!Number.isNaN(current) && current === nextValue) {
+                return;
+            }
+            element.textContent = String(nextValue);
+            element.classList.add('stat-value--updated');
+            setTimeout(function () {
+                element.classList.remove('stat-value--updated');
+            }, 1200);
+        }
+
+        function pollAdminStats() {
+            const bar = document.getElementById('adminStatsBar');
+            if (!bar || statsPollInFlight || document.hidden) {
+                return;
+            }
+            const pollUrl = bar.getAttribute('data-poll-url');
+            if (!pollUrl) {
+                return;
+            }
+
+            statsPollInFlight = true;
+            fetch(pollUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin',
+                cache: 'no-store',
+            })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Admin stats poll failed');
+                    }
+                    return response.json();
+                })
+                .then(function (payload) {
+                    if (!payload || payload.ok !== true) {
+                        return;
+                    }
+                    const snapshot = JSON.stringify({
+                        totalCars: payload.totalCars,
+                        activeBookings: payload.activeBookings,
+                        totalUsers: payload.totalUsers,
+                    });
+                    if (snapshot === lastStatsSnapshot) {
+                        return;
+                    }
+                    lastStatsSnapshot = snapshot;
+                    updateStatValue(statElements.totalCars, payload.totalCars);
+                    updateStatValue(statElements.activeBookings, payload.activeBookings);
+                    updateStatValue(statElements.totalUsers, payload.totalUsers);
+                })
+                .catch(function () {
+                    // Retry on next interval.
+                })
+                .finally(function () {
+                    statsPollInFlight = false;
+                });
+        }
+
+        pollAdminStats();
+        setInterval(pollAdminStats, 10000);
 
         // Logout confirmation dialog
         document.getElementById('logout-btn').addEventListener('click', function(e) {

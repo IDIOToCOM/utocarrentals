@@ -286,9 +286,17 @@
     }).join('');
   }
 
+  function notificationFingerprint(payload) {
+    if (!payload || !Array.isArray(payload.notifications)) {
+      return String(payload && payload.unreadCount ? payload.unreadCount : 0);
+    }
+    var latestId = payload.notifications.length > 0 ? (payload.notifications[0].id || 0) : 0;
+    return String(payload.unreadCount || 0) + ':' + String(latestId) + ':' + String(payload.notifications.length);
+  }
+
   function startNotificationPolling() {
     var pollUrl = '{{ path('app_notifications_poll') }}';
-    var previousUnreadCount = null;
+    var previousFingerprint = null;
     var inFlight = false;
 
     function runPoll() {
@@ -313,11 +321,12 @@
         })
         .then(function (payload) {
           var unreadCount = payload.unreadCount || 0;
+          var fingerprint = notificationFingerprint(payload);
           updateSidebarCount(unreadCount);
-          if (previousUnreadCount === null || previousUnreadCount !== unreadCount) {
+          if (previousFingerprint === null || previousFingerprint !== fingerprint) {
             renderBellNotifications(payload);
             renderNotificationPage(payload);
-            previousUnreadCount = unreadCount;
+            previousFingerprint = fingerprint;
           }
         })
         .catch(function () {
