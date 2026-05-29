@@ -423,7 +423,13 @@ final class BookingController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_booking_delete', methods: ['POST'])]
-    public function delete(Request $request, Booking $booking, EntityManagerInterface $entityManager, BookingRepository $bookingRepository): Response
+    public function delete(
+        Request $request,
+        Booking $booking,
+        EntityManagerInterface $entityManager,
+        BookingRepository $bookingRepository,
+        PaymentRepository $paymentRepository,
+    ): Response
     {
         // Staff can only delete their own records, admins can delete all
         $currentUser = $this->getUser();
@@ -466,7 +472,11 @@ final class BookingController extends AbstractController
                 // Car was deleted, use N/A
                 $carInfo = 'N/A (Car Deleted)';
             }
-            
+
+            foreach ($paymentRepository->findBy(['booking' => $booking]) as $payment) {
+                $entityManager->remove($payment);
+            }
+
             $entityManager->remove($booking);
             $entityManager->flush();
             

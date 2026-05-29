@@ -22,7 +22,7 @@ class Payment
     private ?CarInventory $car = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Booking $booking = null;
 
     #[ORM\Column]
