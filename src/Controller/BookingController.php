@@ -88,17 +88,18 @@ final class BookingController extends AbstractController
             'paymentsByBooking' => $paymentsByBooking,
         ]);
 
-        $latestId = null;
-        if (!empty($bookings) && method_exists($bookings[0], 'getId')) {
-            $latestId = $bookings[0]->getId();
-        }
+        $latestId = $bookingIds[0] ?? null;
 
-        return new JsonResponse([
+        $response = new JsonResponse([
             'ok' => true,
             'latestId' => $latestId,
-            'total' => count($bookings),
+            'total' => \count($bookings),
+            'fingerprint' => implode(',', $bookingIds),
             'rowsHtml' => $html,
         ]);
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
+        return $response;
     }
 
     #[Route('/check-conflict', name: 'app_booking_check_conflict', methods: ['POST'])]

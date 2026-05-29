@@ -37,7 +37,10 @@
       {% endfor %}
 
       <div class="table-container">
-        <table class="table" id="bookingsTable" data-poll-url="{{ path('app_booking_poll') }}">
+        <table class="table" id="bookingsTable"
+               data-poll-url="{{ path('app_booking_poll') }}"
+               data-initial-total="{{ bookings|length }}"
+               data-initial-fingerprint="{% for booking in bookings %}{{ booking.id }}{% if not loop.last %},{% endif %}{% endfor %}">
           <thead>
             <tr>
               <th>ID</th>
@@ -94,8 +97,12 @@ $(document).ready(function() {
     table.draw();
 });
 
-  let lastRowsHtml = $('#bookingsTableBody').html();
+  let lastSnapshot = String(tableElement.data('initial-total') || 0) + '|' + String(tableElement.data('initial-fingerprint') || '');
   let pollInFlight = false;
+
+  function bookingSnapshot(payload) {
+    return String(payload.total || 0) + '|' + String(payload.fingerprint || '');
+  }
 
   function refreshBookingRows(rowsHtml) {
     const currentPage = table.page();
@@ -143,9 +150,10 @@ $(document).ready(function() {
         if (!payload || typeof payload.rowsHtml !== 'string') {
           return;
         }
-        if (payload.rowsHtml !== lastRowsHtml) {
+        const snapshot = bookingSnapshot(payload);
+        if (snapshot !== lastSnapshot) {
           refreshBookingRows(payload.rowsHtml);
-          lastRowsHtml = payload.rowsHtml;
+          lastSnapshot = snapshot;
         }
       })
       .catch(function() {
@@ -156,7 +164,8 @@ $(document).ready(function() {
       });
   }
 
-  setInterval(pollBookings, 10000);
+  pollBookings();
+  setInterval(pollBookings, 5000);
 
 // Logout confirmation dialog
   $('#logout-btn').on('click', function(e) {

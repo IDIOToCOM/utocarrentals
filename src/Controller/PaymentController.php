@@ -57,16 +57,27 @@ final class PaymentController extends AbstractController
         ]);
 
         $latestId = null;
-        if (!empty($payments) && method_exists($payments[0], 'getId')) {
-            $latestId = $payments[0]->getId();
+        $ids = [];
+        foreach ($payments as $payment) {
+            $id = $payment->getId();
+            if ($id !== null) {
+                $ids[] = $id;
+            }
+        }
+        if ($ids !== []) {
+            $latestId = $ids[0];
         }
 
-        return new JsonResponse([
+        $response = new JsonResponse([
             'ok' => true,
             'latestId' => $latestId,
-            'total' => count($payments),
+            'total' => \count($payments),
+            'fingerprint' => implode(',', $ids),
             'rowsHtml' => $html,
         ]);
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate');
+
+        return $response;
     }
 
     #[Route('/new', name: 'app_payment_new', methods: ['GET', 'POST'])]

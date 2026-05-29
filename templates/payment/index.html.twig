@@ -37,7 +37,10 @@
       {% endfor %}
 
       <div class="table-container">
-        <table class="table" id="paymentsTable" data-poll-url="{{ path('app_payment_poll') }}">
+        <table class="table" id="paymentsTable"
+               data-poll-url="{{ path('app_payment_poll') }}"
+               data-initial-total="{{ payments|length }}"
+               data-initial-fingerprint="{% for payment in payments %}{{ payment.id }}{% if not loop.last %},{% endif %}{% endfor %}">
           <thead>
             <tr>
               <th>ID</th>
@@ -81,8 +84,12 @@ $(document).ready(function() {
     lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
   });
 
-  let lastRowsHtml = $('#paymentsTableBody').html();
+  let lastSnapshot = String(tableElement.data('initial-total') || 0) + '|' + String(tableElement.data('initial-fingerprint') || '');
   let pollInFlight = false;
+
+  function paymentSnapshot(payload) {
+    return String(payload.total || 0) + '|' + String(payload.fingerprint || '');
+  }
 
   function refreshPaymentsTableRows(rowsHtml) {
     const currentPage = table.page();
@@ -128,9 +135,10 @@ $(document).ready(function() {
         if (!payload || typeof payload.rowsHtml !== 'string') {
           return;
         }
-        if (payload.rowsHtml !== lastRowsHtml) {
+        const snapshot = paymentSnapshot(payload);
+        if (snapshot !== lastSnapshot) {
           refreshPaymentsTableRows(payload.rowsHtml);
-          lastRowsHtml = payload.rowsHtml;
+          lastSnapshot = snapshot;
         }
       })
       .catch(function() {
@@ -141,7 +149,8 @@ $(document).ready(function() {
       });
   }
 
-  setInterval(pollPayments, 10000);
+  pollPayments();
+  setInterval(pollPayments, 5000);
   
   // Delete confirmation handler
   $(document).on('click', '.delete-btn', function(e) {
